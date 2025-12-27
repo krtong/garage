@@ -3,37 +3,171 @@
   <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>Automation Control Dashboard</title>
+    <title>Automation Control Panel</title>
     <style>
-      :root { color-scheme: light; }
-      body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; margin: 0; padding: 32px; background: #f6f7f9; }
-      .wrap { max-width: 720px; margin: 0 auto; background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 18px rgba(0,0,0,0.06); }
-      h1 { margin-top: 0; }
-      .row { margin: 12px 0; }
-      label { display: block; font-weight: 600; margin-bottom: 6px; }
-      input[type="email"], input[type="password"], input[type="number"], input[type="text"], select { width: 100%; padding: 10px; border: 1px solid #d2d6dc; border-radius: 8px; }
-      button { padding: 10px 14px; border: none; border-radius: 8px; cursor: pointer; background: #111827; color: #fff; }
-      button.secondary { background: #e5e7eb; color: #111827; }
-      .status { margin: 12px 0; padding: 10px; border-radius: 8px; background: #f3f4f6; }
+      :root {
+        color-scheme: dark;
+        --bg: #0a0f1f;
+        --panel: #141b2f;
+        --panel-2: #111725;
+        --border: #2a3352;
+        --text: #e8ecf7;
+        --muted: #9aa3bd;
+        --accent: #38bdf8;
+        --accent-2: #22d3ee;
+        --danger: #f87171;
+        --success: #34d399;
+      }
+      * { box-sizing: border-box; }
+      body {
+        font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 24px;
+        background: radial-gradient(circle at 20% 20%, #1a2547 0%, #0a0f1f 45%, #070b16 100%);
+        color: var(--text);
+        min-height: 100vh;
+      }
+      .wrap {
+        max-width: 780px;
+        margin: 0 auto;
+        background: linear-gradient(160deg, rgba(20,27,47,0.95), rgba(12,16,32,0.98));
+        border-radius: 20px;
+        padding: 20px;
+        border: 1px solid rgba(42, 51, 82, 0.7);
+        box-shadow: 0 24px 60px rgba(5, 8, 20, 0.6);
+      }
+      h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: 0.2px; }
+      h2 { margin: 18px 0 8px; font-size: 16px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; }
+      .row { margin: 14px 0; }
+      label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: var(--muted); }
+      input[type="email"], input[type="password"], input[type="number"], input[type="text"], select {
+        width: 100%;
+        padding: 14px 14px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--panel-2);
+        color: var(--text);
+        font-size: 16px;
+      }
+      input:focus, select:focus {
+        outline: 2px solid rgba(56, 189, 248, 0.6);
+        border-color: transparent;
+      }
+      button {
+        padding: 14px 18px;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        background: linear-gradient(135deg, #0ea5e9, #22d3ee);
+        color: #02131f;
+        font-weight: 700;
+        font-size: 16px;
+        min-height: 48px;
+      }
+      button.secondary {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+      button.danger {
+        background: transparent;
+        border: 1px solid rgba(248, 113, 113, 0.6);
+        color: var(--danger);
+      }
       .hidden { display: none; }
-      .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-      .meta { color: #6b7280; font-size: 13px; margin-top: 4px; }
+      .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+      .status {
+        margin-top: 12px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: rgba(17, 23, 37, 0.7);
+        border: 1px solid rgba(42, 51, 82, 0.7);
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
+      .topbar { display: flex; flex-direction: column; gap: 10px; }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(34, 211, 238, 0.12);
+        border: 1px solid rgba(34, 211, 238, 0.4);
+        color: var(--accent-2);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+      .switch {
+        position: relative;
+        width: 56px;
+        height: 32px;
+        display: inline-block;
+      }
+      .switch input { opacity: 0; width: 0; height: 0; }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #2b334f;
+        border-radius: 999px;
+        transition: .2s ease;
+        border: 1px solid var(--border);
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 24px;
+        width: 24px;
+        left: 4px;
+        bottom: 3px;
+        background: white;
+        border-radius: 50%;
+        transition: .2s ease;
+      }
+      input:checked + .slider { background: rgba(52, 211, 153, 0.6); border-color: rgba(52, 211, 153, 0.7); }
+      input:checked + .slider:before { transform: translateX(24px); }
+      .grid { display: grid; gap: 12px; }
+      .card {
+        border: 1px solid rgba(42, 51, 82, 0.6);
+        border-radius: 16px;
+        padding: 14px;
+        background: rgba(10, 15, 31, 0.6);
+      }
+      .row-inline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      @media (max-width: 640px) {
+        body { padding: 16px; }
+        .wrap { padding: 16px; }
+        h1 { font-size: 20px; }
+        button { width: 100%; }
+        .actions { flex-direction: column; }
+      }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <h1>Automation Control Dashboard</h1>
-      <div id="status" class="status">Checking session…</div>
+      <div class="topbar">
+        <div class="row-inline">
+          <h1>Automation Control Panel</h1>
+          <span class="chip">Touch Ready</span>
+        </div>
+        <div id="status" class="status">Checking session…</div>
+      </div>
 
-      <section id="auth">
+      <section id="auth" class="card">
         <h2>Sign in</h2>
         <div class="row">
           <label>Email</label>
-          <input id="email" type="email" placeholder="you@example.com"/>
+          <input id="email" type="email" placeholder="you@example.com" autocomplete="username"/>
         </div>
         <div class="row">
           <label>Password</label>
-          <input id="password" type="password" placeholder="••••••••"/>
+          <input id="password" type="password" placeholder="••••••••" autocomplete="current-password"/>
         </div>
         <div class="actions">
           <button id="login">Sign in</button>
@@ -41,33 +175,47 @@
       </section>
 
       <section id="settings" class="hidden">
-        <h2>Process settings</h2>
-        <div class="row">
-          <label>Process</label>
-          <select id="process-id"></select>
+        <div class="card grid">
+          <h2>Process settings</h2>
+          <div class="row">
+            <label>Process</label>
+            <select id="process-id"></select>
+          </div>
+          <div class="row">
+            <label>Process label</label>
+            <input id="process-label" type="text" placeholder="Garage automation"/>
+          </div>
+          <div class="actions">
+            <button id="create-process" class="secondary">Create new process</button>
+          </div>
         </div>
-        <div class="row">
-          <label>Process label</label>
-          <input id="process-label" type="text" placeholder="Garage automation"/>
+
+        <div class="card grid">
+          <h2>Timing & control</h2>
+          <div class="row-inline">
+            <div>
+              <div style="font-weight:600;">System enabled</div>
+              <div class="meta">Toggle to pause all automation.</div>
+            </div>
+            <label class="switch">
+              <input id="enabled" type="checkbox"/>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="row">
+            <label>Close delay (minutes)</label>
+            <input id="close_delay_min" type="number" min="1" value="10" inputmode="numeric"/>
+          </div>
+          <div class="row">
+            <label>Check delay (minutes)</label>
+            <input id="check_delay_min" type="number" min="1" value="1" inputmode="numeric"/>
+          </div>
+          <div class="row">
+            <label>Retry delay (minutes)</label>
+            <input id="retry_delay_min" type="number" min="1" value="4" inputmode="numeric"/>
+          </div>
         </div>
-        <div class="actions">
-          <button id="create-process" class="secondary">Create new process</button>
-        </div>
-        <div class="row">
-          <label><input id="enabled" type="checkbox"/> System enabled</label>
-        </div>
-        <div class="row">
-          <label>Close delay (minutes)</label>
-          <input id="close_delay_min" type="number" min="1" value="10"/>
-        </div>
-        <div class="row">
-          <label>Check delay (minutes)</label>
-          <input id="check_delay_min" type="number" min="1" value="1"/>
-        </div>
-        <div class="row">
-          <label>Retry delay (minutes)</label>
-          <input id="retry_delay_min" type="number" min="1" value="4"/>
-        </div>
+
         <div class="actions">
           <button id="save">Save settings</button>
           <button id="logout" class="secondary">Sign out</button>
