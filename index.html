@@ -469,6 +469,19 @@
         }, 2000);
       }
 
+      function formatTimestamp(value) {
+        if (!value) return "—";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return String(value);
+        return date.toLocaleString([], {
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
       function setActiveView(view) {
         currentDataView = view;
         viewEventsEl.classList.toggle("active", view === "events");
@@ -500,7 +513,7 @@
           title.textContent = `${row.event_type ?? "EVENT"} • ${row.door ?? "?"}`;
           const meta = document.createElement("div");
           meta.className = "list-meta";
-          meta.textContent = row.created_at ?? "";
+          meta.textContent = formatTimestamp(row.created_at);
           item.appendChild(title);
           item.appendChild(meta);
           dataListEl.appendChild(item);
@@ -531,7 +544,7 @@
           title.textContent = `${row.door ?? "?"} • ${row.is_open ? "OPEN" : "CLOSED"}`;
           const meta = document.createElement("div");
           meta.className = "list-meta";
-          meta.textContent = `next: ${row.next_action ?? "—"} @ ${row.next_action_at ?? "—"}`;
+          meta.textContent = `next: ${row.next_action ?? "—"} @ ${formatTimestamp(row.next_action_at)}`;
           item.appendChild(title);
           item.appendChild(meta);
           dataListEl.appendChild(item);
