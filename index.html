@@ -87,19 +87,6 @@
       }
       .meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
       .topbar { display: flex; flex-direction: column; gap: 10px; }
-      .chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        border-radius: 999px;
-        background: rgba(34, 211, 238, 0.12);
-        border: 1px solid rgba(34, 211, 238, 0.4);
-        color: var(--accent-2);
-        font-size: 12px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-      }
       .switch {
         position: relative;
         width: 56px;
@@ -140,6 +127,28 @@
         background: rgba(10, 15, 31, 0.6);
       }
       .row-inline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .process-tabs {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .process-tab {
+        flex: 0 0 auto;
+        padding: 12px 16px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(10, 15, 31, 0.4);
+        color: var(--text);
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .process-tab.active {
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.7), rgba(34, 211, 238, 0.7));
+        color: #03121f;
+        border-color: transparent;
+      }
       @media (max-width: 640px) {
         body { padding: 16px; }
         .wrap { padding: 16px; }
@@ -154,7 +163,6 @@
       <div class="topbar">
         <div class="row-inline">
           <h1>Automation Control Panel</h1>
-          <span class="chip">Touch Ready</span>
         </div>
         <div id="status" class="status">Checking session…</div>
       </div>
@@ -179,7 +187,7 @@
           <h2>Process settings</h2>
           <div class="row">
             <label>Process</label>
-            <select id="process-id"></select>
+            <div id="process-tabs" class="process-tabs"></div>
           </div>
           <div class="row">
             <label>Process label</label>
@@ -238,7 +246,7 @@
 
       const emailEl = document.getElementById("email");
       const passwordEl = document.getElementById("password");
-      const processIdEl = document.getElementById("process-id");
+      const processTabsEl = document.getElementById("process-tabs");
       const processLabelEl = document.getElementById("process-label");
       const enabledEl = document.getElementById("enabled");
       const closeDelayEl = document.getElementById("close_delay_min");
@@ -263,19 +271,27 @@
         retryDelayEl.value = data.retry_delay_min ?? 4;
       }
 
-      function renderProcessSelect(processes) {
-        processIdEl.innerHTML = "";
+      function renderProcessTabs(processes) {
+        processTabsEl.innerHTML = "";
         processes.forEach((process) => {
-          const option = document.createElement("option");
-          option.value = process.id;
-          option.textContent = process.label ?? process.id;
-          processIdEl.appendChild(option);
-        });
-        if (processes.length) {
-          if (!processes.find((p) => p.id === currentProcessId)) {
-            currentProcessId = processes[0].id;
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "process-tab";
+          button.textContent = process.label ?? process.id;
+          button.dataset.processId = process.id;
+          if (process.id === currentProcessId) {
+            button.classList.add("active");
           }
-          processIdEl.value = currentProcessId;
+          button.addEventListener("click", async () => {
+            currentProcessId = process.id;
+            renderProcessTabs(processes);
+            await loadSettings();
+          });
+          processTabsEl.appendChild(button);
+        });
+        if (processes.length && !processes.find((p) => p.id === currentProcessId)) {
+          currentProcessId = processes[0].id;
+          renderProcessTabs(processes);
         }
       }
 
@@ -289,7 +305,7 @@
           return;
         }
         const processes = data ?? [];
-        renderProcessSelect(processes);
+        renderProcessTabs(processes);
         if (processes.length) {
           await loadSettings();
         }
@@ -339,11 +355,6 @@
           return;
         }
         statusEl.textContent = "Saved";
-      });
-
-      processIdEl.addEventListener("change", async (event) => {
-        currentProcessId = event.target.value;
-        await loadSettings();
       });
 
       document.getElementById("create-process").addEventListener("click", async () => {
