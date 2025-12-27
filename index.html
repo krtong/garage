@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>MyQ + Webhooks + Supabase V1</title>
+    <style>
+      :root { color-scheme: light; }
+      body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; margin: 0; padding: 32px; background: #f6f7f9; }
+      .wrap { max-width: 720px; margin: 0 auto; background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 18px rgba(0,0,0,0.06); }
+      h1 { margin-top: 0; }
+      .row { margin: 12px 0; }
+      label { display: block; font-weight: 600; margin-bottom: 6px; }
+      input[type="email"], input[type="password"], input[type="number"] { width: 100%; padding: 10px; border: 1px solid #d2d6dc; border-radius: 8px; }
+      button { padding: 10px 14px; border: none; border-radius: 8px; cursor: pointer; background: #111827; color: #fff; }
+      button.secondary { background: #e5e7eb; color: #111827; }
+      .status { margin: 12px 0; padding: 10px; border-radius: 8px; background: #f3f4f6; }
+      .hidden { display: none; }
+      .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      .meta { color: #6b7280; font-size: 13px; margin-top: 4px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>MyQ + Webhooks + Supabase V1</h1>
+      <div id="status" class="status">Checking session…</div>
+
+      <section id="auth">
+        <h2>Sign in</h2>
+        <div class="row">
+          <label>Email</label>
+          <input id="email" type="email" placeholder="you@example.com"/>
+        </div>
+        <div class="row">
+          <label>Password</label>
+          <input id="password" type="password" placeholder="••••••••"/>
+        </div>
+        <div class="actions">
+          <button id="login">Sign in</button>
+        </div>
+      </section>
+
+      <section id="settings" class="hidden">
+        <h2>Garage controller settings</h2>
+        <div class="row">
+          <label><input id="enabled" type="checkbox"/> System enabled</label>
+        </div>
+        <div class="row">
+          <label>Close delay (minutes)</label>
+          <input id="close_delay_min" type="number" min="1" value="10"/>
+        </div>
+        <div class="row">
+          <label>Check delay (minutes)</label>
+          <input id="check_delay_min" type="number" min="1" value="1"/>
+        </div>
+        <div class="row">
+          <label>Retry delay (minutes)</label>
+          <input id="retry_delay_min" type="number" min="1" value="4"/>
+        </div>
+        <div class="actions">
+          <button id="save">Save settings</button>
+          <button id="logout" class="secondary">Sign out</button>
+        </div>
+        <div class="meta" id="user-email"></div>
+      </section>
+    </div>
+
+    <script type="module">
+      import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+      const SUPABASE_URL = "https://tbrnarytcojngpbzzwcn.supabase.co";
+      const SUPABASE_ANON_KEY = "sb_publishable_E8-dvNNh5V3VQLAcK-xqiQ_dLEu1Bsh";
+      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      const statusEl = document.getElementById("status");
+      const authEl = document.getElementById("auth");
+      const settingsEl = document.getElementById("settings");
+      const userEmailEl = document.getElementById("user-email");
+
+      const emailEl = document.getElementById("email");
+      const passwordEl = document.getElementById("password");
+      const enabledEl = document.getElementById("enabled");
+      const closeDelayEl = document.getElementById("close_delay_min");
+      const checkDelayEl = document.getElementById("check_delay_min");
+      const retryDelayEl = document.getElementById("retry_delay_min");
+
+      async function loadSettings() {
+        const { data, error } = await supabase
+          .from("garage_settings")
+          .select("enabled,close_delay_min,check_delay_min,retry_delay_min")
+          .eq("id", "global")
+          .single();
+        if (error) {
+          statusEl.textContent = "Failed to load settings: " + error.message;
+          return;
+        }
+        enabledEl.checked = data.enabled ?? true;
+        closeDelayEl.value = data.close_delay_min ?? 10;
+        checkDelayEl.value = data.check_delay_min ?? 1;
+        retryDelayEl.value = data.retry_delay_min ?? 4;
+      }
+
+      async function refreshSession() {
+        const { data } = await supabase.auth.getSession();
+        const session = data?.session;
+        if (session) {
+          authEl.classList.add("hidden");
+          settingsEl.classList.remove("hidden");
+          statusEl.textContent = "Authenticated";
+          userEmailEl.textContent = session.user?.email ?? "";
+          await loadSettings();
+        } else {
+          authEl.classList.remove("hidden");
+          settingsEl.classList.add("hidden");
+          statusEl.textContent = "Please sign in";
+        }
+      }
+
+      document.getElementById("login").addEventListener("click", async () => {
+        const email = emailEl.value.trim();
+        const password = passwordEl.value;
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          statusEl.textContent = "Sign in failed: " + error.message;
+          return;
+        }
+        await refreshSession();
+      });
+
+      document.getElementById("save").addEventListener("click", async () => {
+        const payload = {
+          id: "global",
+          enabled: enabledEl.checked,
+          close_delay_min: Number(closeDelayEl.value || 10),
+          check_delay_min: Number(checkDelayEl.value || 1),
+          retry_delay_min: Number(retryDelayEl.value || 4),
+        };
+        const { error } = await supabase
+          .from("garage_settings")
+          .upsert(payload, { onConflict: "id" });
+        if (error) {
+          statusEl.textContent = "Save failed: " + error.message;
+          return;
+        }
+        statusEl.textContent = "Saved";
+      });
+
+      document.getElementById("logout").addEventListener("click", async () => {
+        await supabase.auth.signOut();
+        await refreshSession();
+      });
+
+      refreshSession();
+    </script>
+  </body>
+</html>
