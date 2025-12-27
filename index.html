@@ -188,10 +188,6 @@
             <label>Process</label>
             <div id="process-tabs" class="process-tabs"></div>
           </div>
-          <div class="row">
-            <label>Process label</label>
-            <input id="process-label" type="text" placeholder="Garage automation"/>
-          </div>
         </div>
 
         <div class="card grid">
@@ -242,7 +238,6 @@
       const emailEl = document.getElementById("email");
       const passwordEl = document.getElementById("password");
       const processTabsEl = document.getElementById("process-tabs");
-      const processLabelEl = document.getElementById("process-label");
       const enabledEl = document.getElementById("enabled");
       const closeDelayEl = document.getElementById("close_delay_min");
       const checkDelayEl = document.getElementById("check_delay_min");
@@ -259,7 +254,6 @@
           statusEl.textContent = "Failed to load settings: " + error.message;
           return;
         }
-        processLabelEl.value = data.label ?? data.id ?? "";
         enabledEl.checked = data.enabled ?? true;
         closeDelayEl.value = data.close_delay_min ?? 10;
         checkDelayEl.value = data.check_delay_min ?? 1;
@@ -336,7 +330,6 @@
       document.getElementById("save").addEventListener("click", async () => {
         const payload = {
           id: currentProcessId,
-          label: processLabelEl.value.trim() || currentProcessId,
           enabled: enabledEl.checked,
           close_delay_min: Number(closeDelayEl.value || 10),
           check_delay_min: Number(checkDelayEl.value || 1),
