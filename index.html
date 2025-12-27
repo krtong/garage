@@ -160,10 +160,6 @@
   </head>
   <body>
     <div class="wrap">
-      <div class="topbar">
-        <div id="status" class="status">Checking session…</div>
-      </div>
-
       <section id="auth" class="card">
         <h2>Sign in</h2>
         <div class="row">
@@ -246,7 +242,7 @@
           .eq("id", currentProcessId)
           .single();
         if (error) {
-          statusEl.textContent = "Failed to load settings: " + error.message;
+          if (statusEl) statusEl.textContent = "Failed to load settings: " + error.message;
           return;
         }
         enabledEl.checked = data.enabled ?? true;
@@ -285,7 +281,7 @@
           .select("*")
           .order("label", { ascending: true });
         if (error) {
-          statusEl.textContent = "Failed to load processes: " + error.message;
+          if (statusEl) statusEl.textContent = "Failed to load processes: " + error.message;
           return;
         }
         const processes = data ?? [];
@@ -301,12 +297,12 @@
         if (session) {
           authEl.classList.add("hidden");
           settingsEl.classList.remove("hidden");
-          statusEl.textContent = "";
+          if (statusEl) statusEl.textContent = "";
           await loadProcesses();
         } else {
           authEl.classList.remove("hidden");
           settingsEl.classList.add("hidden");
-          statusEl.textContent = "Please sign in";
+          if (statusEl) statusEl.textContent = "Please sign in";
         }
       }
 
@@ -315,7 +311,7 @@
         const password = passwordEl.value;
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
-          statusEl.textContent = "Sign in failed: " + error.message;
+          if (statusEl) statusEl.textContent = "Sign in failed: " + error.message;
           return;
         }
         await refreshSession();
@@ -333,10 +329,10 @@
           .from("garage_settings")
           .upsert(payload, { onConflict: "id" });
         if (error) {
-          statusEl.textContent = "Save failed: " + error.message;
+          if (statusEl) statusEl.textContent = "Save failed: " + error.message;
           return;
         }
-        statusEl.textContent = "";
+        if (statusEl) statusEl.textContent = "";
       });
 
 
