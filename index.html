@@ -193,9 +193,6 @@
             <label>Process label</label>
             <input id="process-label" type="text" placeholder="Garage automation"/>
           </div>
-          <div class="actions">
-            <button id="create-process" class="secondary">Create new process</button>
-          </div>
         </div>
 
         <div class="card grid">
@@ -357,31 +354,6 @@
         statusEl.textContent = "Saved";
       });
 
-      document.getElementById("create-process").addEventListener("click", async () => {
-        const newId = prompt("New process id (no spaces)", "garage_v1");
-        if (!newId) {
-          return;
-        }
-        const newLabel = prompt("Process label", newId) || newId;
-        const payload = {
-          id: newId,
-          label: newLabel,
-          enabled: true,
-          close_delay_min: Number(closeDelayEl.value || 10),
-          check_delay_min: Number(checkDelayEl.value || 1),
-          retry_delay_min: Number(retryDelayEl.value || 4),
-        };
-        const { error } = await supabase
-          .from("garage_settings")
-          .upsert(payload, { onConflict: "id" });
-        if (error) {
-          statusEl.textContent = "Create failed: " + error.message;
-          return;
-        }
-        currentProcessId = newId;
-        await loadProcesses();
-        statusEl.textContent = "Created";
-      });
 
       document.getElementById("logout").addEventListener("click", async () => {
         await supabase.auth.signOut();
