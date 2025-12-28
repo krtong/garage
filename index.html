@@ -518,9 +518,35 @@
       const loadMoreEventsEl = document.getElementById("load-more-events");
       const toastEl = document.getElementById("toast");
       const POS_PROCESS_ID = "personal_ops";
+      // Add future process views by extending VIEW_DEFS with visible/hidden sections.
+      const VIEW_DEFS = {
+        garage: {
+          label: "Garage Controller",
+          visibleIds: [
+            "garage-settings",
+            "garage-data-card",
+            "data-list",
+            "data-status",
+            "load-more-events",
+          ],
+          hiddenIds: ["pos-summary", "pos-plan", "pos-stats"],
+        },
+        pos: {
+          label: "Personal Ops",
+          visibleIds: ["pos-summary", "pos-plan", "pos-stats"],
+          hiddenIds: [
+            "garage-settings",
+            "garage-data-card",
+            "data-list",
+            "data-status",
+            "load-more-events",
+          ],
+        },
+      };
+
       let currentProcessId = "global";
       let currentDataView = "events";
-      let currentSystem = "garage";
+      let currentView = "garage";
       const DOORS = ["Left", "Middle", "Right"];
       const EVENTS_PAGE_SIZE = 200;
       let eventsLimit = EVENTS_PAGE_SIZE;
@@ -551,28 +577,40 @@
           button.className = "process-tab";
           button.textContent = process.label ?? process.id;
           button.dataset.processId = process.id;
-          if (
-            (currentSystem === "pos" && process.id === POS_PROCESS_ID) ||
-            (currentSystem === "garage" && process.id === currentProcessId)
-          ) {
+          button.dataset.view = "garage";
+          if (currentView === "garage" && process.id === currentProcessId) {
             button.classList.add("active");
           }
           button.addEventListener("click", async () => {
-            if (process.id === POS_PROCESS_ID) {
-              currentSystem = "pos";
-            } else {
-              currentSystem = "garage";
-              currentProcessId = process.id;
-            }
+            currentView = "garage";
+            currentProcessId = process.id;
             renderProcessTabs(processes);
-            if (currentSystem === "garage") {
-              await loadSettings();
-            }
-            setActiveSystem(currentSystem);
+            await loadSettings();
+            setActiveViewState(currentView);
             await loadData();
           });
           processTabsEl.appendChild(button);
         });
+
+        Object.entries(VIEW_DEFS).forEach(([viewId, viewDef]) => {
+          if (viewId === "garage") return;
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "process-tab";
+          button.textContent = viewDef.label ?? viewId;
+          button.dataset.view = viewId;
+          if (currentView === viewId) {
+            button.classList.add("active");
+          }
+          button.addEventListener("click", async () => {
+            currentView = viewId;
+            renderProcessTabs(processes);
+            setActiveViewState(currentView);
+            await loadData();
+          });
+          processTabsEl.appendChild(button);
+        });
+
         if (processes.length && !processes.find((p) => p.id === currentProcessId)) {
           currentProcessId = processes[0].id;
           renderProcessTabs(processes);
@@ -592,10 +630,10 @@
         if (!processes.length) {
           processes = [{ id: "global", label: "Garage Controller" }];
         }
-        processes.push({ id: POS_PROCESS_ID, label: "Personal Ops" });
         renderProcessTabs(processes);
+        setActiveViewState(currentView);
         if (processes.length) {
-          if (currentSystem === "garage") {
+          if (currentView === "garage") {
             await loadSettings();
           }
         }
@@ -876,16 +914,17 @@
         viewStateEl.classList.toggle("active", view === "state");
       }
 
-      function setActiveSystem(system) {
-        currentSystem = system;
-        if (posSummaryEl) posSummaryEl.classList.toggle("hidden", system !== "pos");
-        if (posPlanEl) posPlanEl.classList.toggle("hidden", system !== "pos");
-        if (posStatsEl) posStatsEl.classList.toggle("hidden", system !== "pos");
-        if (garageDataCardEl) garageDataCardEl.classList.toggle("hidden", system !== "garage");
-        if (dataListEl) dataListEl.classList.toggle("hidden", system !== "garage");
-        if (dataStatusEl) dataStatusEl.classList.toggle("hidden", system !== "garage");
-        if (loadMoreEventsEl) loadMoreEventsEl.classList.toggle("hidden", system !== "garage");
-        if (garageSettingsEl) garageSettingsEl.classList.toggle("hidden", system !== "garage");
+      function setActiveViewState(viewId) {
+        const viewDef = VIEW_DEFS[viewId] ?? VIEW_DEFS.garage;
+        currentView = viewId;
+        viewDef.visibleIds.forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.classList.remove("hidden");
+        });
+        viewDef.hiddenIds.forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.classList.add("hidden");
+        });
       }
 
       async function loadEvents() {
@@ -1075,7 +1114,7 @@
       }
 
       async function loadData() {
-        if (currentSystem === "pos") {
+        if (currentView === "pos") {
           await loadPosSummary();
           await loadPosPlan();
           await loadPosStats();
