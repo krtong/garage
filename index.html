@@ -432,12 +432,38 @@
               <button id="view-state" type="button">State</button>
             </div>
           </div>
+          <div class="row-inline">
+            <div style="font-weight:600;">System</div>
+            <div class="segmented">
+              <button id="view-garage" class="active" type="button">Garage</button>
+              <button id="view-pos" type="button">Personal Ops</button>
+            </div>
+          </div>
           <div class="actions">
             <button id="refresh-data" class="secondary">Refresh</button>
             <button id="load-more-events" class="secondary">Load more</button>
           </div>
           <div id="data-list" class="list"></div>
           <div class="meta" id="data-status"></div>
+        </div>
+        <div id="pos-summary" class="card grid hidden">
+          <div class="row-inline">
+            <div style="font-weight:600;">Training summary</div>
+            <div class="meta" id="pos-summary-updated">—</div>
+          </div>
+          <div class="row-inline">
+            <div id="pos-summary-freshness" class="pill unknown">Freshness</div>
+          </div>
+          <div id="pos-summary-metrics" class="state-metrics"></div>
+          <div class="meta" id="pos-summary-note"></div>
+        </div>
+        <div id="pos-plan" class="card grid hidden">
+          <div class="row-inline">
+            <div style="font-weight:600;">Today’s plan</div>
+            <div class="meta" id="pos-plan-date">—</div>
+          </div>
+          <div id="pos-plan-body" class="list"></div>
+          <div class="meta" id="pos-plan-note"></div>
         </div>
         <div class="actions">
           <button id="logout" class="secondary">Sign out</button>
@@ -469,12 +495,24 @@
       const saveStatusEl = document.getElementById("save-status");
       const dataListEl = document.getElementById("data-list");
       const dataStatusEl = document.getElementById("data-status");
+      const posSummaryEl = document.getElementById("pos-summary");
+      const posSummaryMetricsEl = document.getElementById("pos-summary-metrics");
+      const posSummaryUpdatedEl = document.getElementById("pos-summary-updated");
+      const posSummaryFreshnessEl = document.getElementById("pos-summary-freshness");
+      const posSummaryNoteEl = document.getElementById("pos-summary-note");
+      const posPlanEl = document.getElementById("pos-plan");
+      const posPlanBodyEl = document.getElementById("pos-plan-body");
+      const posPlanDateEl = document.getElementById("pos-plan-date");
+      const posPlanNoteEl = document.getElementById("pos-plan-note");
       const viewEventsEl = document.getElementById("view-events");
       const viewStateEl = document.getElementById("view-state");
+      const viewGarageEl = document.getElementById("view-garage");
+      const viewPosEl = document.getElementById("view-pos");
       const loadMoreEventsEl = document.getElementById("load-more-events");
       const toastEl = document.getElementById("toast");
       let currentProcessId = "global";
       let currentDataView = "events";
+      let currentSystem = "garage";
       const DOORS = ["Left", "Middle", "Right"];
       const EVENTS_PAGE_SIZE = 200;
       let eventsLimit = EVENTS_PAGE_SIZE;
@@ -678,10 +716,128 @@
         });
       }
 
+      function formatDistance(meters) {
+        const value = Number(meters ?? NaN);
+        if (Number.isNaN(value) || value <= 0) return "—";
+        const miles = value / 1609.34;
+        return `${miles.toFixed(1)} mi`;
+      }
+
+      function formatMinutes(seconds) {
+        const value = Number(seconds ?? NaN);
+        if (Number.isNaN(value) || value <= 0) return "—";
+        return `${Math.round(value / 60)} min`;
+      }
+
+      function formatCount(value) {
+        if (value === null || value === undefined) return "—";
+        return String(value);
+      }
+
+      function formatAgeDays(value) {
+        if (!value) return null;
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return null;
+        const diffMs = Date.now() - date.getTime();
+        if (diffMs < 0) return null;
+        return diffMs / (24 * 60 * 60 * 1000);
+      }
+
+      function staleLabel(label, ageDays, threshold) {
+        if (ageDays === null) return `${label} missing`;
+        if (ageDays >= threshold) return `${label} stale (${ageDays.toFixed(1)}d)`;
+        return null;
+      }
+
+      async function loadPosSummary() {
+        if (!posSummaryMetricsEl || !posSummaryEl) return;
+        if (posSummaryNoteEl) posSummaryNoteEl.textContent = "";
+        posSummaryMetricsEl.innerHTML = "";
+
+        const trainingReq = supabase
+          .from("training_state")
+          .select("workout_count_7d,endurance_sessions_7d,strength_sessions_7d,strength_time_s_7d,strength_capacity_7d,total_distance_m_7d,total_time_s_7d,updated_at")
+          .eq("id", "global")
+          .maybeSingle();
+        const readinessReq = supabase
+          .from("readiness_state")
+          .select("readiness_score,updated_at,sleep_source,weight_source,sleep_updated_at,weight_updated_at")
+          .eq("id", "global")
+          .maybeSingle();
+
+        const [{ data: training, error: trainingError }, { data: readiness }] = await Promise.all([
+          trainingReq,
+          readinessReq,
+        ]);
+
+        if (trainingError) {
+          if (posSummaryNoteEl) posSummaryNoteEl.textContent = "Training summary unavailable.";
+          return;
+        }
+
+        const metrics = [
+          { label: "Workouts (7d)", value: formatCount(training?.workout_count_7d ?? 0) },
+          { label: "Endurance (7d)", value: formatCount(training?.endurance_sessions_7d ?? 0) },
+          { label: "Strength (7d)", value: formatCount(training?.strength_sessions_7d ?? 0) },
+          { label: "Strength time", value: formatMinutes(training?.strength_time_s_7d ?? 0) },
+          { label: "Strength load", value: formatCount(training?.strength_capacity_7d ?? 0) },
+          { label: "Distance (7d)", value: formatDistance(training?.total_distance_m_7d ?? 0) },
+          { label: "Readiness", value: readiness?.readiness_score !== null && readiness?.readiness_score !== undefined ? `${readiness.readiness_score}/100` : "—" },
+        ];
+
+        metrics.forEach((metric) => {
+          const item = document.createElement("div");
+          item.className = "state-metric";
+          item.innerHTML = `<span>${metric.label}</span><strong>${metric.value}</strong>`;
+          posSummaryMetricsEl.appendChild(item);
+        });
+
+        const updatedAt = training?.updated_at ?? readiness?.updated_at;
+        if (posSummaryUpdatedEl) {
+          posSummaryUpdatedEl.textContent = updatedAt ? `Updated ${formatTimestamp(updatedAt)}` : "—";
+        }
+
+        if (posSummaryNoteEl) {
+          const notes = [];
+          const sleepAge = formatAgeDays(readiness?.sleep_updated_at);
+          const weightAge = formatAgeDays(readiness?.weight_updated_at);
+          const sleepStale = staleLabel("Sleep", sleepAge, 2);
+          const weightStale = staleLabel("Weight", weightAge, 7);
+          if (readiness?.sleep_source === "none") {
+            notes.push("Sleep source missing");
+          } else if (sleepStale) {
+            notes.push(sleepStale);
+          }
+          if (readiness?.weight_source === "none") {
+            notes.push("Weight source missing");
+          } else if (weightStale) {
+            notes.push(weightStale);
+          }
+          posSummaryNoteEl.textContent = notes.length ? notes.join(" · ") : "Freshness OK";
+          if (posSummaryFreshnessEl) {
+            const hasStale = notes.length > 0;
+            posSummaryFreshnessEl.textContent = hasStale ? "Needs attention" : "Fresh";
+            posSummaryFreshnessEl.classList.remove("unknown", "ontrack", "soon", "overdue");
+            posSummaryFreshnessEl.classList.add(hasStale ? "overdue" : "ontrack");
+          }
+        }
+      }
+
       function setActiveView(view) {
         currentDataView = view;
         viewEventsEl.classList.toggle("active", view === "events");
         viewStateEl.classList.toggle("active", view === "state");
+      }
+
+      function setActiveSystem(system) {
+        currentSystem = system;
+        viewGarageEl.classList.toggle("active", system === "garage");
+        viewPosEl.classList.toggle("active", system === "pos");
+        if (posSummaryEl) posSummaryEl.classList.toggle("hidden", system !== "pos");
+        if (posPlanEl) posPlanEl.classList.toggle("hidden", system !== "pos");
+        if (dataListEl) dataListEl.classList.toggle("hidden", system !== "garage");
+        if (dataStatusEl) dataStatusEl.classList.toggle("hidden", system !== "garage");
+        if (loadMoreEventsEl) loadMoreEventsEl.classList.toggle("hidden", system !== "garage");
       }
 
       async function loadEvents() {
@@ -871,6 +1027,11 @@
       }
 
       async function loadData() {
+        if (currentSystem === "pos") {
+          await loadPosSummary();
+          await loadPosPlan();
+          return;
+        }
         if (currentDataView === "state") {
           await loadState();
         } else {
@@ -887,6 +1048,16 @@
       viewStateEl.addEventListener("click", async () => {
         setActiveView("state");
         if (loadMoreEventsEl) loadMoreEventsEl.disabled = true;
+        await loadData();
+      });
+
+      viewGarageEl.addEventListener("click", async () => {
+        setActiveSystem("garage");
+        await loadData();
+      });
+
+      viewPosEl.addEventListener("click", async () => {
+        setActiveSystem("pos");
         await loadData();
       });
 
@@ -908,6 +1079,65 @@
         await supabase.auth.signOut();
         await refreshSession();
       });
+
+      function localDateKey() {
+        const parts = new Intl.DateTimeFormat("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).formatToParts(new Date());
+        const lookup = {};
+        parts.forEach((part) => {
+          if (part.type !== "literal") lookup[part.type] = part.value;
+        });
+        return `${lookup.year}-${lookup.month}-${lookup.day}`;
+      }
+
+      function renderPlanList(title, value) {
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.innerHTML = `<div class="list-title">${title}</div><div class="list-meta">${value}</div>`;
+        return item;
+      }
+
+      async function loadPosPlan() {
+        if (!posPlanBodyEl) return;
+        posPlanBodyEl.innerHTML = "";
+        if (posPlanNoteEl) posPlanNoteEl.textContent = "";
+        const dateKey = localDateKey();
+        const { data, error } = await supabase
+          .from("coach_plan_daily")
+          .select("date,summary_text,plan_json,created_at")
+          .order("date", { ascending: false })
+          .limit(1);
+        if (error || !data || !data.length) {
+          if (posPlanNoteEl) posPlanNoteEl.textContent = "No plan available yet.";
+          if (posPlanDateEl) posPlanDateEl.textContent = "—";
+          return;
+        }
+        const plan = data[0];
+        const isToday = plan.date === dateKey;
+        if (posPlanDateEl) posPlanDateEl.textContent = isToday ? "Today" : `Latest: ${plan.date}`;
+        if (plan.summary_text) {
+          posPlanBodyEl.appendChild(renderPlanList("Summary", plan.summary_text));
+        }
+        const rec = plan.plan_json?.recommendation ?? {};
+        if (rec?.type) {
+          posPlanBodyEl.appendChild(renderPlanList("Type", rec.type));
+        }
+        if (rec?.duration_min) {
+          posPlanBodyEl.appendChild(renderPlanList("Duration", `${rec.duration_min} min`));
+        }
+        if (rec?.intensity) {
+          posPlanBodyEl.appendChild(renderPlanList("Intensity", rec.intensity));
+        }
+        if (rec?.reason) {
+          posPlanBodyEl.appendChild(renderPlanList("Why", rec.reason));
+        }
+        if (rec?.reason_codes && rec.reason_codes.length) {
+          posPlanBodyEl.appendChild(renderPlanList("Reason codes", rec.reason_codes.join(", ")));
+        }
+      }
 
       refreshSession();
     </script>
