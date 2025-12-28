@@ -248,6 +248,50 @@
         color: var(--text);
         font-weight: 600;
       }
+      .state-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .state-actions button {
+        padding: 10px 14px;
+        font-size: 13px;
+        min-height: 40px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        border: 1px solid rgba(42, 51, 82, 0.6);
+        color: var(--muted);
+        background: rgba(12, 18, 34, 0.7);
+      }
+      .pill.overdue {
+        border-color: rgba(248, 113, 113, 0.6);
+        color: #fca5a5;
+        background: rgba(248, 113, 113, 0.12);
+      }
+      .pill.soon {
+        border-color: rgba(251, 191, 36, 0.5);
+        color: #fde68a;
+        background: rgba(251, 191, 36, 0.12);
+      }
+      .pill.ontrack {
+        border-color: rgba(52, 211, 153, 0.45);
+        color: #86efac;
+        background: rgba(52, 211, 153, 0.12);
+      }
+      .warning {
+        color: #fca5a5;
+        font-size: 12px;
+        font-weight: 600;
+      }
       .list-item {
         padding: 12px;
         border-radius: 12px;
@@ -599,6 +643,28 @@
           .replace(/\\b\\w/g, (c) => c.toUpperCase());
       }
 
+      function classifyCountdown(ms) {
+        if (ms == null) return { label: "No schedule", cls: "unknown" };
+        if (ms < 0) return { label: `Overdue by ${formatDuration(-ms)}`, cls: "overdue" };
+        if (ms < 5 * 60 * 1000) return { label: `Next in ${formatDuration(ms)}`, cls: "soon" };
+        return { label: `Next in ${formatDuration(ms)}`, cls: "ontrack" };
+      }
+
+      async function loadLatestEventsByDoor() {
+        const { data, error } = await supabase
+          .from("garage_events")
+          .select("id,created_at,event_type,door,source")
+          .order("created_at", { ascending: false })
+          .limit(200);
+        if (error || !data) return {};
+        const latest = {};
+        data.forEach((row) => {
+          if (!row.door || latest[row.door]) return;
+          latest[row.door] = row;
+        });
+        return latest;
+      }
+
       function formatTimestamp(value) {
         if (!value) return "—";
         const date = new Date(value);
@@ -662,6 +728,7 @@
         dataListEl.innerHTML = "";
         dataListEl.className = "list state-grid";
         if (dataStatusEl) dataStatusEl.textContent = "Loading…";
+        const latestEvents = await loadLatestEventsByDoor();
         const { data, error } = await supabase
           .from("garage_state")
           .select("door,is_open,session_start,last_open,last_close,next_action,next_action_at,last_close_attempt_at,updated_at")
@@ -688,6 +755,13 @@
           const isOpen = row.is_open === true;
           const sessionStart = row.session_start ? new Date(row.session_start) : null;
           const lastClose = row.last_close ? new Date(row.last_close) : null;
+          const latestEvent = latestEvents[door] || null;
+          const nextAt = row.next_action_at ? new Date(row.next_action_at) : null;
+          const nextDelta = nextAt && !Number.isNaN(nextAt.getTime())
+            ? nextAt.getTime() - now.getTime()
+            : null;
+          const countdown = classifyCountdown(nextDelta);
+          const warnings = [];
 
           let ageLabel = "Open for";
           let ageValue = "—";
@@ -698,11 +772,22 @@
             ageValue = formatDuration(now.getTime() - lastClose.getTime());
           }
 
+          if (hasData && !isOpen && row.next_action_at) {
+            warnings.push("Pending action while closed");
+          }
+          if (hasData && isOpen && !row.session_start) {
+            warnings.push("Missing session start");
+          }
+          if (hasData && isOpen && !row.next_action_at) {
+            warnings.push("No close scheduled");
+          }
+
           const statusText = hasData ? (isOpen ? "OPEN" : "CLOSED") : "NO DATA";
           const statusClass = hasData ? (isOpen ? "open" : "closed") : "unknown";
           const lastEventLabel = hasData ? (isOpen ? "Opened" : "Closed") : "Last event";
           const lastEventTime = isOpen ? row.last_open || row.session_start : row.last_close;
 
+          const forceDisabled = !hasData || !isOpen;
           const card = document.createElement("div");
           card.className = "state-card";
           card.innerHTML = `
@@ -710,7 +795,17 @@
               <div class="state-door">${door}</div>
               <div class="state-badge ${statusClass}">${statusText}</div>
             </div>
+            <div class="state-header">
+              <div class="pill ${countdown.cls}">
+                ${countdown.label}
+              </div>
+              ${warnings.length ? `<div class="warning">${warnings[0]}</div>` : ""}
+            </div>
             <div class="state-metrics">
+              <div class="state-metric">
+                <span>Latest event</span>
+                <strong>${latestEvent ? `${latestEvent.event_type ?? "EVENT"} • ${formatTimestamp(latestEvent.created_at)}` : "—"}</strong>
+              </div>
               <div class="state-metric">
                 <span>${lastEventLabel}</span>
                 <strong>${formatTimestamp(lastEventTime)}</strong>
@@ -731,13 +826,47 @@
                 <span>Last attempt</span>
                 <strong>${formatTimestamp(row.last_close_attempt_at)}</strong>
               </div>
-              <div class="state-metric">
-                <span>Updated</span>
-                <strong>${formatTimestamp(row.updated_at)}</strong>
-              </div>
+            </div>
+            <div class="state-actions">
+              <button class="secondary" data-action="force-close" data-door="${door}" ${forceDisabled ? "disabled" : ""}>
+                ${forceDisabled ? "Close unavailable" : "Force close now"}
+              </button>
             </div>
           `;
           dataListEl.appendChild(card);
+        });
+
+        dataListEl.querySelectorAll("[data-action='force-close']").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const door = btn.dataset.door;
+            if (!door) return;
+            const nowIso = new Date().toISOString();
+            btn.disabled = true;
+            const { error: updateError } = await supabase
+              .from("garage_state")
+              .update({
+                next_action: "close_attempt",
+                next_action_at: nowIso,
+                next_close_at: nowIso,
+                updated_at: nowIso,
+              })
+              .eq("door", door);
+            if (updateError) {
+              showToast("Failed to schedule close.", "error");
+              btn.disabled = false;
+              return;
+            }
+            const { error: fnError } = await supabase.functions.invoke("garage-scheduler", {
+              body: {},
+            });
+            if (fnError) {
+              showToast("Scheduled, but scheduler ping failed.", "error");
+            } else {
+              showToast(`Close requested for ${door}.`, "success");
+            }
+            btn.disabled = false;
+            await loadState();
+          });
         });
       }
 
