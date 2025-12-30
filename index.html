@@ -467,6 +467,13 @@
           <div id="pos-stats-list" class="list"></div>
           <div class="meta" id="pos-stats-note"></div>
         </div>
+        <div id="pos-baselines" class="card grid hidden">
+          <div class="row-inline">
+            <div style="font-weight:600;">Strength baselines</div>
+            <div class="meta" id="pos-baselines-note">—</div>
+          </div>
+          <div id="pos-baselines-list" class="list"></div>
+        </div>
         <div class="actions">
           <button id="logout" class="secondary">Sign out</button>
         </div>
@@ -512,6 +519,9 @@
       const posStatsListEl = document.getElementById("pos-stats-list");
       const posStatsRangeEl = document.getElementById("pos-stats-range");
       const posStatsNoteEl = document.getElementById("pos-stats-note");
+      const posBaselinesEl = document.getElementById("pos-baselines");
+      const posBaselinesListEl = document.getElementById("pos-baselines-list");
+      const posBaselinesNoteEl = document.getElementById("pos-baselines-note");
       const posRunStatusEl = document.getElementById("pos-run-status");
       const garageSettingsEl = document.getElementById("garage-settings");
       const viewEventsEl = document.getElementById("view-events");
@@ -530,11 +540,11 @@
             "data-status",
             "load-more-events",
           ],
-          hiddenIds: ["pos-summary", "pos-plan", "pos-stats"],
+          hiddenIds: ["pos-summary", "pos-plan", "pos-stats", "pos-baselines"],
         },
         pos: {
           label: "Personal Ops",
-          visibleIds: ["pos-summary", "pos-plan", "pos-stats"],
+          visibleIds: ["pos-summary", "pos-plan", "pos-stats", "pos-baselines"],
           hiddenIds: [
             "garage-settings",
             "garage-data-card",
@@ -1119,6 +1129,7 @@
           await loadPosSummary();
           await loadPosPlan();
           await loadPosStats();
+          await loadPosBaselines();
           return;
         }
         if (currentDataView === "state") {
@@ -1390,6 +1401,34 @@
         if (!nutritionResp.data?.length && posStatsNoteEl) {
           posStatsNoteEl.textContent = "Nutrition not connected yet.";
         }
+      }
+
+      async function loadPosBaselines() {
+        if (!posBaselinesListEl) return;
+        posBaselinesListEl.innerHTML = "";
+        if (posBaselinesNoteEl) posBaselinesNoteEl.textContent = "";
+
+        const { data, error } = await supabase
+          .from("speediance_exercise_baselines")
+          .select("action_library_group_id,action_library_name,max_weight,max_watts,avg_watts,total_reps,last_seen_at")
+          .order("max_watts", { ascending: false })
+          .limit(6);
+
+        if (error || !data || !data.length) {
+          if (posBaselinesNoteEl) posBaselinesNoteEl.textContent = "No baselines yet.";
+          return;
+        }
+        if (posBaselinesNoteEl) posBaselinesNoteEl.textContent = "Top by max watts";
+        data.forEach((row) => {
+          const name = row.action_library_name || `Exercise ${row.action_library_group_id}`;
+          const maxWatts = row.max_watts ? `${formatNumber(row.max_watts, 0)} W` : "—";
+          const metaParts = [];
+          if (row.max_weight) metaParts.push(`Max wt ${formatNumber(row.max_weight, 1)}`);
+          if (row.avg_watts) metaParts.push(`Avg ${formatNumber(row.avg_watts, 0)} W`);
+          if (row.total_reps) metaParts.push(`${formatNumber(row.total_reps, 0)} reps`);
+          if (row.last_seen_at) metaParts.push(`Last ${formatTimestamp(row.last_seen_at)}`);
+          posBaselinesListEl.appendChild(renderStatList(name, maxWatts, metaParts.join(" · ")));
+        });
       }
 
       async function loadPosPlan() {
