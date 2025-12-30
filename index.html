@@ -1853,17 +1853,37 @@
           return;
         }
 
-        const readinessBand = bandFromScore(readiness?.readiness_score);
+        const readinessScore = readiness?.readiness_score ?? null;
+        const readinessBand = bandFromScore(readinessScore);
         const adherence = metrics?.adherence_7d ?? 0;
         const adherenceTone = adherence >= 0.75 ? "good" : adherence >= 0.4 ? "warn" : "bad";
 
+        const sleepAge = formatAgeDays(readiness?.sleep_updated_at);
+        const weightAge = formatAgeDays(readiness?.weight_updated_at);
+        let confidence = 100;
+        if (sleepAge == null || sleepAge >= 2) confidence -= 25;
+        if (weightAge == null || weightAge >= 7) confidence -= 15;
+        if (nutritionDaysCount === 0) confidence -= 15;
+        if (latestForm == null) confidence -= 10;
+        if (!training?.updated_at) confidence -= 10;
+        confidence = Math.max(0, Math.min(100, confidence));
+        let confidenceTone = "good";
+        let confidenceLabel = "High confidence";
+        if (confidence < 60) {
+          confidenceTone = "bad";
+          confidenceLabel = "Low confidence";
+        } else if (confidence < 80) {
+          confidenceTone = "warn";
+          confidenceLabel = "Medium confidence";
+        }
+
         posSummaryMetricsEl.appendChild(
           renderKpiCard({
-            label: "Readiness",
-            value: readinessBand.label,
+            label: "Readiness score",
+            value: readinessScore != null ? `${formatNumber(readinessScore, 0)}/100` : "—",
             tone: readinessBand.tone,
             icon: "⚡️",
-            sub: readiness?.readiness_score != null ? `Score ${readiness.readiness_score}/100` : "Score missing",
+            sub: readinessScore != null ? `${confidenceLabel} · ${confidence}%` : "Score missing",
             progress: readiness?.readiness_score,
             meta: { importance: 10, group: "readiness", related: "sleep,form,fatigue" },
           }),
@@ -1904,9 +1924,6 @@
         if (posSummaryUpdatedEl) {
           posSummaryUpdatedEl.textContent = updatedAt ? `Updated ${formatTimestamp(updatedAt)}` : "—";
         }
-
-        const sleepAge = formatAgeDays(readiness?.sleep_updated_at);
-        const weightAge = formatAgeDays(readiness?.weight_updated_at);
 
         if (posSummaryNoteEl) {
           const notes = [];
@@ -2002,24 +2019,8 @@
         }
 
         if (posSummaryConfidenceEl) {
-          let confidence = 100;
-          if (sleepAge == null || sleepAge >= 2) confidence -= 25;
-          if (weightAge == null || weightAge >= 7) confidence -= 15;
-          if (nutritionDaysCount === 0) confidence -= 15;
-          if (latestForm == null) confidence -= 10;
-          if (!training?.updated_at) confidence -= 10;
-          confidence = Math.max(0, Math.min(100, confidence));
-          let tone = "good";
-          let label = "High confidence";
-          if (confidence < 60) {
-            tone = "bad";
-            label = "Low confidence";
-          } else if (confidence < 80) {
-            tone = "warn";
-            label = "Medium confidence";
-          }
-          posSummaryConfidenceEl.className = `confidence-chip ${tone}`;
-          posSummaryConfidenceEl.textContent = `${label} · ${confidence}%`;
+          posSummaryConfidenceEl.className = `confidence-chip ${confidenceTone}`;
+          posSummaryConfidenceEl.textContent = `${confidenceLabel} · ${confidence}%`;
           attachMeta(posSummaryConfidenceEl, { importance: 9, group: "confidence", related: "coverage,stale" });
         }
 
