@@ -237,6 +237,31 @@
       .timeline-meta div {
         margin-top: 2px;
       }
+      .plan-inputs {
+        display: grid;
+        gap: 10px;
+      }
+      .plan-input-group {
+        border: 1px solid rgba(30, 41, 59, 0.6);
+        border-radius: 12px;
+        padding: 8px 10px;
+        background: rgba(15, 23, 42, 0.35);
+      }
+      .plan-input-title {
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #94a3b8;
+      }
+      .plan-input-list {
+        margin: 6px 0 0;
+        padding-left: 14px;
+        color: var(--muted);
+        font-size: 12px;
+        display: grid;
+        gap: 2px;
+      }
       .pos-body {
         display: grid;
         gap: 20px;
@@ -3429,12 +3454,29 @@
 
         let stravaMinutes = 0;
         let stravaDistance = 0;
+        let cyclingMinutes = 0;
+        let cyclingDistance = 0;
+        let runningMinutes = 0;
+        let runningDistance = 0;
+        let swimmingMinutes = 0;
+        let swimmingDistance = 0;
         (stravaResp.data || []).forEach((row) => {
           const payload = row.payload || {};
           const duration = Number(payload.elapsed_s ?? payload.elapsed_time ?? payload.duration_s ?? 0);
           const distance = Number(payload.distance_m ?? payload.distance ?? 0);
           if (!Number.isNaN(duration)) stravaMinutes += duration / 60;
           if (!Number.isNaN(distance)) stravaDistance += distance;
+          const typeLower = String(typeLabel || "").toLowerCase();
+          if (typeLower.includes("swim")) {
+            if (!Number.isNaN(duration)) swimmingMinutes += duration / 60;
+            if (!Number.isNaN(distance)) swimmingDistance += distance;
+          } else if (typeLower.includes("run")) {
+            if (!Number.isNaN(duration)) runningMinutes += duration / 60;
+            if (!Number.isNaN(distance)) runningDistance += distance;
+          } else if (typeLower.includes("ride") || typeLower.includes("bike") || typeLower.includes("cycle")) {
+            if (!Number.isNaN(duration)) cyclingMinutes += duration / 60;
+            if (!Number.isNaN(distance)) cyclingDistance += distance;
+          }
         });
         if (stravaMinutes > 0) {
           posDayDrawerListEl.appendChild(
@@ -5235,7 +5277,7 @@
             .limit(1),
           supabase
             .from("pos_day_metrics")
-            .select("sleep_seconds,sleep_baseline_7d")
+            .select("sleep_seconds,sleep_baseline_7d,adherence_7d,training_load_7d")
             .order("date", { ascending: false })
             .limit(1),
           supabase
@@ -5305,9 +5347,18 @@
         const strengthSessions = strengthResp.data || [];
         const strengthCount = strengthSessions.length;
         const nutritionDays = new Set();
+        let todayNutritionCalories = 0;
+        let todayNutritionProtein = 0;
         (nutritionResp.data || []).forEach((row) => {
           const key = dateKeyFromIso(row.event_timestamp);
           if (key) nutritionDays.add(key);
+          if (key === dateKey) {
+            const payload = row.payload || {};
+            const calories = Number(payload.calories ?? payload.kcal ?? payload.energy_kcal ?? payload.value1 ?? 0);
+            const protein = Number(payload.protein_g ?? payload.protein ?? 0);
+            if (!Number.isNaN(calories) && calories > 0) todayNutritionCalories += calories;
+            if (!Number.isNaN(protein) && protein > 0) todayNutritionProtein += protein;
+          }
         });
         const nutritionDaysCount = nutritionDays.size;
         const nutritionDaysDisplay = Math.min(nutritionDaysCount, 7);
@@ -5368,52 +5419,99 @@
           );
         }
 
-        const inputLines = [];
-        if (sleepHours != null) {
-          const sleepMeta = sleepBaseline != null
-            ? `Sleep ${formatNumber(sleepHours, 1)}h (baseline ${formatNumber(sleepBaseline, 1)}h, Δ ${formatNumber(sleepDelta ?? 0, 1)}h)`
-            : `Sleep ${formatNumber(sleepHours, 1)}h (baseline missing)`;
-          const ageLabel = sleepAge != null ? `updated ${formatNumber(sleepAge, 1)}d ago` : "update unknown";
-          inputLines.push(`${sleepMeta} · ${ageLabel}`);
-        }
-        if (stravaItems.length) {
-          const totalLine = `Strava today: ${formatNumber(stravaMinutes, 0)} min · ${formatNumber(formatMiles(stravaDistance) ?? 0, 1)} mi · ${stravaItems.length} activity${stravaItems.length === 1 ? "" : "ies"}`;
-          inputLines.push(totalLine);
-          stravaItems.slice(0, 3).forEach((item) => {
-            const dur = item.duration ? `${Math.round(item.duration / 60)} min` : "—";
-            const dist = item.distance ? `${formatNumber(formatMiles(item.distance) ?? 0, 1)} mi` : "—";
-            const hr = item.avgHr ? `${Math.round(item.avgHr)} bpm` : "HR —";
-            inputLines.push(`${item.type}: ${dur} · ${dist} · ${hr}`);
+        const planInputs = [];
+        const addGroup = (title, lines) => {
+          planInputs.push({
+            title,
+            lines: lines.filter((line) => line && line !== "—"),
           });
+        };
+
+        const sleepLines = [];
+        if (sleepHours != null) {
+          sleepLines.push(`Sleep ${formatNumber(sleepHours, 1)}h`);
+          if (sleepBaseline != null) sleepLines.push(`Baseline ${formatNumber(sleepBaseline, 1)}h`);
+          if (sleepDelta != null) sleepLines.push(`Δ ${formatNumber(sleepDelta, 1)}h`);
+          if (sleepAge != null) sleepLines.push(`Updated ${formatNumber(sleepAge, 1)}d ago`);
         } else {
-          inputLines.push("Strava today: no activities logged");
+          sleepLines.push("No sleep data");
         }
+        addGroup("Sleep", sleepLines);
+
+        const nutritionLines = [];
+        nutritionLines.push(`Coverage ${nutritionDaysDisplay}/7 days`);
+        if (todayNutritionCalories > 0) nutritionLines.push(`Today ${formatNumber(todayNutritionCalories, 0)} kcal`);
+        if (todayNutritionProtein > 0) nutritionLines.push(`Today ${formatNumber(todayNutritionProtein, 1)} g protein`);
+        if (nutritionLines.length === 1) nutritionLines.push("No food entries today");
+        addGroup("Diet", nutritionLines);
+
+        const progressLines = [];
+        if (formValue != null) progressLines.push(`Strava form ${formatNumber(formValue, 0)}`);
+        if (metrics.adherence_7d != null) progressLines.push(`Adherence ${formatNumber(metrics.adherence_7d * 100, 0)}%`);
+        if (metrics.training_load_7d != null) progressLines.push(`Training load 7d ${formatNumber(metrics.training_load_7d, 0)}`);
+        addGroup("Progress report", progressLines.length ? progressLines : ["No progress metrics"]);
+
+        const strengthLines = [];
         if (strengthCount > 0) {
           strengthSessions.slice(0, 2).forEach((session) => {
             const q = session.quality_score != null ? `quality ${formatScore(session.quality_score)}` : "quality —";
             const exercises = session.exercise_count != null ? `${session.exercise_count} exercises` : "exercises —";
             const reps = session.total_reps != null ? `${session.total_reps} reps` : "reps —";
             const idLabel = session.training_id ? `ID ${session.training_id}` : "ID —";
-            inputLines.push(`Speediance: ${idLabel} · ${exercises} · ${reps} · ${q}`);
+            strengthLines.push(`${idLabel} · ${exercises} · ${reps} · ${q}`);
           });
         } else {
-          inputLines.push("Speediance: no session logged today");
+          strengthLines.push("No session logged today");
         }
-        if (formValue != null) {
-          inputLines.push(`Strava form (latest): ${formatNumber(formValue, 0)}`);
-        }
-        inputLines.push(`Nutrition logs: ${nutritionDaysDisplay}/7 days coverage`);
+        addGroup("Weight training", strengthLines);
 
-        if (inputLines.length) {
-          timeline.appendChild(
-            renderTimelineItem(
-              "Inputs used",
-              inputLines.map((line) => `<div>${line}</div>`).join(""),
-              "warn",
-              { importance: 8, group: "plan", related: "inputs" },
-            ),
-          );
-        }
+        const cyclingLines = [];
+        const runningLines = [];
+        const swimmingLines = [];
+        stravaItems.forEach((item) => {
+          const typeLower = String(item.type || "").toLowerCase();
+          const dur = item.duration ? `${Math.round(item.duration / 60)} min` : "—";
+          const dist = item.distance ? `${formatNumber(formatMiles(item.distance) ?? 0, 1)} mi` : "—";
+          const hr = item.avgHr ? `${Math.round(item.avgHr)} bpm` : "HR —";
+          const line = `${item.type}: ${dur} · ${dist} · ${hr}`;
+          if (typeLower.includes("swim")) swimmingLines.push(line);
+          else if (typeLower.includes("run")) runningLines.push(line);
+          else if (typeLower.includes("ride") || typeLower.includes("bike") || typeLower.includes("cycle")) cyclingLines.push(line);
+        });
+        addGroup("Cycling", cyclingLines.length ? [
+          `Total ${formatNumber(cyclingMinutes, 0)} min · ${formatNumber(formatMiles(cyclingDistance) ?? 0, 1)} mi`,
+          ...cyclingLines.slice(0, 3),
+        ] : ["No cycling logged today"]);
+        addGroup("Running", runningLines.length ? [
+          `Total ${formatNumber(runningMinutes, 0)} min · ${formatNumber(formatMiles(runningDistance) ?? 0, 1)} mi`,
+          ...runningLines.slice(0, 3),
+        ] : ["No running logged today"]);
+        addGroup("Swimming", swimmingLines.length ? [
+          `Total ${formatNumber(swimmingMinutes, 0)} min · ${formatNumber(formatMiles(swimmingDistance) ?? 0, 1)} mi`,
+          ...swimmingLines.slice(0, 3),
+        ] : ["No swimming logged today"]);
+
+        addGroup("Facial exercises", ["No tracking source"]);
+
+        const inputsMarkup = planInputs.map((group) => {
+          const lines = group.lines.length ? group.lines : ["No data"];
+          const items = lines.map((line) => `<li>${line}</li>`).join("");
+          return `
+            <div class="plan-input-group">
+              <div class="plan-input-title">${group.title}</div>
+              <ul class="plan-input-list">${items}</ul>
+            </div>
+          `;
+        }).join("");
+
+        timeline.appendChild(
+          renderTimelineItem(
+            "Inputs used",
+            `<div class="plan-inputs">${inputsMarkup}</div>`,
+            "warn",
+            { importance: 8, group: "plan", related: "inputs" },
+          ),
+        );
 
         if (sleepDelta != null && sleepDelta <= -0.5) {
           const swapNote = rec?.duration_min
