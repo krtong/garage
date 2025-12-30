@@ -168,6 +168,50 @@
         background: rgba(34, 211, 238, 0.2);
         color: var(--accent-2);
       }
+      .status-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        color: var(--accent);
+        background: rgba(14, 165, 233, 0.1);
+      }
+      .status-chip.good {
+        border-color: rgba(52, 211, 153, 0.5);
+        color: #86efac;
+        background: rgba(52, 211, 153, 0.12);
+      }
+      .status-chip.warn {
+        border-color: rgba(248, 171, 111, 0.55);
+        color: #fdba74;
+        background: rgba(249, 115, 22, 0.15);
+      }
+      .status-chip.bad {
+        border-color: rgba(248, 113, 113, 0.55);
+        color: #fda4af;
+        background: rgba(244, 63, 94, 0.15);
+      }
+      .bar {
+        width: 100%;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(30, 41, 59, 0.8);
+        overflow: hidden;
+        margin-top: 8px;
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: var(--accent);
+      }
+      .bar-fill.good { background: var(--success); }
+      .bar-fill.warn { background: #f59e0b; }
+      .bar-fill.bad { background: var(--danger); }
       .list {
         display: grid;
         gap: 10px;
@@ -959,20 +1003,19 @@
         }
 
         const metrics = [
-          { label: "Workouts (7d)", value: formatCount(training?.workout_count_7d ?? 0) },
-          { label: "Endurance (7d)", value: formatCount(training?.endurance_sessions_7d ?? 0) },
-          { label: "Strength (7d)", value: formatCount(training?.strength_sessions_7d ?? 0) },
-          { label: "Strength time", value: formatMinutes(training?.strength_time_s_7d ?? 0) },
-          { label: "Strength load", value: formatCount(training?.strength_capacity_7d ?? 0) },
-          { label: "Distance (7d)", value: formatDistance(training?.total_distance_m_7d ?? 0) },
-          { label: "Readiness", value: readiness?.readiness_score !== null && readiness?.readiness_score !== undefined ? `${readiness.readiness_score}/100` : "—" },
+          { label: "Workouts (7d)", band: frequencyBand(training?.workout_count_7d ?? 0) },
+          { label: "Endurance (7d)", band: frequencyBand(training?.endurance_sessions_7d ?? 0) },
+          { label: "Strength (7d)", band: frequencyBand(training?.strength_sessions_7d ?? 0) },
+          { label: "Strength time", band: durationBand((training?.strength_time_s_7d ?? 0) / 60) },
+          { label: "Strength load", band: loadBand(training?.strength_capacity_7d ?? 0) },
+          { label: "Distance (7d)", band: training?.total_distance_m_7d ? { label: "Logged", tone: "good", percent: 70 } : { label: "Missing", tone: "bad", percent: 10 } },
+          { label: "Readiness", band: bandFromScore(readiness?.readiness_score) },
         ];
 
         metrics.forEach((metric) => {
-          const item = document.createElement("div");
-          item.className = "state-metric";
-          item.innerHTML = `<span>${metric.label}</span><strong>${metric.value}</strong>`;
-          posSummaryMetricsEl.appendChild(item);
+          posSummaryMetricsEl.appendChild(
+            renderBarItem(metric.label, metric.band.label, metric.band.tone, metric.band.percent)
+          );
         });
 
         const updatedAt = training?.updated_at ?? readiness?.updated_at;
@@ -996,7 +1039,7 @@
           } else if (weightStale) {
             notes.push(weightStale);
           }
-          posSummaryNoteEl.textContent = notes.length ? notes.join(" · ") : "Freshness OK";
+          posSummaryNoteEl.textContent = notes.length ? notes.join(" · ") : "Freshness on track";
           if (posSummaryFreshnessEl) {
             const hasStale = notes.length > 0;
             posSummaryFreshnessEl.textContent = hasStale ? "Needs attention" : "Fresh";
@@ -1307,6 +1350,76 @@
         return item;
       }
 
+      function renderStatusItem(title, status, tone = "good", meta = "") {
+        const item = document.createElement("div");
+        item.className = "list-item";
+        const metaHtml = meta ? `<div class="list-meta">${meta}</div>` : "";
+        item.innerHTML = `<div class="list-title">${title}</div>${metaHtml}`;
+        const chip = document.createElement("div");
+        chip.className = `status-chip ${tone}`;
+        chip.textContent = status;
+        item.appendChild(chip);
+        return item;
+      }
+
+      function renderBarItem(title, status, tone = "good", percent = 60, meta = "") {
+        const item = document.createElement("div");
+        item.className = "list-item";
+        const metaHtml = meta ? `<div class="list-meta">${meta}</div>` : "";
+        item.innerHTML = `<div class="list-title">${title}</div>${metaHtml}`;
+        const chip = document.createElement("div");
+        chip.className = `status-chip ${tone}`;
+        chip.textContent = status;
+        item.appendChild(chip);
+        const bar = document.createElement("div");
+        bar.className = "bar";
+        const fill = document.createElement("div");
+        fill.className = `bar-fill ${tone}`;
+        fill.style.width = `${Math.max(5, Math.min(percent, 100))}%`;
+        bar.appendChild(fill);
+        item.appendChild(bar);
+        return item;
+      }
+
+      function bandFromScore(score) {
+        if (score === null || score === undefined || Number.isNaN(score)) {
+          return { label: "Unknown", tone: "warn", percent: 40 };
+        }
+        if (score >= 70) return { label: "Green", tone: "good", percent: 85 };
+        if (score >= 50) return { label: "Yellow", tone: "warn", percent: 60 };
+        return { label: "Red", tone: "bad", percent: 25 };
+      }
+
+      function frequencyBand(count) {
+        if (count >= 2) return { label: "On track", tone: "good", percent: 90 };
+        if (count === 1) return { label: "Light", tone: "warn", percent: 55 };
+        return { label: "Missing", tone: "bad", percent: 15 };
+      }
+
+      function durationBand(minutes) {
+        if (!minutes) return { label: "None", tone: "bad", percent: 10 };
+        if (minutes <= 20) return { label: "Short", tone: "warn", percent: 40 };
+        if (minutes <= 45) return { label: "Medium", tone: "good", percent: 65 };
+        if (minutes <= 75) return { label: "Long", tone: "good", percent: 85 };
+        return { label: "Extended", tone: "good", percent: 95 };
+      }
+
+      function loadBand(value) {
+        if (!value || Number.isNaN(value)) return { label: "Missing", tone: "bad", percent: 10 };
+        if (value < 5000) return { label: "Light", tone: "warn", percent: 40 };
+        if (value < 15000) return { label: "Moderate", tone: "good", percent: 70 };
+        return { label: "High", tone: "good", percent: 90 };
+      }
+
+      function qualityBand(value) {
+        if (value === null || value === undefined || Number.isNaN(value)) {
+          return { label: "Unknown", tone: "warn" };
+        }
+        if (value >= 70) return { label: "Strong quality", tone: "good" };
+        if (value >= 45) return { label: "Needs polish", tone: "warn" };
+        return { label: "Technique focus", tone: "bad" };
+      }
+
       function renderSparkline(values, color = "rgba(56,189,248,0.9)") {
         if (!values || values.length < 2) return "";
         const width = 120;
@@ -1538,14 +1651,10 @@
 
         stats.forEach((stat) => {
           if (stat.total === null || stat.total === undefined || Number.isNaN(stat.total) || stat.total === 0) {
-            posStatsListEl.appendChild(renderStatList(stat.label, "—", "No data yet"));
+            posStatsListEl.appendChild(renderStatusItem(stat.label, "No data", "bad", "Log source to unlock."));
             return;
           }
-          const avg = stat.total / daysElapsed;
-          const decimals = stat.unit === "steps" ? 0 : 1;
-          const avgLabel = `${formatNumber(avg, decimals)} ${stat.unit}/day`;
-          const totalLabel = `Total: ${formatNumber(stat.total, decimals)} ${stat.unit}`;
-          posStatsListEl.appendChild(renderStatList(stat.label, avgLabel, totalLabel));
+          posStatsListEl.appendChild(renderBarItem(stat.label, "Tracked", "good", 70, "Logged this week"));
         });
 
         if (!nutritionResp.data?.length && posStatsNoteEl) {
@@ -1597,19 +1706,14 @@
         rows.forEach((row) => {
           const actualVal = row.actual;
           const targetVal = row.target;
-          const actualLabel =
-            actualVal != null && !Number.isNaN(actualVal) ? `${formatNumber(actualVal, 1)} ${row.unit}/day` : "—";
-          const targetLabel =
-            targetVal != null && !Number.isNaN(targetVal) ? `${formatNumber(targetVal, 0)} ${row.unit}` : "—";
-          let status = "no target";
-          if (targetVal && actualVal != null && !Number.isNaN(actualVal)) {
-            const ratio = actualVal / targetVal;
-            if (ratio < 0.8) status = "low";
-            else if (ratio > 1.2) status = "high";
-            else status = "on track";
+          if (!targetVal || actualVal == null || Number.isNaN(actualVal)) {
+            posNutritionListEl.appendChild(renderStatusItem(row.label, "No data", "warn", "Needs logging"));
+            return;
           }
-          const meta = `Actual ${actualLabel} · Target ${targetLabel} · ${status}`;
-          posNutritionListEl.appendChild(renderStatList(row.label, actualLabel, meta));
+          const ratio = actualVal / targetVal;
+          const status = ratio >= 0.9 ? "On target" : ratio >= 0.6 ? "Low" : "Very low";
+          const tone = ratio >= 0.9 ? "good" : ratio >= 0.6 ? "warn" : "bad";
+          posNutritionListEl.appendChild(renderBarItem(row.label, status, tone, Math.min(100, ratio * 100)));
         });
       }
 
@@ -1628,20 +1732,14 @@
           if (posBaselinesNoteEl) posBaselinesNoteEl.textContent = "No baselines yet.";
           return;
         }
-        if (posBaselinesNoteEl) posBaselinesNoteEl.textContent = "Top by max watts";
+        if (posBaselinesNoteEl) posBaselinesNoteEl.textContent = "Relative power bands";
+        const maxWatts = Math.max(...data.map((row) => row.max_watts || 0));
         data.forEach((row) => {
           const name = row.action_library_name || `Exercise ${row.action_library_group_id}`;
-          const maxWatts = row.max_watts ? `${formatNumber(row.max_watts, 0)} W` : "—";
-          const metaParts = [];
-          if (row.max_weight) metaParts.push(`Max wt ${formatNumber(row.max_weight, 1)}`);
-          if (row.avg_watts) metaParts.push(`Avg ${formatNumber(row.avg_watts, 0)} W`);
-          if (row.one_rm) metaParts.push(`1RM ${formatNumber(row.one_rm, 1)}`);
-          if (row.watt_asym_pct != null) metaParts.push(`W asym ${formatNumber(row.watt_asym_pct, 1)}%`);
-          if (row.speed_asym_pct != null) metaParts.push(`Speed asym ${formatNumber(row.speed_asym_pct, 1)}%`);
-          if (row.amplitude_asym_pct != null) metaParts.push(`ROM asym ${formatNumber(row.amplitude_asym_pct, 1)}%`);
-          if (row.total_reps) metaParts.push(`${formatNumber(row.total_reps, 0)} reps`);
-          if (row.last_seen_at) metaParts.push(`Last ${formatTimestamp(row.last_seen_at)}`);
-          posBaselinesListEl.appendChild(renderStatList(name, maxWatts, metaParts.join(" · ")));
+          const ratio = maxWatts ? (row.max_watts || 0) / maxWatts : 0;
+          const tone = ratio > 0.75 ? "good" : ratio > 0.4 ? "warn" : "bad";
+          const status = ratio > 0.75 ? "High power" : ratio > 0.4 ? "Moderate" : "Develop";
+          posBaselinesListEl.appendChild(renderBarItem(name, status, tone, ratio * 100));
         });
       }
 
@@ -1664,11 +1762,8 @@
 
         data.forEach((row) => {
           const label = row.session_date ? new Date(row.session_date).toLocaleDateString() : row.training_id;
-          const score = row.quality_score != null ? `${formatNumber(row.quality_score, 1)}` : "—";
-          const metaParts = [];
-          if (row.exercise_count) metaParts.push(`${row.exercise_count} exercises`);
-          if (row.total_reps) metaParts.push(`${row.total_reps} reps`);
-          posQualityListEl.appendChild(renderStatList(label, score, metaParts.join(" · ")));
+          const band = qualityBand(row.quality_score);
+          posQualityListEl.appendChild(renderStatusItem(label, band.label, band.tone));
         });
       }
 
@@ -1693,8 +1788,7 @@
           ? new Date(session.session_date).toLocaleDateString()
           : session.training_id;
         if (posLastSessionNoteEl) {
-          const score = session.quality_score != null ? `${formatNumber(session.quality_score, 1)}` : "—";
-          posLastSessionNoteEl.textContent = `Latest: ${sessionLabel} · Score ${score}`;
+          posLastSessionNoteEl.textContent = `Latest: ${sessionLabel}`;
         }
 
         const { data: metricsData, error: metricsError } = await supabase
@@ -1711,14 +1805,8 @@
 
         metricsData.forEach((row) => {
           const title = row.action_library_name || "Exercise";
-          const score = row.quality_score != null ? `${formatNumber(row.quality_score, 1)}` : "—";
-          const metaParts = [];
-          if (row.completion_ratio != null) metaParts.push(`Comp ${formatNumber(row.completion_ratio * 100, 0)}%`);
-          if (row.rep_time_cv != null) metaParts.push(`Rep CV ${formatNumber(row.rep_time_cv, 2)}`);
-          if (row.avg_watts != null) metaParts.push(`Avg ${formatNumber(row.avg_watts, 0)} W`);
-          if (row.max_watts != null) metaParts.push(`Peak ${formatNumber(row.max_watts, 0)} W`);
-          if (row.total_reps != null) metaParts.push(`${formatNumber(row.total_reps, 0)} reps`);
-          posLastSessionListEl.appendChild(renderStatList(title, score, metaParts.join(" · ")));
+          const band = qualityBand(row.quality_score);
+          posLastSessionListEl.appendChild(renderStatusItem(title, band.label, band.tone));
         });
       }
 
@@ -1832,8 +1920,7 @@
           .sort((a, b) => new Date(b.lastDate ?? 0) - new Date(a.lastDate ?? 0))
           .slice(0, 5)
           .forEach((item) => {
-            const scoreLabel =
-              item.latest.quality != null ? `${formatNumber(item.latest.quality, 1)}` : "—";
+            const band = qualityBand(item.latest.quality);
             const qualitySpark = renderSparkline(item.qualitySeries, "rgba(56,189,248,0.9)");
             const asymSpark = renderSparkline(item.asymSeries, "rgba(248,113,113,0.9)");
             const wattsSpark = renderSparkline(item.wattsSeries, "rgba(14,165,233,0.85)");
@@ -1929,7 +2016,14 @@
                 ${deltaLine ? `<div class="trend-stats">${deltaLine}</div>` : ""}
               </div>
             `;
-            posQualityTrendsListEl.appendChild(renderStatList(item.name, scoreLabel, meta));
+            const entry = renderStatusItem(item.name, band.label, band.tone, "Trend snapshot");
+            if (meta) {
+              const metaWrap = document.createElement("div");
+              metaWrap.className = "list-row";
+              metaWrap.innerHTML = meta;
+              entry.appendChild(metaWrap);
+            }
+            posQualityTrendsListEl.appendChild(entry);
           });
       }
 
@@ -1986,7 +2080,7 @@
           .slice(0, 5);
 
         ranked.forEach((item) => {
-          const scoreLabel = item.avgScore != null ? `${formatNumber(item.avgScore, 1)}` : "—";
+          const band = qualityBand(item.avgScore);
           const metaParts = [];
           if (item.maxAsym != null) metaParts.push(`Max asym ${formatNumber(item.maxAsym, 1)}%`);
           if (item.avgRepCv != null) metaParts.push(`Rep CV ${formatNumber(item.avgRepCv, 2)}`);
@@ -2013,7 +2107,12 @@
               <div class="weakness-note">Fix: ${fixNote}</div>
             </div>
           `;
-          posWeaknessListEl.appendChild(renderStatList(item.name, scoreLabel, meta));
+          const entry = renderStatusItem(item.name, band.label, band.tone, "Focus area");
+          const metaWrap = document.createElement("div");
+          metaWrap.className = "list-row";
+          metaWrap.innerHTML = meta;
+          entry.appendChild(metaWrap);
+          posWeaknessListEl.appendChild(entry);
         });
       }
 
@@ -2041,19 +2140,17 @@
         }
         const rec = plan.plan_json?.recommendation ?? {};
         if (rec?.type) {
-          posPlanBodyEl.appendChild(renderPlanList("Type", rec.type));
+          posPlanBodyEl.appendChild(renderStatusItem("Type", rec.type, "good"));
         }
         if (rec?.duration_min) {
-          posPlanBodyEl.appendChild(renderPlanList("Duration", `${rec.duration_min} min`));
+          const band = durationBand(rec.duration_min);
+          posPlanBodyEl.appendChild(renderBarItem("Duration", band.label, band.tone, band.percent));
         }
         if (rec?.intensity) {
-          posPlanBodyEl.appendChild(renderPlanList("Intensity", rec.intensity));
+          posPlanBodyEl.appendChild(renderStatusItem("Intensity", rec.intensity, "warn"));
         }
         if (rec?.reason) {
           posPlanBodyEl.appendChild(renderPlanList("Why", rec.reason));
-        }
-        if (rec?.reason_codes && rec.reason_codes.length) {
-          posPlanBodyEl.appendChild(renderPlanList("Reason codes", rec.reason_codes.join(", ")));
         }
       }
 
