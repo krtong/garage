@@ -1799,17 +1799,29 @@
             ? sleepSeconds / 3600 - sleepBaseline / 3600
             : null;
           if (sleepAge != null && sleepAge >= 2) {
-            drivers.push({ label: "Sleep stale", tone: "warn", meta: { importance: 9, group: "drivers", related: "sleep" } });
+            drivers.push({
+              label: `Sleep stale ${formatNumber(sleepAge, 1)}d`,
+              tone: "warn",
+              meta: { importance: 9, group: "drivers", related: "sleep" },
+            });
           } else if (sleepDelta != null) {
             drivers.push({
-              label: sleepDelta >= 0.5 ? "Sleep ↑" : sleepDelta <= -0.5 ? "Sleep ↓" : "Sleep steady",
+              label: sleepDelta >= 0.5
+                ? `Sleep ↑ ${formatNumber(sleepDelta, 1)}h`
+                : sleepDelta <= -0.5
+                  ? `Sleep ↓ ${formatNumber(Math.abs(sleepDelta), 1)}h`
+                  : "Sleep steady",
               tone: sleepDelta >= 0.5 ? "good" : sleepDelta <= -0.5 ? "bad" : "warn",
               meta: { importance: 9, group: "drivers", related: "sleep" },
             });
           }
           if (latestForm != null) {
             drivers.push({
-              label: latestForm >= 5 ? "Form ↑" : latestForm <= -5 ? "Form ↓" : "Form steady",
+              label: latestForm >= 5
+                ? `Form ↑ ${formatNumber(latestForm, 0)}`
+                : latestForm <= -5
+                  ? `Form ↓ ${formatNumber(latestForm, 0)}`
+                  : `Form ${formatNumber(latestForm, 0)}`,
               tone: latestForm >= 5 ? "good" : latestForm <= -5 ? "bad" : "warn",
               meta: { importance: 8, group: "drivers", related: "form" },
             });
@@ -1818,12 +1830,24 @@
           if (nutritionEntries <= 0) {
             drivers.push({ label: "Fuel missing", tone: "warn", meta: { importance: 7, group: "drivers", related: "nutrition" } });
           } else if (nutritionEntries < 4) {
-            drivers.push({ label: "Fuel sparse", tone: "warn", meta: { importance: 7, group: "drivers", related: "nutrition" } });
+            drivers.push({
+              label: `Fuel sparse (${nutritionEntries}/7)`,
+              tone: "warn",
+              meta: { importance: 7, group: "drivers", related: "nutrition" },
+            });
           } else {
-            drivers.push({ label: "Fuel tracked", tone: "good", meta: { importance: 7, group: "drivers", related: "nutrition" } });
+            drivers.push({
+              label: `Fuel tracked (${nutritionEntries}/7)`,
+              tone: "good",
+              meta: { importance: 7, group: "drivers", related: "nutrition" },
+            });
           }
           if (weightAge != null && weightAge >= 7) {
-            drivers.push({ label: "Weight stale", tone: "warn", meta: { importance: 5, group: "drivers", related: "weight" } });
+            drivers.push({
+              label: `Weight stale ${formatNumber(weightAge, 1)}d`,
+              tone: "warn",
+              meta: { importance: 5, group: "drivers", related: "weight" },
+            });
           }
           drivers.slice(0, 4).forEach((driver) => {
             const chip = document.createElement("div");
@@ -3440,8 +3464,8 @@
         scale.className = "bullet-scale";
         scale.innerHTML = `
           <span>0</span>
-          <span>${formatNumber(safeTarget, 0)} ${unit}</span>
-          <span>${formatNumber(scaleMax, 0)} ${unit}</span>
+          <span>Target ${formatNumber(safeTarget, 0)} ${unit}</span>
+          <span>Cap ${formatNumber(scaleMax, 0)} ${unit}</span>
         `;
         item.appendChild(scale);
         attachMeta(item, meta);
