@@ -1080,6 +1080,7 @@
             tone: readinessBand.tone,
             icon: "⚡️",
             sub: "How ready you are today",
+            progress: readiness?.readiness_score,
           }),
         );
         posSummaryMetricsEl.appendChild(
@@ -1098,6 +1099,7 @@
             tone: adherenceTone,
             icon: "✅",
             sub: "Planned vs completed",
+            progress: adherence ? adherence * 100 : null,
           }),
         );
         posSummaryMetricsEl.appendChild(
@@ -1564,7 +1566,7 @@
         return item;
       }
 
-      function renderKpiCard({ label, value, tone = "good", icon = "•", sub = "" }) {
+      function renderKpiCard({ label, value, tone = "good", icon = "•", sub = "", progress = null }) {
         const card = document.createElement("div");
         card.className = "kpi-card";
         card.innerHTML = `
@@ -1575,13 +1577,15 @@
           <div class="kpi-value">${value}</div>
           <div class="kpi-sub">${sub}</div>
         `;
-        const bar = document.createElement("div");
-        bar.className = "bar";
-        const fill = document.createElement("div");
-        fill.className = `bar-fill ${tone}`;
-        fill.style.width = tone === "good" ? "90%" : tone === "warn" ? "55%" : "25%";
-        bar.appendChild(fill);
-        card.appendChild(bar);
+        if (progress !== null && progress !== undefined && !Number.isNaN(progress)) {
+          const bar = document.createElement("div");
+          bar.className = "bar";
+          const fill = document.createElement("div");
+          fill.className = `bar-fill ${tone}`;
+          fill.style.width = `${Math.max(5, Math.min(progress, 100))}%`;
+          bar.appendChild(fill);
+          card.appendChild(bar);
+        }
         return card;
       }
 
@@ -1889,7 +1893,7 @@
             posStatsListEl.appendChild(renderStatusItem(stat.label, "No data", "bad", "Log source to unlock."));
             return;
           }
-          posStatsListEl.appendChild(renderBarItem(stat.label, "Tracked", "good", 70, "Logged this week"));
+          posStatsListEl.appendChild(renderStatusItem(stat.label, "Tracked", "good", "Logged this week"));
         });
 
         if (!nutritionResp.data?.length && posStatsNoteEl) {
