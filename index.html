@@ -481,6 +481,20 @@
           </div>
           <div id="pos-quality-list" class="list"></div>
         </div>
+        <div id="pos-quality-trends" class="card grid hidden">
+          <div class="row-inline">
+            <div style="font-weight:600;">Quality trends</div>
+            <div class="meta" id="pos-quality-trends-note">—</div>
+          </div>
+          <div id="pos-quality-trends-list" class="list"></div>
+        </div>
+        <div id="pos-weakness" class="card grid hidden">
+          <div class="row-inline">
+            <div style="font-weight:600;">Weakest links</div>
+            <div class="meta" id="pos-weakness-note">—</div>
+          </div>
+          <div id="pos-weakness-list" class="list"></div>
+        </div>
         <div class="actions">
           <button id="logout" class="secondary">Sign out</button>
         </div>
@@ -532,6 +546,12 @@
       const posQualityEl = document.getElementById("pos-quality");
       const posQualityListEl = document.getElementById("pos-quality-list");
       const posQualityNoteEl = document.getElementById("pos-quality-note");
+      const posQualityTrendsEl = document.getElementById("pos-quality-trends");
+      const posQualityTrendsListEl = document.getElementById("pos-quality-trends-list");
+      const posQualityTrendsNoteEl = document.getElementById("pos-quality-trends-note");
+      const posWeaknessEl = document.getElementById("pos-weakness");
+      const posWeaknessListEl = document.getElementById("pos-weakness-list");
+      const posWeaknessNoteEl = document.getElementById("pos-weakness-note");
       const posRunStatusEl = document.getElementById("pos-run-status");
       const garageSettingsEl = document.getElementById("garage-settings");
       const viewEventsEl = document.getElementById("view-events");
@@ -550,11 +570,11 @@
             "data-status",
             "load-more-events",
           ],
-          hiddenIds: ["pos-summary", "pos-plan", "pos-stats", "pos-baselines"],
+          hiddenIds: ["pos-summary", "pos-plan", "pos-stats", "pos-baselines", "pos-quality", "pos-quality-trends", "pos-weakness"],
         },
         pos: {
           label: "Personal Ops",
-          visibleIds: ["pos-summary", "pos-plan", "pos-stats", "pos-baselines", "pos-quality"],
+          visibleIds: ["pos-summary", "pos-plan", "pos-stats", "pos-baselines", "pos-quality", "pos-quality-trends", "pos-weakness"],
           hiddenIds: [
             "garage-settings",
             "garage-data-card",
@@ -1141,6 +1161,8 @@
           await loadPosStats();
           await loadPosBaselines();
           await loadPosQuality();
+          await loadPosQualityTrends();
+          await loadPosWeakness();
           return;
         }
         if (currentDataView === "state") {
@@ -1210,6 +1232,28 @@
           ${meta ? `<div class="list-row">${meta}</div>` : ""}
         `;
         return item;
+      }
+
+      function renderSparkline(values) {
+        if (!values || values.length < 2) return "";
+        const width = 120;
+        const height = 36;
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const range = max - min || 1;
+        const step = width / (values.length - 1);
+        const points = values
+          .map((v, i) => {
+            const x = i * step;
+            const y = height - ((v - min) / range) * height;
+            return `${x.toFixed(1)},${y.toFixed(1)}`;
+          })
+          .join(" ");
+        return `
+          <svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" aria-hidden="true">
+            <polyline fill="none" stroke="rgba(56,189,248,0.9)" stroke-width="2" points="${points}" />
+          </svg>
+        `;
       }
 
       function startOfWeekSunday(date) {
@@ -1470,6 +1514,106 @@
           if (row.exercise_count) metaParts.push(`${row.exercise_count} exercises`);
           if (row.total_reps) metaParts.push(`${row.total_reps} reps`);
           posQualityListEl.appendChild(renderStatList(label, score, metaParts.join(" · ")));
+        });
+      }
+
+      async function loadPosQualityTrends() {
+        if (!posQualityTrendsListEl) return;
+        posQualityTrendsListEl.innerHTML = "";
+        if (posQualityTrendsNoteEl) posQualityTrendsNoteEl.textContent = "";
+
+        const { data, error } = await supabase
+          .from("speediance_exercise_session_metrics")
+          .select("action_library_group_id,action_library_name,session_date,quality_score")
+          .order("session_date", { ascending: false })
+          .limit(120);
+
+        if (error || !data || !data.length) {
+          if (posQualityTrendsNoteEl) posQualityTrendsNoteEl.textContent = "No quality trends yet.";
+          return;
+        }
+        if (posQualityTrendsNoteEl) posQualityTrendsNoteEl.textContent = "Last 6 sessions per exercise";
+
+        const grouped = {};
+        data.forEach((row) => {
+          if (!row.quality_score) return;
+          const key = row.action_library_group_id;
+          if (!grouped[key]) {
+            grouped[key] = {
+              name: row.action_library_name || `Exercise ${row.action_library_group_id}`,
+              scores: [],
+              dates: [],
+            };
+          }
+          grouped[key].scores.push(row.quality_score);
+          grouped[key].dates.push(row.session_date);
+        });
+
+        Object.values(grouped)
+          .map((item) => ({
+            name: item.name,
+            scores: item.scores.slice(0, 6).reverse(),
+            last: item.scores[0],
+          }))
+          .sort((a, b) => (b.last ?? 0) - (a.last ?? 0))
+          .slice(0, 5)
+          .forEach((item) => {
+            const spark = renderSparkline(item.scores);
+            const scoreLabel = item.last != null ? `${formatNumber(item.last, 1)}` : "—";
+            const meta = spark ? `<span class="list-row">${spark}</span>` : "";
+            posQualityTrendsListEl.appendChild(renderStatList(item.name, scoreLabel, meta));
+          });
+      }
+
+      async function loadPosWeakness() {
+        if (!posWeaknessListEl) return;
+        posWeaknessListEl.innerHTML = "";
+        if (posWeaknessNoteEl) posWeaknessNoteEl.textContent = "";
+
+        const { data, error } = await supabase
+          .from("speediance_exercise_session_metrics")
+          .select("action_library_group_id,action_library_name,quality_score,watt_asym_pct,speed_asym_pct,amplitude_asym_pct")
+          .order("session_date", { ascending: false })
+          .limit(200);
+
+        if (error || !data || !data.length) {
+          if (posWeaknessNoteEl) posWeaknessNoteEl.textContent = "No weakness data yet.";
+          return;
+        }
+        if (posWeaknessNoteEl) posWeaknessNoteEl.textContent = "Lowest quality + highest asymmetry";
+
+        const byExercise = {};
+        data.forEach((row) => {
+          const key = row.action_library_group_id;
+          if (!byExercise[key]) {
+            byExercise[key] = {
+              name: row.action_library_name || `Exercise ${row.action_library_group_id}`,
+              scores: [],
+              asym: [],
+            };
+          }
+          if (row.quality_score != null) byExercise[key].scores.push(row.quality_score);
+          const asymVals = [row.watt_asym_pct, row.speed_asym_pct, row.amplitude_asym_pct].filter((v) => v != null);
+          if (asymVals.length) byExercise[key].asym.push(Math.max(...asymVals));
+        });
+
+        const ranked = Object.values(byExercise)
+          .map((item) => {
+            const avgScore = item.scores.length ? item.scores.reduce((a, b) => a + b, 0) / item.scores.length : null;
+            const maxAsym = item.asym.length ? Math.max(...item.asym) : null;
+            const scoreNorm = avgScore != null ? Math.max(0, Math.min(1, avgScore / 100)) : 0;
+            const asymNorm = maxAsym != null ? Math.max(0, Math.min(1, maxAsym / 100)) : 0;
+            const weakness = (1 - scoreNorm) * 0.6 + asymNorm * 0.4;
+            return { name: item.name, avgScore, maxAsym, weakness };
+          })
+          .sort((a, b) => b.weakness - a.weakness)
+          .slice(0, 5);
+
+        ranked.forEach((item) => {
+          const scoreLabel = item.avgScore != null ? `${formatNumber(item.avgScore, 1)}` : "—";
+          const metaParts = [];
+          if (item.maxAsym != null) metaParts.push(`Asym ${formatNumber(item.maxAsym, 1)}%`);
+          posWeaknessListEl.appendChild(renderStatList(item.name, scoreLabel, metaParts.join(" · ")));
         });
       }
 
