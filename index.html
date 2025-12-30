@@ -436,6 +436,11 @@
       .star-off {
         color: rgba(148, 163, 184, 0.5);
       }
+      .trend-meta {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
       .threshold-bar {
         position: relative;
         height: 10px;
@@ -1467,25 +1472,55 @@
         const enduranceTrend = trendBadge(distanceSeries);
         const strengthTrend = trendBadge(strengthSeries);
 
-        const loadEntry = renderStatusItem("Training load", loadTrend.label, loadTrend.tone, "Overall stress trend");
+        const loadAvg = avg(loadSeries) ?? 0;
+        const loadEntry = renderStatusItem(
+          "Training load",
+          loadTrend.label,
+          loadTrend.tone,
+          `Avg ${formatNumber(loadAvg, 0)} load/day`
+        );
         const loadSpark = document.createElement("div");
         loadSpark.className = "trend-spark";
         loadSpark.innerHTML = renderSparkline(loadSeries, "rgba(56,189,248,0.9)");
+        const loadMeta = document.createElement("div");
+        loadMeta.className = "trend-meta";
+        loadMeta.textContent = `Last 7d: ${formatNumber(loadSeries[loadSeries.length - 1] ?? 0, 0)} load`;
         loadEntry.appendChild(loadSpark);
+        loadEntry.appendChild(loadMeta);
         posTrendsListEl.appendChild(loadEntry);
 
-        const enduranceEntry = renderStatusItem("Endurance distance", enduranceTrend.label, enduranceTrend.tone, "Swim + bike + run");
+        const distanceTotal = distanceSeries.reduce((acc, val) => acc + val, 0);
+        const enduranceEntry = renderStatusItem(
+          "Endurance distance",
+          enduranceTrend.label,
+          enduranceTrend.tone,
+          `Total ${formatNumber(formatMiles(distanceTotal) ?? 0, 1)} mi`
+        );
         const enduranceSpark = document.createElement("div");
         enduranceSpark.className = "trend-spark";
         enduranceSpark.innerHTML = renderSparkline(distanceSeries, "rgba(16,185,129,0.9)");
+        const enduranceMeta = document.createElement("div");
+        enduranceMeta.className = "trend-meta";
+        enduranceMeta.textContent = "Swim + bike + run";
         enduranceEntry.appendChild(enduranceSpark);
+        enduranceEntry.appendChild(enduranceMeta);
         posTrendsListEl.appendChild(enduranceEntry);
 
-        const strengthEntry = renderStatusItem("Strength sessions", strengthTrend.label, strengthTrend.tone, "Speediance volume");
+        const strengthTotal = strengthSeries.reduce((acc, val) => acc + val, 0);
+        const strengthEntry = renderStatusItem(
+          "Strength sessions",
+          strengthTrend.label,
+          strengthTrend.tone,
+          `${strengthTotal} sessions in 7d`
+        );
         const strengthSpark = document.createElement("div");
         strengthSpark.className = "trend-spark";
         strengthSpark.innerHTML = renderSparkline(strengthSeries, "rgba(129,140,248,0.9)");
+        const strengthMeta = document.createElement("div");
+        strengthMeta.className = "trend-meta";
+        strengthMeta.textContent = "Speediance volume trend";
         strengthEntry.appendChild(strengthSpark);
+        strengthEntry.appendChild(strengthMeta);
         posTrendsListEl.appendChild(strengthEntry);
 
         if (posTrendsNoteEl) {
@@ -1936,6 +1971,17 @@
         return wrap;
       }
 
+      function formatScore(score) {
+        if (score === null || score === undefined || Number.isNaN(score)) return "—";
+        return `${formatNumber(score, 0)}/100`;
+      }
+
+      function avg(values) {
+        if (!values || !values.length) return null;
+        const sum = values.reduce((acc, v) => acc + v, 0);
+        return sum / values.length;
+      }
+
       function renderMacroDonut({ proteinPct, carbsPct, fatPct }) {
         const donut = document.createElement("div");
         donut.className = "donut-card";
@@ -2358,7 +2404,8 @@
           const percent = ratio * 100;
           const tone = ratio > 0.75 ? "good" : ratio > 0.4 ? "warn" : "bad";
           const status = ratio > 0.75 ? "High power" : ratio > 0.4 ? "Moderate" : "Develop";
-          const item = renderStatusItem(name, status, tone, "Relative to your top baseline");
+          const meta = row.max_watts ? `${formatNumber(row.max_watts, 0)} W (${formatNumber(percent, 0)}% of best)` : "No watts";
+          const item = renderStatusItem(name, status, tone, meta);
           item.appendChild(renderThresholdBar(percent));
           posBaselinesListEl.appendChild(item);
         });
@@ -2384,8 +2431,8 @@
         data.forEach((row) => {
           const label = row.session_date ? new Date(row.session_date).toLocaleDateString() : row.training_id;
           const band = qualityBand(row.quality_score);
-          const item = renderStatusItem(label, band.label, band.tone, "Session quality");
-          item.appendChild(renderStars((row.quality_score ?? 0) / 20));
+          const item = renderStatusItem(label, band.label, band.tone, `Quality ${formatScore(row.quality_score)}`);
+          item.appendChild(renderThresholdBar(row.quality_score ?? 0));
           posQualityListEl.appendChild(item);
         });
       }
@@ -2429,8 +2476,8 @@
         metricsData.forEach((row) => {
           const title = row.action_library_name || "Exercise";
           const band = qualityBand(row.quality_score);
-          const item = renderStatusItem(title, band.label, band.tone, "Last session quality");
-          item.appendChild(renderStars((row.quality_score ?? 0) / 20));
+          const item = renderStatusItem(title, band.label, band.tone, `Quality ${formatScore(row.quality_score)}`);
+          item.appendChild(renderThresholdBar(row.quality_score ?? 0));
           posLastSessionListEl.appendChild(item);
         });
       }
