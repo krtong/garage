@@ -212,6 +212,37 @@
       .bar-fill.good { background: var(--success); }
       .bar-fill.warn { background: #f59e0b; }
       .bar-fill.bad { background: var(--danger); }
+      .goal-bar {
+        position: relative;
+      }
+      .goal-bar .bar-tick {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: rgba(148, 163, 184, 0.4);
+      }
+      .goal-legend {
+        font-size: 11px;
+        color: var(--muted);
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .goal-legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--muted);
+      }
+      .legend-dot.good { background: var(--success); }
+      .legend-dot.warn { background: #f59e0b; }
+      .legend-dot.bad { background: var(--danger); }
       .trend-inline {
         display: flex;
         align-items: center;
@@ -1620,6 +1651,40 @@
         return item;
       }
 
+      function renderGoalBar({ label, actual, target, unit }) {
+        const ratio = target ? actual / target : 0;
+        const percent = Math.round(ratio * 100);
+        const status = ratio >= 1.1 ? "High" : ratio >= 0.9 ? "On target" : ratio >= 0.6 ? "Low" : "Very low";
+        const tone = ratio >= 0.9 && ratio <= 1.1 ? "good" : ratio >= 0.6 ? "warn" : "bad";
+        const meta = `${formatNumber(actual, 1)} ${unit} / ${formatNumber(target, 0)} ${unit} (${percent}%)`;
+
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.innerHTML = `<div class="list-title">${label}</div><div class="list-meta">${meta}</div>`;
+        const chip = document.createElement("div");
+        chip.className = `status-chip ${tone}`;
+        chip.textContent = status;
+        item.appendChild(chip);
+
+        const bar = document.createElement("div");
+        bar.className = "bar goal-bar";
+        const fill = document.createElement("div");
+        fill.className = `bar-fill ${tone}`;
+        fill.style.width = `${Math.max(3, Math.min(percent, 100))}%`;
+        bar.appendChild(fill);
+
+        const tickLow = document.createElement("div");
+        tickLow.className = "bar-tick";
+        tickLow.style.left = "60%";
+        const tickTarget = document.createElement("div");
+        tickTarget.className = "bar-tick";
+        tickTarget.style.left = "90%";
+        bar.appendChild(tickLow);
+        bar.appendChild(tickTarget);
+        item.appendChild(bar);
+        return item;
+      }
+
       function bandFromScore(score) {
         if (score === null || score === undefined || Number.isNaN(score)) {
           return { label: "Unknown", tone: "warn", percent: 40 };
@@ -1949,11 +2014,25 @@
             posNutritionListEl.appendChild(renderStatusItem(row.label, "No data", "warn", "Needs logging"));
             return;
           }
-          const ratio = actualVal / targetVal;
-          const status = ratio >= 0.9 ? "On target" : ratio >= 0.6 ? "Low" : "Very low";
-          const tone = ratio >= 0.9 ? "good" : ratio >= 0.6 ? "warn" : "bad";
-          posNutritionListEl.appendChild(renderBarItem(row.label, status, tone, Math.min(100, ratio * 100)));
+          posNutritionListEl.appendChild(
+            renderGoalBar({
+              label: row.label,
+              actual: actualVal,
+              target: targetVal,
+              unit: row.unit,
+            }),
+          );
         });
+
+        const legend = document.createElement("div");
+        legend.className = "goal-legend";
+        legend.innerHTML = `
+          <span><span class="legend-dot bad"></span>Very low (&lt;60%)</span>
+          <span><span class="legend-dot warn"></span>Low (60–90%)</span>
+          <span><span class="legend-dot good"></span>On target (90–110%)</span>
+          <span><span class="legend-dot warn"></span>High (&gt;110%)</span>
+        `;
+        posNutritionListEl.appendChild(legend);
       }
 
       async function loadPosBaselines() {
