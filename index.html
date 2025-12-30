@@ -1684,6 +1684,11 @@
           .select("adherence_7d,training_load_7d,nutrition_entries_7d,sleep_seconds,sleep_baseline_7d,updated_at")
           .order("date", { ascending: false })
           .limit(1);
+        const nutritionDaysReq = supabase
+          .from("pos_events")
+          .select("event_timestamp")
+          .eq("source", "nutrition")
+          .gte("event_timestamp", rangeStartDate(7).toISOString());
         const stravaFormReq = supabase
           .from("strava_fitness_daily")
           .select("form")
@@ -1700,12 +1705,19 @@
           { data: training, error: trainingError },
           { data: readiness },
           { data: metricsRows },
+          { data: nutritionEvents },
           { data: formRows },
           { data: runData },
-        ] = await Promise.all([trainingReq, readinessReq, metricsReq, stravaFormReq, runReq]);
+        ] = await Promise.all([trainingReq, readinessReq, metricsReq, nutritionDaysReq, stravaFormReq, runReq]);
         const runRow = Array.isArray(runData) && runData.length ? runData[0] : null;
         const metrics = metricsRows?.[0] ?? null;
         const latestForm = Array.isArray(formRows) && formRows.length ? Number(formRows[0].form ?? 0) : null;
+        const nutritionDays = new Set();
+        (nutritionEvents || []).forEach((row) => {
+          const key = dateKeyFromIso(row.event_timestamp);
+          if (key) nutritionDays.add(key);
+        });
+        const nutritionDaysCount = nutritionDays.size;
 
         if (trainingError) {
           if (posSummaryNoteEl) posSummaryNoteEl.textContent = "Training summary unavailable.";
@@ -1818,26 +1830,25 @@
           if (latestForm != null) {
             drivers.push({
               label: latestForm >= 5
-                ? `Form ↑ ${formatNumber(latestForm, 0)}`
+                ? `Form +${formatNumber(latestForm, 0)}`
                 : latestForm <= -5
-                  ? `Form ↓ ${formatNumber(latestForm, 0)}`
-                  : `Form ${formatNumber(latestForm, 0)}`,
+                  ? `Form ${formatNumber(latestForm, 0)}`
+                  : `Form ${latestForm >= 0 ? "+" : ""}${formatNumber(latestForm, 0)}`,
               tone: latestForm >= 5 ? "good" : latestForm <= -5 ? "bad" : "warn",
               meta: { importance: 8, group: "drivers", related: "form" },
             });
           }
-          const nutritionEntries = metrics?.nutrition_entries_7d ?? 0;
-          if (nutritionEntries <= 0) {
+          if (nutritionDaysCount <= 0) {
             drivers.push({ label: "Fuel missing", tone: "warn", meta: { importance: 7, group: "drivers", related: "nutrition" } });
-          } else if (nutritionEntries < 4) {
+          } else if (nutritionDaysCount < 4) {
             drivers.push({
-              label: `Fuel sparse (${nutritionEntries}/7)`,
+              label: `Fuel sparse (${nutritionDaysCount}/7 days)`,
               tone: "warn",
               meta: { importance: 7, group: "drivers", related: "nutrition" },
             });
           } else {
             drivers.push({
-              label: `Fuel tracked (${nutritionEntries}/7)`,
+              label: `Fuel tracked (${nutritionDaysCount}/7 days)`,
               tone: "good",
               meta: { importance: 7, group: "drivers", related: "nutrition" },
             });
