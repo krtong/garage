@@ -28,7 +28,7 @@
         min-height: 100vh;
       }
       .wrap {
-        max-width: 780px;
+        max-width: 1100px;
         margin: 0 auto;
         background: linear-gradient(160deg, rgba(20,27,47,0.95), rgba(12,16,32,0.98));
         border-radius: 20px;
@@ -125,6 +125,104 @@
         border-radius: 16px;
         padding: 14px;
         background: rgba(10, 15, 31, 0.6);
+      }
+      .pos-layout {
+        display: grid;
+        gap: 22px;
+      }
+      .pos-hero {
+        border-radius: 22px;
+        border: 1px solid rgba(42, 51, 82, 0.6);
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(12, 18, 34, 0.92));
+        padding: 18px;
+        display: grid;
+        gap: 18px;
+      }
+      .pos-hero-grid {
+        display: grid;
+        gap: 18px;
+      }
+      @media (min-width: 900px) {
+        .pos-hero-grid {
+          grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
+        }
+      }
+      .pos-summary {
+        display: grid;
+        gap: 12px;
+      }
+      .pos-summary-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .pos-summary-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .pos-plan-panel {
+        border-radius: 18px;
+        border: 1px solid rgba(42, 51, 82, 0.6);
+        background: rgba(9, 13, 26, 0.75);
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+      .pos-body {
+        display: grid;
+        gap: 20px;
+      }
+      @media (min-width: 960px) {
+        .pos-body {
+          grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
+        }
+      }
+      .pos-section {
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(30, 41, 59, 0.6);
+        display: grid;
+        gap: 12px;
+      }
+      .pos-section:last-child {
+        border-bottom: none;
+      }
+      .pos-panel {
+        border-radius: 16px;
+        border: 1px solid rgba(42, 51, 82, 0.6);
+        background: rgba(9, 13, 26, 0.75);
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+      .pos-right-stack {
+        display: grid;
+        gap: 14px;
+      }
+      .pos-lab {
+        border-radius: 20px;
+        border: 1px solid rgba(42, 51, 82, 0.7);
+        background: rgba(7, 10, 22, 0.8);
+        padding: 18px;
+        display: grid;
+        gap: 16px;
+      }
+      .pos-lab-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .pos-lab-grid {
+        display: grid;
+        gap: 16px;
+      }
+      @media (min-width: 900px) {
+        .pos-lab-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
       }
       .row-inline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
       .process-tabs {
@@ -809,129 +907,155 @@
           <div id="data-list" class="list"></div>
           <div class="meta" id="data-status"></div>
         </div>
-        <div id="pos-summary" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Training summary</div>
-            <div class="meta" id="pos-summary-updated">—</div>
+        <div id="pos-dashboard" class="pos-layout hidden">
+          <div class="pos-hero">
+            <div class="pos-summary-header">
+              <div style="font-weight:600;">Personal Ops · Today</div>
+              <div class="meta" id="pos-summary-updated">—</div>
+            </div>
+            <div class="pos-summary-meta">
+              <div class="meta">Range</div>
+              <div id="pos-range" class="segmented"></div>
+              <div id="pos-summary-freshness" class="pill unknown">Freshness</div>
+              <div id="pos-run-status" class="pill unknown">Last run</div>
+            </div>
+            <div class="pos-hero-grid">
+              <div id="pos-summary" class="pos-summary hidden">
+                <div id="pos-summary-metrics" class="kpi-grid"></div>
+                <div class="meta" id="pos-summary-note"></div>
+              </div>
+              <div id="pos-plan" class="pos-plan-panel hidden">
+                <div class="row-inline">
+                  <div style="font-weight:600;">Today’s plan</div>
+                  <div class="meta" id="pos-plan-date">—</div>
+                </div>
+                <div id="pos-plan-body" class="list"></div>
+                <div class="meta" id="pos-plan-note"></div>
+              </div>
+            </div>
           </div>
-          <div class="row-inline">
-            <div class="meta">Range</div>
-            <div id="pos-range" class="segmented"></div>
+
+          <div class="pos-body">
+            <div class="pos-left">
+              <div id="pos-heatmap" class="pos-section hidden">
+                <div class="row-inline">
+                  <div style="font-weight:600;">Week heatmap</div>
+                  <div class="meta" id="pos-heatmap-note">—</div>
+                </div>
+                <div id="pos-heatmap-grid" class="heatmap"></div>
+              </div>
+              <div id="pos-strava-fitness" class="pos-section hidden">
+                <div class="row-inline">
+                  <div style="font-weight:600;">Fitness & freshness</div>
+                  <div class="meta" id="pos-strava-note">—</div>
+                </div>
+                <div id="pos-strava-list" class="list"></div>
+                <div id="pos-strava-chart" class="chart"></div>
+              </div>
+              <div id="pos-trends" class="pos-section hidden">
+                <div class="row-inline">
+                  <div style="font-weight:600;">Momentum strips</div>
+                  <div class="meta" id="pos-trends-note">—</div>
+                </div>
+                <div id="pos-trends-list" class="list"></div>
+              </div>
+            </div>
+            <div class="pos-right">
+              <div class="pos-right-stack">
+                <div id="pos-recovery" class="pos-panel hidden">
+                  <div class="row-inline">
+                    <div style="font-weight:600;">Withings recovery</div>
+                    <div class="meta" id="pos-recovery-note">—</div>
+                  </div>
+                  <div id="pos-recovery-list" class="list"></div>
+                </div>
+                <div id="pos-nutrition" class="pos-panel hidden">
+                  <div class="row-inline">
+                    <div style="font-weight:600;">Nutrition budget</div>
+                    <div class="meta" id="pos-nutrition-note">—</div>
+                  </div>
+                  <div id="pos-nutrition-list" class="list"></div>
+                </div>
+                <div id="pos-apple-health" class="pos-panel hidden">
+                  <div class="row-inline">
+                    <div style="font-weight:600;">Apple Health signals</div>
+                    <div class="meta" id="pos-apple-health-note">—</div>
+                  </div>
+                  <div id="pos-apple-health-list" class="list"></div>
+                </div>
+                <div id="pos-stats" class="pos-panel hidden">
+                  <div class="row-inline">
+                    <div style="font-weight:600;">Weekly averages</div>
+                    <div class="meta" id="pos-stats-range">—</div>
+                  </div>
+                  <div id="pos-stats-list" class="list"></div>
+                  <div class="meta" id="pos-stats-note"></div>
+                </div>
+                <div id="pos-sleep-plan" class="pos-panel hidden">
+                  <div class="row-inline">
+                    <div style="font-weight:600;">Sleep plan</div>
+                    <div class="meta" id="pos-sleep-plan-note">—</div>
+                  </div>
+                  <div id="pos-sleep-plan-list" class="list"></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="row-inline">
-            <div id="pos-summary-freshness" class="pill unknown">Freshness</div>
-            <div id="pos-run-status" class="pill unknown">Last run</div>
+
+          <div class="pos-lab">
+            <div class="pos-lab-header">
+              <div style="font-weight:600;">Strength Lab</div>
+              <div class="meta">Speediance intelligence</div>
+            </div>
+            <div class="pos-lab-grid">
+              <div id="pos-strength-scatter" class="pos-panel hidden">
+                <div class="row-inline">
+                  <div style="font-weight:600;">Quality vs asymmetry</div>
+                  <div class="meta" id="pos-strength-scatter-note">—</div>
+                </div>
+                <div id="pos-strength-scatter-chart" class="chart"></div>
+              </div>
+              <div id="pos-baselines" class="pos-panel hidden">
+                <div class="row-inline">
+                  <div style="font-weight:600;">Power baselines</div>
+                  <div class="meta" id="pos-baselines-note">—</div>
+                </div>
+                <div id="pos-baselines-list" class="list"></div>
+              </div>
+            </div>
+            <div class="pos-lab-grid">
+              <div id="pos-quality" class="pos-panel hidden">
+                <div class="row-inline">
+                  <div style="font-weight:600;">Session quality</div>
+                  <div class="meta" id="pos-quality-note">—</div>
+                </div>
+                <div id="pos-quality-list" class="list"></div>
+              </div>
+              <div id="pos-last-session" class="pos-panel hidden">
+                <div class="row-inline">
+                  <div style="font-weight:600;">Last session breakdown</div>
+                  <div class="meta" id="pos-last-session-note">—</div>
+                </div>
+                <div id="pos-last-session-list" class="list"></div>
+              </div>
+            </div>
+            <div class="pos-lab-grid">
+              <div id="pos-quality-trends" class="pos-panel hidden">
+                <div class="row-inline">
+                  <div style="font-weight:600;">Exercise trends</div>
+                  <div class="meta" id="pos-quality-trends-note">—</div>
+                </div>
+                <div id="pos-quality-trends-list" class="list"></div>
+              </div>
+              <div id="pos-weakness" class="pos-panel hidden">
+                <div class="row-inline">
+                  <div style="font-weight:600;">What to fix next</div>
+                  <div class="meta" id="pos-weakness-note">—</div>
+                </div>
+                <div id="pos-weakness-list" class="list"></div>
+              </div>
+            </div>
           </div>
-          <div id="pos-summary-metrics" class="kpi-grid"></div>
-          <div class="meta" id="pos-summary-note"></div>
-        </div>
-        <div id="pos-recovery" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Withings recovery</div>
-            <div class="meta" id="pos-recovery-note">—</div>
-          </div>
-          <div id="pos-recovery-list" class="list"></div>
-        </div>
-        <div id="pos-strava-fitness" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Strava fitness & freshness</div>
-            <div class="meta" id="pos-strava-note">—</div>
-          </div>
-          <div id="pos-strava-list" class="list"></div>
-          <div id="pos-strava-chart" class="chart"></div>
-        </div>
-        <div id="pos-plan" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Today’s plan</div>
-            <div class="meta" id="pos-plan-date">—</div>
-          </div>
-          <div id="pos-plan-body" class="list"></div>
-          <div class="meta" id="pos-plan-note"></div>
-        </div>
-        <div id="pos-trends" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Trends</div>
-            <div class="meta" id="pos-trends-note">—</div>
-          </div>
-          <div id="pos-trends-list" class="list"></div>
-        </div>
-        <div id="pos-heatmap" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Week heatmap</div>
-            <div class="meta" id="pos-heatmap-note">—</div>
-          </div>
-          <div id="pos-heatmap-grid" class="heatmap"></div>
-        </div>
-        <div id="pos-stats" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Weekly averages</div>
-            <div class="meta" id="pos-stats-range">—</div>
-          </div>
-          <div id="pos-stats-list" class="list"></div>
-          <div class="meta" id="pos-stats-note"></div>
-        </div>
-        <div id="pos-apple-health" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Apple Health signals</div>
-            <div class="meta" id="pos-apple-health-note">—</div>
-          </div>
-          <div id="pos-apple-health-list" class="list"></div>
-        </div>
-        <div id="pos-nutrition" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Nutrition targets</div>
-            <div class="meta" id="pos-nutrition-note">—</div>
-          </div>
-          <div id="pos-nutrition-list" class="list"></div>
-        </div>
-        <div id="pos-baselines" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Strength baselines</div>
-            <div class="meta" id="pos-baselines-note">—</div>
-          </div>
-          <div id="pos-baselines-list" class="list"></div>
-        </div>
-        <div id="pos-quality" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Session quality</div>
-            <div class="meta" id="pos-quality-note">—</div>
-          </div>
-          <div id="pos-quality-list" class="list"></div>
-        </div>
-        <div id="pos-last-session" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Last session breakdown</div>
-            <div class="meta" id="pos-last-session-note">—</div>
-          </div>
-          <div id="pos-last-session-list" class="list"></div>
-        </div>
-        <div id="pos-strength-scatter" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Strength scatter (quality vs asymmetry)</div>
-            <div class="meta" id="pos-strength-scatter-note">—</div>
-          </div>
-          <div id="pos-strength-scatter-chart" class="chart"></div>
-        </div>
-        <div id="pos-quality-trends" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Exercise trends</div>
-            <div class="meta" id="pos-quality-trends-note">—</div>
-          </div>
-          <div id="pos-quality-trends-list" class="list"></div>
-        </div>
-        <div id="pos-weakness" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">What to fix next</div>
-            <div class="meta" id="pos-weakness-note">—</div>
-          </div>
-          <div id="pos-weakness-list" class="list"></div>
-        </div>
-        <div id="pos-sleep-plan" class="card grid hidden">
-          <div class="row-inline">
-            <div style="font-weight:600;">Sleep plan</div>
-            <div class="meta" id="pos-sleep-plan-note">—</div>
-          </div>
-          <div id="pos-sleep-plan-list" class="list"></div>
         </div>
         <div class="actions">
           <button id="logout" class="secondary">Sign out</button>
@@ -1039,6 +1163,7 @@
           ],
           hiddenIds: [
             "pos-summary",
+            "pos-dashboard",
             "pos-recovery",
             "pos-strava-fitness",
             "pos-plan",
@@ -1059,6 +1184,7 @@
         pos: {
           label: "Personal Ops",
           visibleIds: [
+            "pos-dashboard",
             "pos-summary",
             "pos-recovery",
             "pos-strava-fitness",
