@@ -919,6 +919,10 @@
               <div id="pos-summary-freshness" class="pill unknown">Freshness</div>
               <div id="pos-run-status" class="pill unknown">Last run</div>
             </div>
+            <div class="pos-summary-meta">
+              <div class="meta">View</div>
+              <div id="pos-nav" class="segmented"></div>
+            </div>
             <div class="pos-hero-grid">
               <div id="pos-summary" class="pos-summary hidden" data-importance="10" data-group="readiness" data-related="readiness,adherence,workouts,load">
                 <div id="pos-summary-metrics" class="kpi-grid"></div>
@@ -935,16 +939,16 @@
             </div>
           </div>
 
-          <div class="pos-body">
+          <div class="pos-body" data-pos-view="overview training nutrition sleep data">
             <div class="pos-left">
-              <div id="pos-heatmap" class="pos-section hidden" data-importance="8" data-group="consistency" data-related="sleep,training,nutrition">
+              <div id="pos-heatmap" class="pos-section hidden" data-pos-view="overview training" data-importance="8" data-group="consistency" data-related="sleep,training,nutrition">
                 <div class="row-inline">
                   <div style="font-weight:600;">Week heatmap</div>
                   <div class="meta" id="pos-heatmap-note">—</div>
                 </div>
                 <div id="pos-heatmap-grid" class="heatmap"></div>
               </div>
-              <div id="pos-strava-fitness" class="pos-section hidden" data-importance="9" data-group="fitness" data-related="fitness,fatigue,form">
+              <div id="pos-strava-fitness" class="pos-section hidden" data-pos-view="overview training" data-importance="9" data-group="fitness" data-related="fitness,fatigue,form">
                 <div class="row-inline">
                   <div style="font-weight:600;">Fitness & freshness</div>
                   <div class="meta" id="pos-strava-note">—</div>
@@ -952,7 +956,7 @@
                 <div id="pos-strava-list" class="list"></div>
                 <div id="pos-strava-chart" class="chart"></div>
               </div>
-              <div id="pos-trends" class="pos-section hidden" data-importance="7" data-group="momentum" data-related="training_load,endurance_distance,strength_sessions">
+              <div id="pos-trends" class="pos-section hidden" data-pos-view="overview training" data-importance="7" data-group="momentum" data-related="training_load,endurance_distance,strength_sessions">
                 <div class="row-inline">
                   <div style="font-weight:600;">Momentum strips</div>
                   <div class="meta" id="pos-trends-note">—</div>
@@ -962,28 +966,28 @@
             </div>
             <div class="pos-right">
               <div class="pos-right-stack">
-                <div id="pos-recovery" class="pos-panel hidden" data-importance="8" data-group="recovery" data-related="sleep,weight,hrv,rhr">
+                <div id="pos-recovery" class="pos-panel hidden" data-pos-view="overview sleep" data-importance="8" data-group="recovery" data-related="sleep,weight,hrv,rhr">
                   <div class="row-inline">
                     <div style="font-weight:600;">Withings recovery</div>
                     <div class="meta" id="pos-recovery-note">—</div>
                   </div>
                   <div id="pos-recovery-list" class="list"></div>
                 </div>
-                <div id="pos-nutrition" class="pos-panel hidden" data-importance="7" data-group="fuel" data-related="calories,protein,carbs,fat">
+                <div id="pos-nutrition" class="pos-panel hidden" data-pos-view="overview nutrition" data-importance="7" data-group="fuel" data-related="calories,protein,carbs,fat">
                   <div class="row-inline">
                     <div style="font-weight:600;">Nutrition budget</div>
                     <div class="meta" id="pos-nutrition-note">—</div>
                   </div>
                   <div id="pos-nutrition-list" class="list"></div>
                 </div>
-                <div id="pos-apple-health" class="pos-panel hidden" data-importance="6" data-group="activity" data-related="steps,active_calories,resting_calories,exercise_minutes">
+                <div id="pos-apple-health" class="pos-panel hidden" data-pos-view="training data" data-importance="6" data-group="activity" data-related="steps,active_calories,resting_calories,exercise_minutes">
                   <div class="row-inline">
                     <div style="font-weight:600;">Apple Health signals</div>
                     <div class="meta" id="pos-apple-health-note">—</div>
                   </div>
                   <div id="pos-apple-health-list" class="list"></div>
                 </div>
-                <div id="pos-stats" class="pos-panel hidden" data-importance="6" data-group="weekly_totals" data-related="miles,yards,steps,calories,exercise_hours,macros">
+                <div id="pos-stats" class="pos-panel hidden" data-pos-view="overview training nutrition data" data-importance="6" data-group="weekly_totals" data-related="miles,yards,steps,calories,exercise_hours,macros">
                   <div class="row-inline">
                     <div style="font-weight:600;">Weekly averages</div>
                     <div class="meta" id="pos-stats-range">—</div>
@@ -991,7 +995,7 @@
                   <div id="pos-stats-list" class="list"></div>
                   <div class="meta" id="pos-stats-note"></div>
                 </div>
-                <div id="pos-sleep-plan" class="pos-panel hidden" data-importance="7" data-group="sleep_plan" data-related="sleep,baseline,targets">
+                <div id="pos-sleep-plan" class="pos-panel hidden" data-pos-view="overview sleep" data-importance="7" data-group="sleep_plan" data-related="sleep,baseline,targets">
                   <div class="row-inline">
                     <div style="font-weight:600;">Sleep plan</div>
                     <div class="meta" id="pos-sleep-plan-note">—</div>
@@ -1002,20 +1006,20 @@
             </div>
           </div>
 
-          <div class="pos-lab" data-importance="8" data-group="strength_lab">
+          <div class="pos-lab" data-pos-view="strength" data-importance="8" data-group="strength_lab">
             <div class="pos-lab-header">
               <div style="font-weight:600;">Strength Lab</div>
               <div class="meta">Speediance intelligence</div>
             </div>
             <div class="pos-lab-grid">
-              <div id="pos-strength-scatter" class="pos-panel hidden" data-importance="8" data-group="strength_quality" data-related="quality,asymmetry">
+              <div id="pos-strength-scatter" class="pos-panel hidden" data-pos-view="strength" data-importance="8" data-group="strength_quality" data-related="quality,asymmetry">
                 <div class="row-inline">
                   <div style="font-weight:600;">Quality vs asymmetry</div>
                   <div class="meta" id="pos-strength-scatter-note">—</div>
                 </div>
                 <div id="pos-strength-scatter-chart" class="chart"></div>
               </div>
-              <div id="pos-baselines" class="pos-panel hidden" data-importance="7" data-group="strength_power" data-related="max_watts,max_weight,one_rm">
+              <div id="pos-baselines" class="pos-panel hidden" data-pos-view="strength" data-importance="7" data-group="strength_power" data-related="max_watts,max_weight,one_rm">
                 <div class="row-inline">
                   <div style="font-weight:600;">Power baselines</div>
                   <div class="meta" id="pos-baselines-note">—</div>
@@ -1024,14 +1028,14 @@
               </div>
             </div>
             <div class="pos-lab-grid">
-              <div id="pos-quality" class="pos-panel hidden" data-importance="7" data-group="session_quality" data-related="quality_score,completion,rep_consistency">
+              <div id="pos-quality" class="pos-panel hidden" data-pos-view="strength" data-importance="7" data-group="session_quality" data-related="quality_score,completion,rep_consistency">
                 <div class="row-inline">
                   <div style="font-weight:600;">Session quality</div>
                   <div class="meta" id="pos-quality-note">—</div>
                 </div>
                 <div id="pos-quality-list" class="list"></div>
               </div>
-              <div id="pos-last-session" class="pos-panel hidden" data-importance="6" data-group="session_detail" data-related="exercise_metrics,volume,watts,rom">
+              <div id="pos-last-session" class="pos-panel hidden" data-pos-view="strength" data-importance="6" data-group="session_detail" data-related="exercise_metrics,volume,watts,rom">
                 <div class="row-inline">
                   <div style="font-weight:600;">Last session breakdown</div>
                   <div class="meta" id="pos-last-session-note">—</div>
@@ -1040,14 +1044,14 @@
               </div>
             </div>
             <div class="pos-lab-grid">
-              <div id="pos-quality-trends" class="pos-panel hidden" data-importance="6" data-group="exercise_trends" data-related="quality,watts,speed,rom">
+              <div id="pos-quality-trends" class="pos-panel hidden" data-pos-view="strength" data-importance="6" data-group="exercise_trends" data-related="quality,watts,speed,rom">
                 <div class="row-inline">
                   <div style="font-weight:600;">Exercise trends</div>
                   <div class="meta" id="pos-quality-trends-note">—</div>
                 </div>
                 <div id="pos-quality-trends-list" class="list"></div>
               </div>
-              <div id="pos-weakness" class="pos-panel hidden" data-importance="7" data-group="strength_fix" data-related="asymmetry,quality,completion,tempo">
+              <div id="pos-weakness" class="pos-panel hidden" data-pos-view="strength" data-importance="7" data-group="strength_fix" data-related="asymmetry,quality,completion,tempo">
                 <div class="row-inline">
                   <div style="font-weight:600;">What to fix next</div>
                   <div class="meta" id="pos-weakness-note">—</div>
@@ -1106,6 +1110,8 @@
       const posPlanBodyEl = document.getElementById("pos-plan-body");
       const posPlanDateEl = document.getElementById("pos-plan-date");
       const posPlanNoteEl = document.getElementById("pos-plan-note");
+      const posNavEl = document.getElementById("pos-nav");
+      const posDashboardEl = document.getElementById("pos-dashboard");
       const posTrendsEl = document.getElementById("pos-trends");
       const posTrendsListEl = document.getElementById("pos-trends-list");
       const posTrendsNoteEl = document.getElementById("pos-trends-note");
@@ -1215,12 +1221,21 @@
       let currentProcessId = "global";
       let currentDataView = "events";
       let currentView = "garage";
+      let currentPosView = "overview";
       let currentRangeDays = 7;
       const RANGE_OPTIONS = [
         { label: "Today", days: 1 },
         { label: "7d", days: 7 },
         { label: "30d", days: 30 },
         { label: "90d", days: 90 },
+      ];
+      const POS_VIEW_OPTIONS = [
+        { id: "overview", label: "Overview" },
+        { id: "training", label: "Training" },
+        { id: "strength", label: "Strength" },
+        { id: "nutrition", label: "Nutrition" },
+        { id: "sleep", label: "Sleep" },
+        { id: "data", label: "Data" },
       ];
       const DOORS = ["Left", "Middle", "Right"];
       const EVENTS_PAGE_SIZE = 200;
@@ -2383,22 +2398,9 @@
       async function loadData() {
         if (currentView === "pos") {
           renderRangeTabs();
-          await loadPosSummary();
-          await loadPosRecovery();
-          await loadPosStravaFitness();
-          await loadPosPlan();
-          await loadPosTrends();
-          await loadPosHeatmap();
-          await loadPosStats();
-          await loadPosAppleHealth();
-          await loadPosNutrition();
-          await loadPosBaselines();
-          await loadPosQuality();
-          await loadPosLastSession();
-          await loadPosStrengthScatter();
-          await loadPosQualityTrends();
-          await loadPosWeakness();
-          await loadPosSleepPlan();
+          renderPosNav();
+          setPosSubview(currentPosView);
+          await loadPosViewData(currentPosView);
           return;
         }
         if (currentDataView === "state") {
@@ -2495,6 +2497,84 @@
           });
           posRangeEl.appendChild(btn);
         });
+      }
+
+      function renderPosNav() {
+        if (!posNavEl) return;
+        posNavEl.innerHTML = "";
+        POS_VIEW_OPTIONS.forEach((option) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = option.label;
+          if (currentPosView === option.id) btn.classList.add("active");
+          btn.addEventListener("click", async () => {
+            currentPosView = option.id;
+            renderPosNav();
+            setPosSubview(option.id);
+            await loadPosViewData(option.id);
+          });
+          posNavEl.appendChild(btn);
+        });
+      }
+
+      function setPosSubview(viewId) {
+        if (!posDashboardEl) return;
+        const nodes = posDashboardEl.querySelectorAll("[data-pos-view]");
+        nodes.forEach((node) => {
+          const views = (node.dataset.posView || "").split(/\s+/).filter(Boolean);
+          if (!views.length) return;
+          if (views.includes(viewId)) {
+            node.classList.remove("hidden");
+          } else {
+            node.classList.add("hidden");
+          }
+        });
+      }
+
+      async function loadPosViewData(viewId) {
+        await loadPosSummary();
+        await loadPosPlan();
+        if (viewId === "overview") {
+          await loadPosHeatmap();
+          await loadPosStravaFitness();
+          await loadPosTrends();
+          await loadPosRecovery();
+          await loadPosNutrition();
+          await loadPosSleepPlan();
+          await loadPosStats();
+          return;
+        }
+        if (viewId === "training") {
+          await loadPosHeatmap();
+          await loadPosStravaFitness();
+          await loadPosTrends();
+          await loadPosStats();
+          await loadPosAppleHealth();
+          return;
+        }
+        if (viewId === "strength") {
+          await loadPosStrengthScatter();
+          await loadPosBaselines();
+          await loadPosQuality();
+          await loadPosLastSession();
+          await loadPosQualityTrends();
+          await loadPosWeakness();
+          return;
+        }
+        if (viewId === "nutrition") {
+          await loadPosNutrition();
+          await loadPosStats();
+          return;
+        }
+        if (viewId === "sleep") {
+          await loadPosRecovery();
+          await loadPosSleepPlan();
+          return;
+        }
+        if (viewId === "data") {
+          await loadPosStats();
+          await loadPosAppleHealth();
+        }
       }
 
       function renderPlanList(title, value) {
