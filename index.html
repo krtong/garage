@@ -857,6 +857,13 @@
           <div id="pos-stats-list" class="list"></div>
           <div class="meta" id="pos-stats-note"></div>
         </div>
+        <div id="pos-apple-health" class="card grid hidden">
+          <div class="row-inline">
+            <div style="font-weight:600;">Apple Health signals</div>
+            <div class="meta" id="pos-apple-health-note">—</div>
+          </div>
+          <div id="pos-apple-health-list" class="list"></div>
+        </div>
         <div id="pos-nutrition" class="card grid hidden">
           <div class="row-inline">
             <div style="font-weight:600;">Nutrition targets</div>
@@ -953,6 +960,9 @@
       const posStatsListEl = document.getElementById("pos-stats-list");
       const posStatsRangeEl = document.getElementById("pos-stats-range");
       const posStatsNoteEl = document.getElementById("pos-stats-note");
+      const posAppleHealthEl = document.getElementById("pos-apple-health");
+      const posAppleHealthListEl = document.getElementById("pos-apple-health-list");
+      const posAppleHealthNoteEl = document.getElementById("pos-apple-health-note");
       const posNutritionEl = document.getElementById("pos-nutrition");
       const posNutritionListEl = document.getElementById("pos-nutrition-list");
       const posNutritionNoteEl = document.getElementById("pos-nutrition-note");
@@ -996,6 +1006,7 @@
             "pos-plan",
             "pos-trends",
             "pos-stats",
+            "pos-apple-health",
             "pos-nutrition",
             "pos-baselines",
             "pos-quality",
@@ -1013,6 +1024,7 @@
             "pos-plan",
             "pos-trends",
             "pos-stats",
+            "pos-apple-health",
             "pos-nutrition",
             "pos-baselines",
             "pos-quality",
@@ -1901,6 +1913,7 @@
           await loadPosPlan();
           await loadPosTrends();
           await loadPosStats();
+          await loadPosAppleHealth();
           await loadPosNutrition();
           await loadPosBaselines();
           await loadPosQuality();
@@ -2464,6 +2477,77 @@
 
         if (!nutritionResp.data?.length && posStatsNoteEl) {
           posStatsNoteEl.textContent = "Nutrition not connected yet.";
+        }
+      }
+
+      async function loadPosAppleHealth() {
+        if (!posAppleHealthListEl || !posAppleHealthEl) return;
+        posAppleHealthListEl.innerHTML = "";
+        if (posAppleHealthNoteEl) posAppleHealthNoteEl.textContent = "";
+
+        const now = new Date();
+        const weekStart = startOfWeekSunday(now);
+        const daysElapsed = daysSinceSunday(now);
+        const weekStartIso = weekStart.toISOString();
+
+        const { data, error } = await supabase
+          .from("pos_events")
+          .select("event_timestamp,payload")
+          .eq("source", "apple_health")
+          .eq("event_type", "health_metric")
+          .gte("event_timestamp", weekStartIso);
+
+        if (error || !data || !data.length) {
+          posAppleHealthListEl.appendChild(renderStatusItem("Apple Health", "No data", "warn", "No metrics logged this week."));
+          return;
+        }
+
+        let steps = 0;
+        let activeCalories = 0;
+        let restingCalories = 0;
+        let exerciseMinutes = 0;
+        let latestTimestamp = null;
+
+        data.forEach((row) => {
+          const payload = row.payload || {};
+          const metricRaw = payload.metric ?? payload.value1 ?? "";
+          const metric = String(metricRaw).toLowerCase();
+          const value = Number(payload.value ?? payload.value2 ?? payload.amount ?? 0);
+          if (Number.isNaN(value)) return;
+          if (row.event_timestamp && (!latestTimestamp || row.event_timestamp > latestTimestamp)) {
+            latestTimestamp = row.event_timestamp;
+          }
+          if (["steps", "step_count", "stepcount"].includes(metric)) {
+            steps += value;
+          } else if (["active_calories", "active_energy", "active_energy_burned", "active_calorie"].includes(metric)) {
+            activeCalories += value;
+          } else if (["resting_calories", "basal_energy", "basal_calories", "resting_energy", "bmr"].includes(metric)) {
+            restingCalories += value;
+          } else if (["exercise_minutes", "exercise_time", "apple_exercise_time"].includes(metric)) {
+            exerciseMinutes += value;
+          }
+        });
+
+        const entries = [
+          { label: "Steps", total: steps, unit: "steps" },
+          { label: "Active calories", total: activeCalories, unit: "kcal" },
+          { label: "Resting calories", total: restingCalories, unit: "kcal" },
+          { label: "Exercise minutes", total: exerciseMinutes, unit: "min" },
+        ];
+
+        entries.forEach((entry) => {
+          if (!entry.total || Number.isNaN(entry.total)) {
+            posAppleHealthListEl.appendChild(renderStatusItem(entry.label, "Missing", "bad", "No entries"));
+            return;
+          }
+          const avg = entry.total / daysElapsed;
+          const decimals = entry.unit === "steps" ? 0 : 1;
+          const meta = `Avg ${formatNumber(avg, decimals)} ${entry.unit}/day · Total ${formatNumber(entry.total, decimals)} ${entry.unit}`;
+          posAppleHealthListEl.appendChild(renderStatusItem(entry.label, "Tracked", "good", meta));
+        });
+
+        if (posAppleHealthNoteEl) {
+          posAppleHealthNoteEl.textContent = latestTimestamp ? `Updated ${formatTimestamp(latestTimestamp)}` : "Updated this week";
         }
       }
 
