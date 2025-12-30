@@ -234,6 +234,9 @@
         color: var(--muted);
         font-size: 12px;
       }
+      .timeline-meta div {
+        margin-top: 2px;
+      }
       .pos-body {
         display: grid;
         gap: 20px;
@@ -2012,16 +2015,20 @@
             });
           }
           if (nutritionDaysCount <= 0) {
-            drivers.push({ label: "Fuel missing", tone: "warn", meta: { importance: 7, group: "drivers", related: "nutrition" } });
+            drivers.push({
+              label: `Nutrition logs: ${nutritionDaysDisplay}/7 days`,
+              tone: "warn",
+              meta: { importance: 7, group: "drivers", related: "nutrition" },
+            });
           } else if (nutritionDaysCount < 4) {
             drivers.push({
-              label: `Fuel sparse (${nutritionDaysDisplay}/7 days)`,
+              label: `Nutrition logs low: ${nutritionDaysDisplay}/7 days`,
               tone: "warn",
               meta: { importance: 7, group: "drivers", related: "nutrition" },
             });
           } else {
             drivers.push({
-              label: `Fuel tracked (${nutritionDaysDisplay}/7 days)`,
+              label: `Nutrition logs: ${nutritionDaysDisplay}/7 days`,
               tone: "good",
               meta: { importance: 7, group: "drivers", related: "nutrition" },
             });
@@ -2209,7 +2216,7 @@
         });
         const nutritionDaysCount = nutritionDays.size;
         const nutritionTone = nutritionDaysCount >= 4 ? "good" : nutritionDaysCount >= 1 ? "warn" : "bad";
-        const nutritionStatus = nutritionDaysCount >= 4 ? "Covered" : nutritionDaysCount >= 1 ? "Sparse" : "Missing";
+        const nutritionStatus = nutritionDaysCount >= 4 ? "Coverage ok" : nutritionDaysCount >= 1 ? "Coverage low" : "No coverage";
 
         const appleLogs = appleResp.data?.length ?? 0;
         const appleTone = appleLogs >= 4 ? "good" : appleLogs >= 1 ? "warn" : "bad";
@@ -4709,7 +4716,7 @@
         if (posNutritionNoteEl) {
           const entries = nutritionResp.data?.length ?? 0;
           const noteParts = [];
-          noteParts.push(entries ? `${entries} logs · ${nutritionDaysDisplay}/7 days` : "No logs yet.");
+          noteParts.push(entries ? `${entries} logs · ${nutritionDaysDisplay}/7 days coverage` : "No logs yet.");
           if (!targets?.calories_target) {
             noteParts.push("Targets missing");
           } else {
@@ -5218,7 +5225,8 @@
         const dateKey = localDateKey();
         const { startIso, endIso } = dayBounds(dateKey);
 
-        const [planResp, metricsResp, stravaResp, strengthResp] = await Promise.all([
+        const nutritionRangeStart = rangeStartDate(7).toISOString();
+        const [planResp, metricsResp, readinessResp, stravaResp, strengthResp, nutritionResp, formResp] = await Promise.all([
           supabase
             .from("coach_plan_daily")
             .select("date,summary_text,plan_json,created_at")
@@ -5231,6 +5239,11 @@
             .order("date", { ascending: false })
             .limit(1),
           supabase
+            .from("readiness_state")
+            .select("sleep_updated_at")
+            .eq("id", "global")
+            .maybeSingle(),
+          supabase
             .from("pos_events")
             .select("event_timestamp,payload")
             .eq("source", "strava")
@@ -5239,8 +5252,19 @@
             .lte("event_timestamp", endIso),
           supabase
             .from("speediance_training_session_scores")
-            .select("session_date")
+            .select("training_id,session_date,quality_score,exercise_count,total_reps")
             .eq("session_date", dateKey),
+          supabase
+            .from("pos_events")
+            .select("event_timestamp")
+            .eq("source", "nutrition")
+            .gte("event_timestamp", nutritionRangeStart),
+          supabase
+            .from("strava_fitness_daily")
+            .select("form")
+            .eq("sport_type", "all")
+            .order("date", { ascending: false })
+            .limit(1),
         ]);
 
         const { data, error } = planResp;
@@ -5254,20 +5278,39 @@
         if (posPlanDateEl) posPlanDateEl.textContent = isToday ? "Today" : `Latest: ${plan.date}`;
         const rec = plan.plan_json?.recommendation ?? {};
         const metrics = metricsResp.data?.[0] ?? {};
+        const readiness = readinessResp.data ?? {};
         const sleepHours = metrics.sleep_seconds ? metrics.sleep_seconds / 3600 : null;
         const sleepBaseline = metrics.sleep_baseline_7d ? metrics.sleep_baseline_7d / 3600 : null;
         const sleepDelta = sleepHours != null && sleepBaseline != null ? sleepHours - sleepBaseline : null;
+        const sleepAge = formatAgeDays(readiness.sleep_updated_at);
+        const formValue = formResp.data?.[0]?.form ?? null;
 
         let stravaMinutes = 0;
         let stravaDistance = 0;
+        const stravaItems = [];
         (stravaResp.data || []).forEach((row) => {
           const payload = row.payload || {};
           const duration = Number(payload.elapsed_s ?? payload.elapsed_time ?? payload.duration_s ?? 0);
           const distance = Number(payload.distance_m ?? payload.distance ?? 0);
+          const typeLabel = payload.type ?? payload.activity_type ?? payload.sport_type ?? payload.workout_type ?? "Activity";
           if (!Number.isNaN(duration)) stravaMinutes += duration / 60;
           if (!Number.isNaN(distance)) stravaDistance += distance;
+          stravaItems.push({
+            type: typeLabel,
+            duration,
+            distance,
+            avgHr: payload.average_hr ?? payload.avg_hr ?? null,
+          });
         });
-        const strengthCount = strengthResp.data?.length ?? 0;
+        const strengthSessions = strengthResp.data || [];
+        const strengthCount = strengthSessions.length;
+        const nutritionDays = new Set();
+        (nutritionResp.data || []).forEach((row) => {
+          const key = dateKeyFromIso(row.event_timestamp);
+          if (key) nutritionDays.add(key);
+        });
+        const nutritionDaysCount = nutritionDays.size;
+        const nutritionDaysDisplay = Math.min(nutritionDaysCount, 7);
 
         const timeline = document.createElement("div");
         timeline.className = "timeline";
@@ -5321,6 +5364,53 @@
               rec.reason,
               "warn",
               { importance: 7, group: "plan", related: "reason" },
+            ),
+          );
+        }
+
+        const inputLines = [];
+        if (sleepHours != null) {
+          const sleepMeta = sleepBaseline != null
+            ? `Sleep ${formatNumber(sleepHours, 1)}h (baseline ${formatNumber(sleepBaseline, 1)}h, Δ ${formatNumber(sleepDelta ?? 0, 1)}h)`
+            : `Sleep ${formatNumber(sleepHours, 1)}h (baseline missing)`;
+          const ageLabel = sleepAge != null ? `updated ${formatNumber(sleepAge, 1)}d ago` : "update unknown";
+          inputLines.push(`${sleepMeta} · ${ageLabel}`);
+        }
+        if (stravaItems.length) {
+          const totalLine = `Strava today: ${formatNumber(stravaMinutes, 0)} min · ${formatNumber(formatMiles(stravaDistance) ?? 0, 1)} mi · ${stravaItems.length} activity${stravaItems.length === 1 ? "" : "ies"}`;
+          inputLines.push(totalLine);
+          stravaItems.slice(0, 3).forEach((item) => {
+            const dur = item.duration ? `${Math.round(item.duration / 60)} min` : "—";
+            const dist = item.distance ? `${formatNumber(formatMiles(item.distance) ?? 0, 1)} mi` : "—";
+            const hr = item.avgHr ? `${Math.round(item.avgHr)} bpm` : "HR —";
+            inputLines.push(`${item.type}: ${dur} · ${dist} · ${hr}`);
+          });
+        } else {
+          inputLines.push("Strava today: no activities logged");
+        }
+        if (strengthCount > 0) {
+          strengthSessions.slice(0, 2).forEach((session) => {
+            const q = session.quality_score != null ? `quality ${formatScore(session.quality_score)}` : "quality —";
+            const exercises = session.exercise_count != null ? `${session.exercise_count} exercises` : "exercises —";
+            const reps = session.total_reps != null ? `${session.total_reps} reps` : "reps —";
+            const idLabel = session.training_id ? `ID ${session.training_id}` : "ID —";
+            inputLines.push(`Speediance: ${idLabel} · ${exercises} · ${reps} · ${q}`);
+          });
+        } else {
+          inputLines.push("Speediance: no session logged today");
+        }
+        if (formValue != null) {
+          inputLines.push(`Strava form (latest): ${formatNumber(formValue, 0)}`);
+        }
+        inputLines.push(`Nutrition logs: ${nutritionDaysDisplay}/7 days coverage`);
+
+        if (inputLines.length) {
+          timeline.appendChild(
+            renderTimelineItem(
+              "Inputs used",
+              inputLines.map((line) => `<div>${line}</div>`).join(""),
+              "warn",
+              { importance: 8, group: "plan", related: "inputs" },
             ),
           );
         }
