@@ -820,6 +820,20 @@
           <div id="pos-summary-metrics" class="kpi-grid"></div>
           <div class="meta" id="pos-summary-note"></div>
         </div>
+        <div id="pos-recovery" class="card grid hidden">
+          <div class="row-inline">
+            <div style="font-weight:600;">Withings recovery</div>
+            <div class="meta" id="pos-recovery-note">—</div>
+          </div>
+          <div id="pos-recovery-list" class="list"></div>
+        </div>
+        <div id="pos-strava-fitness" class="card grid hidden">
+          <div class="row-inline">
+            <div style="font-weight:600;">Strava fitness & freshness</div>
+            <div class="meta" id="pos-strava-note">—</div>
+          </div>
+          <div id="pos-strava-list" class="list"></div>
+        </div>
         <div id="pos-plan" class="card grid hidden">
           <div class="row-inline">
             <div style="font-weight:600;">Today’s plan</div>
@@ -922,6 +936,12 @@
       const posSummaryUpdatedEl = document.getElementById("pos-summary-updated");
       const posSummaryFreshnessEl = document.getElementById("pos-summary-freshness");
       const posSummaryNoteEl = document.getElementById("pos-summary-note");
+      const posRecoveryEl = document.getElementById("pos-recovery");
+      const posRecoveryListEl = document.getElementById("pos-recovery-list");
+      const posRecoveryNoteEl = document.getElementById("pos-recovery-note");
+      const posStravaFitnessEl = document.getElementById("pos-strava-fitness");
+      const posStravaListEl = document.getElementById("pos-strava-list");
+      const posStravaNoteEl = document.getElementById("pos-strava-note");
       const posPlanEl = document.getElementById("pos-plan");
       const posPlanBodyEl = document.getElementById("pos-plan-body");
       const posPlanDateEl = document.getElementById("pos-plan-date");
@@ -971,6 +991,8 @@
           ],
           hiddenIds: [
             "pos-summary",
+            "pos-recovery",
+            "pos-strava-fitness",
             "pos-plan",
             "pos-trends",
             "pos-stats",
@@ -986,6 +1008,8 @@
           label: "Personal Ops",
           visibleIds: [
             "pos-summary",
+            "pos-recovery",
+            "pos-strava-fitness",
             "pos-plan",
             "pos-trends",
             "pos-stats",
@@ -1403,6 +1427,126 @@
         }
       }
 
+      async function loadPosRecovery() {
+        if (!posRecoveryListEl || !posRecoveryEl) return;
+        posRecoveryListEl.innerHTML = "";
+        if (posRecoveryNoteEl) posRecoveryNoteEl.textContent = "";
+
+        const [metricsResp, readinessResp] = await Promise.all([
+          supabase
+            .from("pos_day_metrics")
+            .select("sleep_seconds,sleep_baseline_7d,weight_kg,weight_baseline_7d,hrv_baseline_7d,rhr_baseline_7d")
+            .order("date", { ascending: false })
+            .limit(1),
+          supabase
+            .from("readiness_state")
+            .select("sleep_updated_at,weight_updated_at")
+            .eq("id", "global")
+            .maybeSingle(),
+        ]);
+
+        const metrics = metricsResp.data?.[0] ?? {};
+        const readiness = readinessResp.data ?? {};
+
+        const sleepHours = metrics.sleep_seconds ? metrics.sleep_seconds / 3600 : null;
+        const sleepBase = metrics.sleep_baseline_7d ? metrics.sleep_baseline_7d / 3600 : null;
+        const sleepDelta = sleepHours != null && sleepBase != null ? sleepHours - sleepBase : null;
+        const sleepAge = formatAgeDays(readiness.sleep_updated_at);
+        const sleepTone = sleepHours != null && sleepBase != null
+          ? sleepHours >= sleepBase * 0.9
+            ? "good"
+            : sleepHours >= sleepBase * 0.7
+              ? "warn"
+              : "bad"
+          : "warn";
+        const sleepMetaParts = [];
+        if (sleepHours != null) sleepMetaParts.push(`${formatNumber(sleepHours, 1)} h`);
+        if (sleepBase != null) sleepMetaParts.push(`baseline ${formatNumber(sleepBase, 1)} h`);
+        if (sleepDelta != null) sleepMetaParts.push(`Δ ${formatNumber(sleepDelta, 1)} h`);
+        if (sleepAge != null) sleepMetaParts.push(`updated ${formatNumber(sleepAge, 1)}d ago`);
+        posRecoveryListEl.appendChild(
+          renderStatusItem("Sleep", sleepHours != null ? "Tracked" : "Missing", sleepTone, sleepMetaParts.join(" · ") || "No sleep data"),
+        );
+
+        const weight = metrics.weight_kg ?? null;
+        const weightBase = metrics.weight_baseline_7d ?? null;
+        const weightDelta = weight != null && weightBase != null ? weight - weightBase : null;
+        const weightAge = formatAgeDays(readiness.weight_updated_at);
+        const weightTone = weight != null ? "good" : "warn";
+        const weightMetaParts = [];
+        if (weight != null) weightMetaParts.push(`${formatNumber(weight, 1)} kg`);
+        if (weightBase != null) weightMetaParts.push(`baseline ${formatNumber(weightBase, 1)} kg`);
+        if (weightDelta != null) weightMetaParts.push(`Δ ${formatNumber(weightDelta, 1)} kg`);
+        if (weightAge != null) weightMetaParts.push(`updated ${formatNumber(weightAge, 1)}d ago`);
+        posRecoveryListEl.appendChild(
+          renderStatusItem("Weight", weight != null ? "Tracked" : "Missing", weightTone, weightMetaParts.join(" · ") || "No weight data"),
+        );
+
+        if (metrics.hrv_baseline_7d != null) {
+          posRecoveryListEl.appendChild(
+            renderStatusItem(
+              "HRV baseline (7d)",
+              `${formatNumber(metrics.hrv_baseline_7d, 0)}`,
+              "warn",
+              "Baseline only (current HRV not ingested)",
+            ),
+          );
+        }
+        if (metrics.rhr_baseline_7d != null) {
+          posRecoveryListEl.appendChild(
+            renderStatusItem(
+              "Resting HR baseline (7d)",
+              `${formatNumber(metrics.rhr_baseline_7d, 0)} bpm`,
+              "warn",
+              "Baseline only (current RHR not ingested)",
+            ),
+          );
+        }
+      }
+
+      async function loadPosStravaFitness() {
+        if (!posStravaListEl || !posStravaFitnessEl) return;
+        posStravaListEl.innerHTML = "";
+        if (posStravaNoteEl) posStravaNoteEl.textContent = "";
+
+        const since = new Date();
+        since.setDate(since.getDate() - 7);
+        const sinceIso = since.toISOString().slice(0, 10);
+
+        const { data, error } = await supabase
+          .from("strava_fitness_daily")
+          .select("date,sport_type,fitness,fatigue,form")
+          .gte("date", sinceIso)
+          .order("date", { ascending: true });
+
+        if (error || !data || !data.length) {
+          posStravaListEl.appendChild(renderStatusItem("Strava fitness", "No data", "warn", "Sync Strava fitness to populate."));
+          return;
+        }
+
+        const bySport = {};
+        data.forEach((row) => {
+          const sport = row.sport_type || "all";
+          if (!bySport[sport]) bySport[sport] = [];
+          bySport[sport].push(row);
+        });
+
+        const order = ["all", "running", "cycling", "swimming"];
+        order.forEach((sport) => {
+          const rows = bySport[sport];
+          if (!rows || !rows.length) return;
+          const first = rows[0];
+          const last = rows[rows.length - 1];
+          const deltaForm = (last.form ?? 0) - (first.form ?? 0);
+          const band = formBand(last.form);
+          const label = sport === "all" ? "Overall" : sport.charAt(0).toUpperCase() + sport.slice(1);
+          const meta = `Fitness ${formatNumber(last.fitness, 1)} · Fatigue ${formatNumber(last.fatigue, 1)} · Form ${formatNumber(last.form, 1)} · Δ7d ${formatNumber(deltaForm, 1)}`;
+          posStravaListEl.appendChild(renderStatusItem(label, band.label, band.tone, meta));
+        });
+
+        if (posStravaNoteEl) posStravaNoteEl.textContent = `Showing last 7 days of Strava fitness.`;
+      }
+
       function trendBadge(values) {
         if (!values || values.length < 2) {
           return { label: "Flat", tone: "warn" };
@@ -1752,6 +1896,8 @@
       async function loadData() {
         if (currentView === "pos") {
           await loadPosSummary();
+          await loadPosRecovery();
+          await loadPosStravaFitness();
           await loadPosPlan();
           await loadPosTrends();
           await loadPosStats();
@@ -2064,6 +2210,15 @@
         if (value >= 70) return { label: "Strong quality", tone: "good" };
         if (value >= 45) return { label: "Needs polish", tone: "warn" };
         return { label: "Technique focus", tone: "bad" };
+      }
+
+      function formBand(value) {
+        if (value === null || value === undefined || Number.isNaN(value)) {
+          return { label: "Unknown", tone: "warn" };
+        }
+        if (value >= 8) return { label: "Fresh", tone: "good" };
+        if (value >= -4) return { label: "Steady", tone: "warn" };
+        return { label: "Loaded", tone: "bad" };
       }
 
       function renderSparkline(values, color = "rgba(56,189,248,0.9)") {
