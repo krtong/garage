@@ -1425,6 +1425,7 @@
           const metaParts = [];
           if (row.max_weight) metaParts.push(`Max wt ${formatNumber(row.max_weight, 1)}`);
           if (row.avg_watts) metaParts.push(`Avg ${formatNumber(row.avg_watts, 0)} W`);
+          if (row.one_rm) metaParts.push(`1RM ${formatNumber(row.one_rm, 1)}`);
           if (row.total_reps) metaParts.push(`${formatNumber(row.total_reps, 0)} reps`);
           if (row.last_seen_at) metaParts.push(`Last ${formatTimestamp(row.last_seen_at)}`);
           posBaselinesListEl.appendChild(renderStatList(name, maxWatts, metaParts.join(" · ")));
