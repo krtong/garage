@@ -2044,6 +2044,26 @@
         }
       }
 
+      async function reportAuthState(prefix = "") {
+        if (!authStatusEl) return;
+        try {
+          const { data, error } = await supabase.auth.getSession();
+          if (error) {
+            authStatusEl.textContent = `${prefix}Session error: ${error.message}`;
+            return;
+          }
+          const session = data?.session;
+          if (!session) {
+            authStatusEl.textContent = `${prefix}No session found after sign-in.`;
+            return;
+          }
+          const email = session.user?.email || "unknown";
+          authStatusEl.textContent = `${prefix}Signed in as ${email}.`;
+        } catch (err) {
+          authStatusEl.textContent = `${prefix}Auth check failed.`;
+        }
+      }
+
       document.getElementById("login").addEventListener("click", async () => {
         const email = emailEl.value.trim();
         const password = passwordEl.value;
@@ -2052,12 +2072,22 @@
           if (authStatusEl) authStatusEl.textContent = "Enter email and password.";
           return;
         }
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
           if (authStatusEl) authStatusEl.textContent = "Sign in failed: " + error.message;
           return;
         }
+        if (!data?.session) {
+          await reportAuthState("Sign-in ok. ");
+        }
         await refreshSession();
+      });
+
+      supabase.auth.onAuthStateChange((_event, session) => {
+        if (!authStatusEl || authEl.classList.contains("hidden")) return;
+        if (session?.user?.email) {
+          authStatusEl.textContent = `Signed in as ${session.user.email}.`;
+        }
       });
 
       document.getElementById("save").addEventListener("click", async () => {
