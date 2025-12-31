@@ -1173,23 +1173,23 @@
   </head>
   <body>
     <div class="wrap">
-      <section id="auth" class="card">
+      <section id="auth" class="card" data-testid="auth-section">
         <h2>Sign in</h2>
         <div class="row">
           <label>Email</label>
-          <input id="email" type="email" placeholder="you@example.com" autocomplete="username"/>
+          <input id="email" data-testid="auth-email" type="email" placeholder="you@example.com" autocomplete="username"/>
         </div>
         <div class="row">
           <label>Password</label>
-          <input id="password" type="password" placeholder="••••••••" autocomplete="current-password"/>
+          <input id="password" data-testid="auth-password" type="password" placeholder="••••••••" autocomplete="current-password"/>
         </div>
         <div class="actions">
-          <button id="login">Sign in</button>
+          <button id="login" data-testid="auth-login">Sign in</button>
         </div>
         <div id="auth-status" class="auth-status"></div>
       </section>
 
-      <section id="settings" class="hidden">
+      <section id="settings" class="hidden" data-testid="settings-section">
         <div class="card grid">
           <div class="row">
             <label>Process</label>
@@ -1236,7 +1236,7 @@
         <div class="meta" id="save-status"></div>
       </section>
 
-      <section id="data" class="hidden">
+      <section id="data" class="hidden" data-testid="data-section">
         <div id="garage-data-card" class="card grid">
           <div class="row-inline">
             <div style="font-weight:600;">Live data</div>
@@ -2064,6 +2064,41 @@
         }
       }
 
+      async function signInWithFallback(email, password) {
+        const primary = await supabase.auth.signInWithPassword({ email, password });
+        if (!primary.error) {
+          return primary;
+        }
+        try {
+          const resp = await fetch(
+            `${SUPABASE_URL}/auth/v1/token?grant_type=password`,
+            {
+              method: "POST",
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ email, password }),
+            }
+          );
+          const payload = await resp.json();
+          if (!resp.ok) {
+            return { data: null, error: { message: payload?.error_description || payload?.error || "Auth failed." } };
+          }
+          const { access_token, refresh_token } = payload || {};
+          if (!access_token || !refresh_token) {
+            return { data: null, error: { message: "Auth failed: missing tokens." } };
+          }
+          const sessionSet = await supabase.auth.setSession({ access_token, refresh_token });
+          if (sessionSet.error) {
+            return { data: null, error: { message: sessionSet.error.message || "Auth failed to set session." } };
+          }
+          return { data: sessionSet.data, error: null };
+        } catch (err) {
+          return { data: null, error: { message: "Auth failed: network error." } };
+        }
+      }
+
       document.getElementById("login").addEventListener("click", async () => {
         const email = emailEl.value.trim();
         const password = passwordEl.value;
@@ -2072,7 +2107,7 @@
           if (authStatusEl) authStatusEl.textContent = "Enter email and password.";
           return;
         }
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await signInWithFallback(email, password);
         if (error) {
           if (authStatusEl) authStatusEl.textContent = "Sign in failed: " + error.message;
           return;
