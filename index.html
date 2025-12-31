@@ -2476,8 +2476,20 @@
           }
           posSummaryNoteEl.textContent = notes.length ? notes.join(" · ") : "Inputs current";
           if (posSummaryFreshnessEl) {
-            const hasStale = notes.length > 0;
-            posSummaryFreshnessEl.textContent = hasStale ? "Data stale" : "Data current";
+            const staleItems = [];
+            if (readiness?.sleep_source === "none") {
+              staleItems.push("Sleep missing");
+            } else if (sleepAge != null && sleepAge >= 2) {
+              staleItems.push(`Sleep ${sleepAge.toFixed(1)}d`);
+            }
+            if (readiness?.weight_source === "none") {
+              staleItems.push("Weight missing");
+            } else if (weightAge != null && weightAge >= 7) {
+              staleItems.push(`Weight ${weightAge.toFixed(1)}d`);
+            }
+            const hasStale = staleItems.length > 0;
+            posSummaryFreshnessEl.textContent = hasStale ? `Stale: ${staleItems.join(" · ")}` : "Data current";
+            posSummaryFreshnessEl.title = hasStale ? notes.join(" · ") : "All tracked inputs are current";
             posSummaryFreshnessEl.classList.remove("unknown", "ontrack", "soon", "overdue");
             posSummaryFreshnessEl.classList.add(hasStale ? "overdue" : "ontrack");
           }
