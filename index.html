@@ -76,6 +76,7 @@
       }
       .hidden { display: none !important; }
       .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+      .auth-status { margin-top: 12px; color: #fca5a5; font-size: 13px; }
       .status {
         margin-top: 12px;
         padding: 12px 14px;
@@ -1185,6 +1186,7 @@
         <div class="actions">
           <button id="login">Sign in</button>
         </div>
+        <div id="auth-status" class="auth-status"></div>
       </section>
 
       <section id="settings" class="hidden">
@@ -1699,6 +1701,7 @@
       const closeCooldownEl = document.getElementById("close_cooldown_sec");
       const lockTtlEl = document.getElementById("lock_ttl_sec");
       const saveStatusEl = document.getElementById("save-status");
+      const authStatusEl = document.getElementById("auth-status");
       const dataListEl = document.getElementById("data-list");
       const dataStatusEl = document.getElementById("data-status");
       const garageDataCardEl = document.getElementById("garage-data-card");
@@ -2029,6 +2032,7 @@
           settingsEl.classList.remove("hidden");
           dataEl.classList.remove("hidden");
           if (saveStatusEl) saveStatusEl.textContent = "";
+          if (authStatusEl) authStatusEl.textContent = "";
           await loadProcesses();
           await loadData();
         } else {
@@ -2036,15 +2040,21 @@
           settingsEl.classList.add("hidden");
           dataEl.classList.add("hidden");
           if (saveStatusEl) saveStatusEl.textContent = "Please sign in";
+          if (authStatusEl) authStatusEl.textContent = "";
         }
       }
 
       document.getElementById("login").addEventListener("click", async () => {
         const email = emailEl.value.trim();
         const password = passwordEl.value;
+        if (authStatusEl) authStatusEl.textContent = "";
+        if (!email || !password) {
+          if (authStatusEl) authStatusEl.textContent = "Enter email and password.";
+          return;
+        }
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
-          if (saveStatusEl) saveStatusEl.textContent = "Sign in failed: " + error.message;
+          if (authStatusEl) authStatusEl.textContent = "Sign in failed: " + error.message;
           return;
         }
         await refreshSession();
