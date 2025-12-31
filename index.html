@@ -158,9 +158,9 @@
         align-items: center;
       }
       .chip {
-        padding: 2px 6px;
+        padding: 1px 5px;
         border-radius: 999px;
-        font-size: 9px;
+        font-size: 10px;
         line-height: 1;
         letter-spacing: 0.01em;
         text-transform: none;
@@ -233,6 +233,7 @@
       }
       .pos-domain-plan {
         font-size: 12px;
+        line-height: 1.2;
         color: #cbd5f5;
         font-weight: 500;
       }
@@ -4277,7 +4278,7 @@
         scale.innerHTML = `
           <span>0</span>
           <span>Target ${formatNumber(safeTarget, 0)} ${unit}</span>
-          <span>120% cap ${formatNumber(scaleMax, 0)} ${unit}</span>
+          <span>Upper cap (120%) ${formatNumber(scaleMax, 0)} ${unit}</span>
         `;
         item.appendChild(scale);
         attachMeta(item, meta);
@@ -4922,7 +4923,7 @@
         if (posNutritionNoteEl) {
           const entries = nutritionResp.data?.length ?? 0;
           const noteParts = [];
-          noteParts.push(entries ? `${entries} logs · ${nutritionDaysDisplay}/7 days coverage` : "No logs yet.");
+          noteParts.push(entries ? `${entries} logs in ${currentRangeDays}d · coverage ${nutritionDaysDisplay}/7 days` : "No logs yet.");
           if (!targets?.calories_target) {
             noteParts.push("Targets missing");
           } else {
@@ -5580,50 +5581,55 @@
         const dietTargets = [];
         if (targets.calories_target) dietTargets.push(`${formatNumber(targets.calories_target, 0)} kcal`);
         if (targets.protein_target_g) dietTargets.push(`${formatNumber(targets.protein_target_g, 0)}g protein`);
-        let dietPlanLine = "";
-        if (dietTargets.length) {
-          dietPlanLine = `Plan: ${dietTargets.join(" · ")}`;
-        } else if (todayNutritionCalories > 0 || todayNutritionProtein > 0) {
-          const loggedParts = [];
-          if (todayNutritionCalories > 0) loggedParts.push(`${formatNumber(todayNutritionCalories, 0)} kcal logged`);
-          if (todayNutritionProtein > 0) loggedParts.push(`${formatNumber(todayNutritionProtein, 1)}g protein`);
-          dietPlanLine = `Plan: ${loggedParts.join(" · ")}`;
-        } else {
-          dietPlanLine = `Plan: Log nutrition (${nutritionDaysDisplay}/7 days)`;
-        }
+        const dietPlanLine = dietTargets.length
+          ? `Plan: ${dietTargets.join(" · ")}`
+          : `Plan: Set nutrition targets · coverage ${nutritionDaysDisplay}/7`;
         setPlanLine(posDomainDietPlanEl, dietPlanLine, { importance: 9, group: "plan_diet", related: "calories,protein,coverage" });
 
+        const stripReadinessText = (text) => {
+          if (!text) return "";
+          return text
+            .replace(/readiness[^.]*?(?:\\.|$)/gi, "")
+            .replace(/\\s{2,}/g, " ")
+            .replace(/^[-·\\s]+|[-·\\s]+$/g, "")
+            .trim();
+        };
+
         const planPieces = [];
+        const optionName =
+          rec?.workout_options?.[0]?.name ??
+          rec?.workout_option?.name ??
+          rec?.workout_name ??
+          rec?.name ??
+          "";
+        if (optionName) planPieces.push(optionName);
         if (rec?.type) planPieces.push(rec.type);
         if (rec?.duration_min) planPieces.push(`${rec.duration_min} min`);
         if (rec?.intensity) planPieces.push(`${rec.intensity} intensity`);
-        let progressPlanLine = planPieces.length ? `Plan: ${planPieces.join(" · ")}` : "Plan: No training prescription yet";
-        if (!planPieces.length && plan?.summary_text) {
-          const shortSummary = plan.summary_text.length > 120 ? `${plan.summary_text.slice(0, 117)}…` : plan.summary_text;
-          progressPlanLine = `Plan: ${shortSummary}`;
+        let planText = planPieces.join(" · ");
+        if (!planText && plan?.summary_text) {
+          const cleaned = stripReadinessText(plan.summary_text);
+          planText = cleaned.length > 140 ? `${cleaned.slice(0, 137)}…` : cleaned;
         }
+        const progressPlanLine = planText ? `Plan: ${planText}` : "Plan: No training prescription yet";
         setPlanLine(posDomainProgressPlanEl, progressPlanLine, { importance: 9, group: "plan_progress", related: "recommendation,intensity,duration" });
 
-        let strengthPlanLine = "Plan: No strength logged today";
-        if (strengthCount > 0) {
-          const qualityLabel = strengthAvgQuality != null ? `avg ${formatScore(strengthAvgQuality)}` : "quality —";
-          strengthPlanLine = `Plan: ${strengthCount} session${strengthCount === 1 ? "" : "s"} logged · ${qualityLabel}`;
-        }
+        const planLower = planText.toLowerCase();
+        const hasStrengthPlan = !!planText && /(strength|lift|weights|speediance|kettlebell)/.test(planLower);
+        const hasCyclingPlan = !!planText && /(bike|ride|cycle|cycling)/.test(planLower);
+        const hasRunningPlan = !!planText && /(run|jog|walk|tread)/.test(planLower);
+        const hasSwimmingPlan = !!planText && /(swim|pool|open water)/.test(planLower);
+
+        const strengthPlanLine = hasStrengthPlan ? `Plan: ${planText}` : "Plan: Not scheduled";
         setPlanLine(posDomainWeightPlanEl, strengthPlanLine, { importance: 8, group: "plan_strength", related: "strength,quality,volume" });
 
-        const cyclingPlanLine = cyclingMinutes > 0
-          ? `Plan: ${formatNumber(cyclingMinutes, 0)} min · ${formatNumber(formatMiles(cyclingDistance) ?? 0, 1)} mi logged`
-          : "Plan: No cycling logged today";
+        const cyclingPlanLine = hasCyclingPlan ? `Plan: ${planText}` : "Plan: Not scheduled";
         setPlanLine(posDomainCyclingPlanEl, cyclingPlanLine, { importance: 7, group: "plan_cycling", related: "cycling,volume" });
 
-        const runningPlanLine = runningMinutes > 0
-          ? `Plan: ${formatNumber(runningMinutes, 0)} min · ${formatNumber(formatMiles(runningDistance) ?? 0, 1)} mi logged`
-          : "Plan: No running logged today";
+        const runningPlanLine = hasRunningPlan ? `Plan: ${planText}` : "Plan: Not scheduled";
         setPlanLine(posDomainRunningPlanEl, runningPlanLine, { importance: 7, group: "plan_running", related: "running,volume" });
 
-        const swimmingPlanLine = swimmingMinutes > 0
-          ? `Plan: ${formatNumber(swimmingMinutes, 0)} min · ${formatNumber(formatMiles(swimmingDistance) ?? 0, 1)} mi logged`
-          : "Plan: No swimming logged today";
+        const swimmingPlanLine = hasSwimmingPlan ? `Plan: ${planText}` : "Plan: Not scheduled";
         setPlanLine(posDomainSwimmingPlanEl, swimmingPlanLine, { importance: 7, group: "plan_swimming", related: "swimming,volume" });
 
         setPlanLine(posDomainFacialPlanEl, "Plan: Manual routine (not tracked)", { importance: 4, group: "plan_facial", related: "facial" });
