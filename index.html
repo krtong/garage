@@ -2252,6 +2252,16 @@
         return `${hours}h${minutes ? ` ${minutes}m` : ""}`;
       }
 
+      function formatLatency(seconds, label) {
+        const value = Number(seconds ?? NaN);
+        if (Number.isNaN(value) || value <= 0) {
+          return { value: "—", meta: `${label} (min)` };
+        }
+        const minutes = Math.round(value / 60);
+        const meta = minutes > 180 ? `${label} (check source)` : `${label} (min)`;
+        return { value: `${minutes} min`, meta };
+      }
+
       function pickNumber(source, keys) {
         if (!source) return null;
         for (const key of keys) {
@@ -3862,6 +3872,8 @@
         if (timeToSleep != null && timeToSleep < 1000) timeToSleep *= 60;
         if (timeToGetUp != null && timeToGetUp < 1000) timeToGetUp *= 60;
 
+        const sleepLatency = formatLatency(timeToSleep, "Sleep latency");
+        const wakeLatency = formatLatency(timeToGetUp, "Wake latency");
         const entries = [
           { label: "Duration", value: duration != null ? formatDurationHM(duration) : "—", meta: "Total sleep" },
           { label: "Heart rate", value: hrAvg != null ? `${formatNumber(hrAvg, 0)} bpm` : "—", meta: "Average" },
@@ -3869,8 +3881,8 @@
           { label: "Deep sleep", value: deep != null ? formatDurationHM(deep) : "—", meta: "Deep stage" },
           { label: "Regularity", value: regularity != null ? `${formatNumber(regularity, 0)}/100` : "—", meta: "Consistency score" },
           { label: "Interruptions", value: interruptions != null ? `${formatNumber(interruptions, 0)}` : "—", meta: "Wake ups" },
-          { label: "Time to sleep", value: timeToSleep != null ? formatDurationHM(timeToSleep) : "—", meta: "Sleep latency" },
-          { label: "Time to get up", value: timeToGetUp != null ? formatDurationHM(timeToGetUp) : "—", meta: "Wake latency" },
+          { label: "Sleep latency", value: sleepLatency.value, meta: sleepLatency.meta },
+          { label: "Wake latency", value: wakeLatency.value, meta: wakeLatency.meta },
         ];
 
         entries.forEach((entry) => {
