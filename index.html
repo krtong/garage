@@ -5081,7 +5081,7 @@
       }
 
       async function loadPosViewData(viewId) {
-        await loadPosReport();
+        await Promise.all([loadPosReport(), loadPosPlan(), loadPosSummary()]);
       }
 
       function attachMeta(el, meta) {
