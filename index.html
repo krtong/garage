@@ -6546,11 +6546,11 @@
         const stripReadinessText = (text) => {
           if (!text) return "";
           return text
-            .replace(/readiness[^.]*?(?:\\.|$)/gi, "")
-            .replace(/\\b(yellow|green|red)\\b/gi, "")
-            .replace(/score\\s*\\d+\\s*\\/\\s*\\d+/gi, "")
-            .replace(/\\s{2,}/g, " ")
-            .replace(/^[-·\\s]+|[-·\\s]+$/g, "")
+            .replace(/readiness[^.]*?(?:\.|$)/gi, "")
+            .replace(/\b(yellow|green|red)\b/gi, "")
+            .replace(/score\s*\d+\s*\/\s*\d+/gi, "")
+            .replace(/\s{2,}/g, " ")
+            .replace(/^[-·\s]+|[-·\s]+$/g, "")
             .trim();
         };
 
