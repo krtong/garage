@@ -161,9 +161,9 @@
         display: inline-flex;
         gap: 6px;
         align-items: baseline;
-        padding: 6px 10px;
+        padding: 3px 7px;
         border-radius: 999px;
-        font-size: 11px;
+        font-size: 10px;
         line-height: 1.1;
         border: 1px solid rgba(148, 163, 184, 0.35);
         color: var(--muted);
@@ -230,9 +230,9 @@
         align-items: flex-start;
         justify-content: space-between;
         gap: 10px;
-        padding: 10px 12px;
+        padding: 14px 14px;
         border-radius: 12px;
-        background: rgba(15, 23, 42, 0.7);
+        background: linear-gradient(120deg, rgba(15, 23, 42, 0.92), rgba(10, 16, 34, 0.98));
         font-weight: 600;
       }
       .pos-domain-hero-main {
@@ -255,6 +255,176 @@
         display: grid;
         gap: 12px;
         margin-top: 12px;
+      }
+      .pos-domain-detail {
+        display: grid;
+        gap: 12px;
+      }
+      .pos-domain-metrics {
+        display: grid;
+        gap: 10px;
+        font-size: 12px;
+      }
+      .plan-hero-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+      .pos-domain-plan {
+        font-size: 14px;
+        line-height: 1.4;
+        color: #e5e7f8;
+        font-weight: 600;
+      }
+      .pos-domain-plan-sub {
+        font-size: 10px;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+      .pos-sleep-grid {
+        display: grid;
+        gap: 16px;
+      }
+      @media (min-width: 900px) {
+        .pos-sleep-grid {
+          grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+        }
+      }
+      .sleep-card {
+        border-radius: 20px;
+        padding: 16px;
+        border: 1px solid rgba(42, 51, 82, 0.7);
+        background: rgba(12, 16, 28, 0.88);
+        display: grid;
+        gap: 12px;
+      }
+      .sleep-card.compact {
+        padding: 14px;
+      }
+      .sleep-quality-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .sleep-quality-main {
+        display: grid;
+        gap: 6px;
+      }
+      .sleep-quality-time {
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .sleep-quality-sub {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .mini-bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+        height: 52px;
+      }
+      .mini-bar {
+        width: 10px;
+        border-radius: 6px;
+        background: rgba(148, 163, 184, 0.35);
+      }
+      .mini-bar.active {
+        background: rgba(148, 163, 184, 0.85);
+      }
+      .sleep-score-grid {
+        display: grid;
+        gap: 10px;
+      }
+      @media (min-width: 720px) {
+        .sleep-score-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      .sleep-metric-card {
+        border-radius: 14px;
+        padding: 12px;
+        border: 1px solid rgba(42, 51, 82, 0.6);
+        background: rgba(8, 12, 22, 0.7);
+        display: grid;
+        gap: 6px;
+        font-size: 12px;
+      }
+      .sleep-metric-card strong {
+        font-size: 16px;
+        color: #e2e8f0;
+      }
+      .sleep-metric-card .meta {
+        font-size: 11px;
+      }
+      .pos-training-grid {
+        display: grid;
+        gap: 16px;
+      }
+      @media (min-width: 900px) {
+        .pos-training-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      .training-card {
+        border-radius: 20px;
+        padding: 16px;
+        border: 1px solid rgba(42, 51, 82, 0.7);
+        background: rgba(8, 12, 22, 0.88);
+        display: grid;
+        gap: 12px;
+      }
+      .sport-tabs {
+        display: inline-flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .sport-tab {
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: rgba(15, 23, 42, 0.6);
+        color: var(--muted);
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .sport-tab.active {
+        border-color: rgba(249, 115, 22, 0.7);
+        color: #fdba74;
+        background: rgba(249, 115, 22, 0.12);
+      }
+      .streak-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 6px;
+      }
+      .streak-cell {
+        height: 32px;
+        border-radius: 10px;
+        border: 1px solid rgba(42, 51, 82, 0.6);
+        display: grid;
+        place-items: center;
+        font-size: 11px;
+        color: var(--muted);
+        background: rgba(9, 13, 26, 0.7);
+      }
+      .streak-cell.active {
+        background: rgba(56, 189, 248, 0.25);
+        color: #e2e8f0;
+      }
+      .streak-row-labels {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 6px;
+        font-size: 10px;
+        color: var(--muted);
+        margin-bottom: 6px;
       }
       .pos-domain-body.grid-2 {
         grid-template-columns: 1fr;
@@ -453,6 +623,11 @@
         border-color: rgba(248, 113, 113, 0.55);
         color: #fda4af;
         background: rgba(244, 63, 94, 0.15);
+      }
+      .status-chip.neutral {
+        border-color: rgba(148, 163, 184, 0.45);
+        color: #e2e8f0;
+        background: rgba(148, 163, 184, 0.12);
       }
       .bar {
         width: 100%;
@@ -1092,7 +1267,7 @@
               <div id="pos-nav" class="segmented"></div>
             </div>
             <div class="pos-hero-grid">
-              <div id="pos-summary" class="pos-summary hidden" data-importance="10" data-group="summary" data-related="sleep,adherence,workouts,load,race">
+              <div id="pos-summary" class="pos-summary" data-pos-view="overview" data-importance="10" data-group="summary" data-related="sleep,adherence,workouts,load,race">
                 <div id="pos-summary-metrics" class="kpi-grid"></div>
                 <div class="meta" id="pos-summary-note"></div>
                 <div id="pos-summary-drivers" class="stale-row"></div>
@@ -1104,33 +1279,67 @@
             <section class="pos-domain" id="pos-domain-sleep" data-pos-view="overview sleep" data-importance="9" data-group="sleep" data-related="sleep,recovery,plan">
               <div class="pos-domain-hero">
                 <div class="pos-domain-hero-main">
-                  <div>Sleep</div>
+                  <div class="plan-hero-label">Sleep</div>
                   <div class="pos-domain-plan" id="pos-domain-sleep-plan" data-importance="9">Plan: —</div>
+                  <div class="pos-domain-plan-sub" id="pos-domain-sleep-plan-sub">Metrics → plan drivers below</div>
                 </div>
                 <div class="meta">Recovery drivers</div>
               </div>
-              <div class="pos-domain-body grid-2">
-                <div id="pos-recovery" class="pos-panel hidden" data-pos-view="overview sleep" data-importance="8" data-group="recovery" data-related="sleep,weight,hrv,rhr">
-                  <div class="row-inline">
-                    <div style="font-weight:600;">Withings recovery</div>
-                    <div class="meta" id="pos-recovery-note">—</div>
+              <div class="pos-domain-body">
+                <div id="pos-domain-sleep-metrics" class="pos-domain-metrics list" data-pos-view="overview sleep" data-importance="8" data-group="sleep_metrics" data-related="sleep,baseline,delta,stale"></div>
+                <div class="pos-sleep-grid hidden" data-pos-view="sleep" data-importance="9" data-group="sleep_overview" data-related="sleep,score,breathing">
+                  <div id="pos-sleep-quality" class="sleep-card" data-importance="9" data-group="sleep_quality" data-related="duration,score,trend">
+                    <div class="sleep-quality-card">
+                      <div class="sleep-quality-main">
+                        <div class="plan-hero-label">Sleep quality</div>
+                        <div class="sleep-quality-time" id="pos-sleep-quality-duration">—</div>
+                        <div class="sleep-quality-sub" id="pos-sleep-quality-score">Score —</div>
+                      </div>
+                      <div id="pos-sleep-quality-bars" class="mini-bars"></div>
+                    </div>
                   </div>
-                  <div id="pos-recovery-list" class="list"></div>
-                </div>
-                <div id="pos-sleep-trend" class="pos-panel hidden" data-pos-view="overview sleep" data-importance="8" data-group="sleep_trend" data-related="sleep,consistency,debt">
-                  <div class="row-inline">
-                    <div style="font-weight:600;">Sleep trend</div>
-                    <div class="meta" id="pos-sleep-trend-note">—</div>
+                  <div id="pos-breathing-quality" class="sleep-card compact" data-importance="7" data-group="sleep_breathing" data-related="respiration">
+                    <div class="plan-hero-label">Breathing quality</div>
+                    <div id="pos-breathing-quality-value" style="font-size:18px;font-weight:600;">—</div>
+                    <div class="meta" id="pos-breathing-quality-note">Respiration assessment</div>
                   </div>
-                  <div id="pos-sleep-trend-chart" class="chart"></div>
-                  <div id="pos-sleep-trend-list" class="list"></div>
-                </div>
-                <div id="pos-sleep-plan" class="pos-panel hidden" data-pos-view="overview sleep" data-importance="7" data-group="sleep_plan" data-related="sleep,baseline,targets">
-                  <div class="row-inline">
-                    <div style="font-weight:600;">Sleep plan</div>
-                    <div class="meta" id="pos-sleep-plan-note">—</div>
+                  <div id="pos-sleep-score" class="sleep-card" data-importance="8" data-group="sleep_score" data-related="duration,hr,hrv,depth,regularity">
+                    <div class="row-inline">
+                      <div style="font-weight:600;">Sleep quality score</div>
+                      <div class="meta" id="pos-sleep-score-note">—</div>
+                    </div>
+                    <div id="pos-sleep-score-grid" class="sleep-score-grid"></div>
                   </div>
-                  <div id="pos-sleep-plan-list" class="list"></div>
+                  <div id="pos-sleep-heart" class="sleep-card" data-importance="7" data-group="sleep_hr" data-related="heart_rate">
+                    <div class="row-inline">
+                      <div style="font-weight:600;">Heart rate during sleep</div>
+                      <div class="meta" id="pos-sleep-heart-note">—</div>
+                    </div>
+                    <div id="pos-sleep-heart-chart" class="chart"></div>
+                  </div>
+                  <div id="pos-recovery" class="pos-panel hidden" data-pos-view="sleep" data-importance="8" data-group="recovery" data-related="sleep,weight,hrv,rhr">
+                    <div class="row-inline">
+                      <div style="font-weight:600;">Withings recovery</div>
+                      <div class="meta" id="pos-recovery-note">—</div>
+                    </div>
+                    <div id="pos-recovery-list" class="list"></div>
+                  </div>
+                  <div id="pos-sleep-trend" class="pos-panel hidden" data-pos-view="sleep" data-importance="8" data-group="sleep_trend" data-related="sleep,consistency,debt">
+                    <div class="row-inline">
+                      <div style="font-weight:600;">Sleep trend</div>
+                      <div class="meta" id="pos-sleep-trend-note">—</div>
+                    </div>
+                    <div id="pos-sleep-trend-chart" class="chart"></div>
+                    <div class="chart-caption" id="pos-sleep-trend-caption"></div>
+                    <div id="pos-sleep-trend-list" class="list"></div>
+                  </div>
+                  <div id="pos-sleep-plan" class="pos-panel hidden" data-pos-view="sleep" data-importance="7" data-group="sleep_plan" data-related="sleep,baseline,targets">
+                    <div class="row-inline">
+                      <div style="font-weight:600;">Sleep plan</div>
+                      <div class="meta" id="pos-sleep-plan-note">—</div>
+                    </div>
+                    <div id="pos-sleep-plan-list" class="list"></div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1138,13 +1347,15 @@
             <section class="pos-domain" id="pos-domain-diet" data-pos-view="overview nutrition" data-importance="9" data-group="diet" data-related="calories,protein,carbs,fat">
               <div class="pos-domain-hero">
                 <div class="pos-domain-hero-main">
-                  <div>Diet</div>
+                  <div class="plan-hero-label">Diet</div>
                   <div class="pos-domain-plan" id="pos-domain-diet-plan" data-importance="9">Plan: —</div>
+                  <div class="pos-domain-plan-sub" id="pos-domain-diet-plan-sub">Metrics → plan drivers below</div>
                 </div>
                 <div class="meta">Fuel coverage & targets</div>
               </div>
               <div class="pos-domain-body">
-                <div id="pos-nutrition" class="pos-panel hidden" data-pos-view="overview nutrition" data-importance="7" data-group="fuel" data-related="calories,protein,carbs,fat">
+                <div id="pos-domain-diet-metrics" class="pos-domain-metrics list" data-pos-view="overview nutrition" data-importance="8" data-group="diet_metrics" data-related="calories,protein,carbs,fat,coverage"></div>
+                <div id="pos-nutrition" class="pos-panel hidden" data-pos-view="nutrition" data-importance="7" data-group="fuel" data-related="calories,protein,carbs,fat">
                   <div class="row-inline">
                     <div style="font-weight:600;">Nutrition budget</div>
                     <div class="meta" id="pos-nutrition-note">—</div>
@@ -1154,68 +1365,104 @@
               </div>
             </section>
 
-            <section class="pos-domain" id="pos-domain-progress" data-pos-view="overview training data" data-importance="9" data-group="progress" data-related="heatmap,load,form,relationships">
+            <section class="pos-domain" id="pos-domain-progress" data-pos-view="overview training" data-importance="9" data-group="progress" data-related="heatmap,load,form,relationships">
               <div class="pos-domain-hero">
                 <div class="pos-domain-hero-main">
-                  <div>Progress report</div>
+                  <div class="plan-hero-label">Progress report</div>
                   <div class="pos-domain-plan" id="pos-domain-progress-plan" data-importance="9">Plan: —</div>
+                  <div class="pos-domain-plan-sub" id="pos-domain-progress-plan-sub">Metrics → plan drivers below</div>
                 </div>
                 <div class="meta">Form, load, adherence</div>
               </div>
-              <div class="pos-domain-body grid-2">
-                <div id="pos-heatmap" class="pos-section hidden" data-pos-view="overview training" data-importance="8" data-group="consistency" data-related="sleep,training,nutrition">
+              <div class="pos-domain-body">
+                <div id="pos-domain-progress-metrics" class="pos-domain-metrics list" data-pos-view="overview training" data-importance="8" data-group="progress_metrics" data-related="adherence,load,form,coverage"></div>
+                <div class="pos-training-grid hidden" data-pos-view="training" data-importance="9" data-group="training_overview" data-related="weekly,fitness,streak">
+                  <div id="pos-week-sport" class="training-card" data-importance="9" data-group="weekly_sport" data-related="distance,time,weekly">
+                    <div class="row-inline">
+                      <div style="font-weight:600;">This week</div>
+                      <div class="sport-tabs" id="pos-week-sport-tabs"></div>
+                    </div>
+                    <div id="pos-week-sport-summary" class="meta">—</div>
+                    <div id="pos-week-sport-chart" class="chart"></div>
+                    <div class="chart-caption" id="pos-week-sport-caption">Interval: daily · Range: Last 7 days</div>
+                  </div>
+                  <div id="pos-fitness-card" class="training-card" data-importance="9" data-group="fitness_trend" data-related="fitness,form">
+                    <div class="row-inline">
+                      <div style="font-weight:600;">Fitness trend</div>
+                      <div class="meta" id="pos-fitness-card-note">—</div>
+                    </div>
+                    <div id="pos-fitness-card-chart" class="chart"></div>
+                    <div class="chart-caption" id="pos-fitness-card-caption">Interval: daily</div>
+                  </div>
+                  <div id="pos-streak-card" class="training-card" data-importance="8" data-group="streak" data-related="streak,consistency">
+                    <div class="row-inline">
+                      <div style="font-weight:600;">Monthly streak</div>
+                      <div class="meta" id="pos-streak-note">—</div>
+                    </div>
+                    <div class="streak-row-labels" id="pos-streak-labels"></div>
+                    <div class="streak-grid" id="pos-streak-grid"></div>
+                  </div>
+                  <div id="pos-power-skills" class="training-card" data-importance="6" data-group="power_profile" data-related="power,skills">
+                    <div style="font-weight:600;">Power skills</div>
+                    <div class="meta" id="pos-power-skills-note">No power profile data yet.</div>
+                    <div id="pos-power-skills-chart" class="chart"></div>
+                  </div>
+                </div>
+                <div id="pos-heatmap" class="pos-section hidden" data-pos-view="training" data-importance="8" data-group="consistency" data-related="sleep,training,nutrition">
                   <div class="row-inline">
                     <div style="font-weight:600;">Week heatmap</div>
                     <div class="meta" id="pos-heatmap-note">—</div>
                   </div>
                   <div id="pos-heatmap-grid" class="heatmap"></div>
                 </div>
-                <div id="pos-day-drawer" class="pos-day-drawer hidden" data-pos-view="overview training" data-importance="8" data-group="day_detail" data-related="sleep,training,nutrition,load">
+                <div id="pos-day-drawer" class="pos-day-drawer hidden" data-pos-view="training" data-importance="8" data-group="day_detail" data-related="sleep,training,nutrition,load">
                   <div class="row-inline">
                     <div style="font-weight:600;">Day detail</div>
                     <div class="meta" id="pos-day-drawer-date">—</div>
                   </div>
                   <div id="pos-day-drawer-list" class="list"></div>
                 </div>
-                <div id="pos-strava-fitness" class="pos-section hidden" data-pos-view="overview training" data-importance="9" data-group="fitness" data-related="fitness,fatigue,form">
+                <div id="pos-strava-fitness" class="pos-section hidden" data-pos-view="training" data-importance="9" data-group="fitness" data-related="fitness,fatigue,form">
                   <div class="row-inline">
                     <div style="font-weight:600;">Fitness & form (Strava)</div>
                     <div class="meta" id="pos-strava-note">—</div>
                   </div>
                   <div id="pos-strava-list" class="list"></div>
                   <div id="pos-strava-chart" class="chart"></div>
+                  <div class="chart-caption" id="pos-strava-chart-caption"></div>
                 </div>
-                <div id="pos-load-capacity" class="pos-section hidden" data-pos-view="overview training" data-importance="8" data-group="load_capacity" data-related="training_load,capacity">
+                <div id="pos-load-capacity" class="pos-section hidden" data-pos-view="training" data-importance="8" data-group="load_capacity" data-related="training_load,capacity">
                   <div class="row-inline">
                     <div style="font-weight:600;">Load vs capacity</div>
                     <div class="meta" id="pos-load-capacity-note">—</div>
                   </div>
                   <div id="pos-load-capacity-list" class="list"></div>
                 </div>
-                <div id="pos-weekly-load" class="pos-section hidden" data-pos-view="overview training" data-importance="7" data-group="weekly_load" data-related="training_load,weekly">
+                <div id="pos-weekly-load" class="pos-section hidden" data-pos-view="training" data-importance="7" data-group="weekly_load" data-related="training_load,weekly">
                   <div class="row-inline">
                     <div style="font-weight:600;">Weekly load</div>
                     <div class="meta" id="pos-weekly-load-note">—</div>
                   </div>
                   <div id="pos-weekly-load-chart" class="chart"></div>
+                  <div class="chart-caption" id="pos-weekly-load-caption"></div>
                 </div>
-                <div id="pos-relations" class="pos-section hidden" data-pos-view="overview training nutrition sleep" data-importance="8" data-group="relationships" data-related="load,sleep,nutrition,strength_quality">
+                <div id="pos-relations" class="pos-section hidden" data-pos-view="training" data-importance="8" data-group="relationships" data-related="load,sleep,nutrition,strength_quality">
                   <div class="row-inline">
-                    <div style="font-weight:600;">Signals in context</div>
+                    <div style="font-weight:600;">Load, sleep & nutrition signals</div>
                     <div class="meta" id="pos-relations-note">—</div>
                   </div>
                   <div id="pos-relations-list" class="list"></div>
                   <div id="pos-load-sleep-chart" class="chart"></div>
                   <div id="pos-fuel-load-chart" class="chart"></div>
                 </div>
-                <div id="pos-trends" class="pos-section hidden" data-pos-view="overview training" data-importance="7" data-group="momentum" data-related="training_load,endurance_distance,strength_sessions">
+                <div id="pos-trends" class="pos-section hidden" data-pos-view="training" data-importance="7" data-group="momentum" data-related="training_load,endurance_distance,strength_sessions">
                   <div class="row-inline">
-                    <div style="font-weight:600;">Momentum strips</div>
+                    <div style="font-weight:600;">Trend signals</div>
                     <div class="meta" id="pos-trends-note">—</div>
                   </div>
                   <div id="pos-trends-list" class="list"></div>
                 </div>
-                <div id="pos-data-health" class="pos-panel hidden" data-pos-view="overview training data" data-importance="9" data-group="data_health" data-related="coverage,stale,confidence">
+                <div id="pos-data-health" class="pos-panel hidden" data-pos-view="training data" data-importance="9" data-group="data_health" data-related="coverage,stale,confidence">
                   <div class="row-inline">
                     <div style="font-weight:600;">Data health</div>
                     <div class="meta" id="pos-data-health-note">—</div>
@@ -1229,7 +1476,7 @@
                   </div>
                   <div id="pos-apple-health-list" class="list"></div>
                 </div>
-                <div id="pos-stats" class="pos-panel hidden" data-pos-view="overview training nutrition data" data-importance="6" data-group="weekly_totals" data-related="miles,yards,steps,calories,exercise_hours,macros">
+                <div id="pos-stats" class="pos-panel hidden" data-pos-view="training nutrition data" data-importance="6" data-group="weekly_totals" data-related="miles,yards,steps,calories,exercise_hours,macros">
                   <div class="row-inline">
                     <div style="font-weight:600;">Weekly averages</div>
                     <div class="meta" id="pos-stats-range">—</div>
@@ -1240,63 +1487,67 @@
               </div>
             </section>
 
-            <section class="pos-domain" id="pos-domain-weight" data-pos-view="overview training strength" data-importance="8" data-group="strength" data-related="strength,quality,asymmetry">
+            <section class="pos-domain" id="pos-domain-weight" data-pos-view="overview strength" data-importance="8" data-group="strength" data-related="strength,quality,asymmetry">
               <div class="pos-domain-hero">
                 <div class="pos-domain-hero-main">
-                  <div>Weight training</div>
+                  <div class="plan-hero-label">Weight training</div>
                   <div class="pos-domain-plan" id="pos-domain-weight-plan" data-importance="8">Plan: —</div>
+                  <div class="pos-domain-plan-sub" id="pos-domain-weight-plan-sub">Metrics → plan drivers below</div>
                 </div>
                 <div class="meta">Speediance metrics</div>
               </div>
-              <div class="pos-domain-body grid-2">
-                <div id="pos-strength-scatter" class="pos-panel hidden" data-pos-view="overview training strength" data-importance="8" data-group="strength_quality" data-related="quality,asymmetry">
+              <div class="pos-domain-body">
+                <div id="pos-domain-weight-metrics" class="pos-domain-metrics list" data-pos-view="overview strength" data-importance="7" data-group="strength_metrics" data-related="sessions,quality,load"></div>
+                <div class="pos-domain-detail grid-2" data-pos-view="strength">
+                  <div id="pos-strength-scatter" class="pos-panel hidden" data-pos-view="strength" data-importance="8" data-group="strength_quality" data-related="quality,asymmetry">
                   <div class="row-inline">
                     <div style="font-weight:600;">Quality vs asymmetry</div>
                     <div class="meta" id="pos-strength-scatter-note">—</div>
                   </div>
                   <div id="pos-strength-scatter-chart" class="chart"></div>
                 </div>
-                <div id="pos-baselines" class="pos-panel hidden" data-pos-view="overview training strength" data-importance="7" data-group="strength_power" data-related="max_watts,max_weight,one_rm">
+                  <div id="pos-baselines" class="pos-panel hidden" data-pos-view="strength" data-importance="7" data-group="strength_power" data-related="max_watts,max_weight,one_rm">
                   <div class="row-inline">
                     <div style="font-weight:600;">Power baselines</div>
                     <div class="meta" id="pos-baselines-note">—</div>
                   </div>
                   <div id="pos-baselines-list" class="list"></div>
                 </div>
-                <div id="pos-strength-matrix" class="pos-panel hidden" data-pos-view="overview training strength" data-importance="8" data-group="strength_matrix" data-related="quality,asymmetry,completion,power">
+                  <div id="pos-strength-matrix" class="pos-panel hidden" data-pos-view="strength" data-importance="8" data-group="strength_matrix" data-related="quality,asymmetry,completion,power">
                   <div class="row-inline">
                     <div style="font-weight:600;">Strength matrix</div>
                     <div class="meta" id="pos-strength-matrix-note">—</div>
                   </div>
                   <div id="pos-strength-matrix-table" class="matrix"></div>
                 </div>
-                <div id="pos-quality" class="pos-panel hidden" data-pos-view="overview training strength" data-importance="7" data-group="session_quality" data-related="quality_score,completion,rep_consistency">
+                  <div id="pos-quality" class="pos-panel hidden" data-pos-view="strength" data-importance="7" data-group="session_quality" data-related="quality_score,completion,rep_consistency">
                   <div class="row-inline">
                     <div style="font-weight:600;">Session quality</div>
                     <div class="meta" id="pos-quality-note">—</div>
                   </div>
                   <div id="pos-quality-list" class="list"></div>
                 </div>
-                <div id="pos-last-session" class="pos-panel hidden" data-pos-view="overview training strength" data-importance="6" data-group="session_detail" data-related="exercise_metrics,volume,watts,rom">
+                  <div id="pos-last-session" class="pos-panel hidden" data-pos-view="strength" data-importance="6" data-group="session_detail" data-related="exercise_metrics,volume,watts,rom">
                   <div class="row-inline">
                     <div style="font-weight:600;">Last session breakdown</div>
                     <div class="meta" id="pos-last-session-note">—</div>
                   </div>
                   <div id="pos-last-session-list" class="list"></div>
                 </div>
-                <div id="pos-quality-trends" class="pos-panel hidden" data-pos-view="overview training strength" data-importance="6" data-group="exercise_trends" data-related="quality,watts,speed,rom">
+                  <div id="pos-quality-trends" class="pos-panel hidden" data-pos-view="strength" data-importance="6" data-group="exercise_trends" data-related="quality,watts,speed,rom">
                   <div class="row-inline">
                     <div style="font-weight:600;">Exercise trends</div>
                     <div class="meta" id="pos-quality-trends-note">—</div>
                   </div>
                   <div id="pos-quality-trends-list" class="list"></div>
                 </div>
-                <div id="pos-weakness" class="pos-panel hidden" data-pos-view="overview training strength" data-importance="7" data-group="strength_fix" data-related="asymmetry,quality,completion,tempo">
+                  <div id="pos-weakness" class="pos-panel hidden" data-pos-view="strength" data-importance="7" data-group="strength_fix" data-related="asymmetry,quality,completion,tempo">
                   <div class="row-inline">
                     <div style="font-weight:600;">What to fix next</div>
                     <div class="meta" id="pos-weakness-note">—</div>
                   </div>
                   <div id="pos-weakness-list" class="list"></div>
+                </div>
                 </div>
               </div>
             </section>
@@ -1304,13 +1555,15 @@
             <section class="pos-domain" id="pos-domain-cycling" data-pos-view="overview training" data-importance="8" data-group="cycling" data-related="cycling,form,fitness">
               <div class="pos-domain-hero">
                 <div class="pos-domain-hero-main">
-                  <div>Cycling</div>
+                  <div class="plan-hero-label">Cycling</div>
                   <div class="pos-domain-plan" id="pos-domain-cycling-plan" data-importance="8">Plan: —</div>
+                  <div class="pos-domain-plan-sub" id="pos-domain-cycling-plan-sub">Metrics → plan drivers below</div>
                 </div>
                 <div class="meta">Strava metrics</div>
               </div>
               <div class="pos-domain-body">
-                <div id="pos-cycling-summary" class="pos-panel hidden" data-pos-view="overview training" data-importance="8" data-group="cycling" data-related="fitness,fatigue,form">
+                <div id="pos-domain-cycling-metrics" class="pos-domain-metrics list" data-pos-view="overview training" data-importance="7" data-group="cycling_metrics" data-related="minutes,distance,form"></div>
+                <div id="pos-cycling-summary" class="pos-panel hidden" data-pos-view="training" data-importance="8" data-group="cycling" data-related="fitness,fatigue,form">
                   <div class="row-inline">
                     <div style="font-weight:600;">Cycling metrics</div>
                     <div class="meta" id="pos-cycling-note">—</div>
@@ -1323,13 +1576,15 @@
             <section class="pos-domain" id="pos-domain-running" data-pos-view="overview training" data-importance="8" data-group="running" data-related="running,form,fitness">
               <div class="pos-domain-hero">
                 <div class="pos-domain-hero-main">
-                  <div>Running</div>
+                  <div class="plan-hero-label">Running</div>
                   <div class="pos-domain-plan" id="pos-domain-running-plan" data-importance="8">Plan: —</div>
+                  <div class="pos-domain-plan-sub" id="pos-domain-running-plan-sub">Metrics → plan drivers below</div>
                 </div>
                 <div class="meta">Strava metrics</div>
               </div>
               <div class="pos-domain-body">
-                <div id="pos-running-summary" class="pos-panel hidden" data-pos-view="overview training" data-importance="8" data-group="running" data-related="fitness,fatigue,form">
+                <div id="pos-domain-running-metrics" class="pos-domain-metrics list" data-pos-view="overview training" data-importance="7" data-group="running_metrics" data-related="minutes,distance,form"></div>
+                <div id="pos-running-summary" class="pos-panel hidden" data-pos-view="training" data-importance="8" data-group="running" data-related="fitness,fatigue,form">
                   <div class="row-inline">
                     <div style="font-weight:600;">Running metrics</div>
                     <div class="meta" id="pos-running-note">—</div>
@@ -1342,13 +1597,15 @@
             <section class="pos-domain" id="pos-domain-swimming" data-pos-view="overview training" data-importance="8" data-group="swimming" data-related="swimming,form,fitness">
               <div class="pos-domain-hero">
                 <div class="pos-domain-hero-main">
-                  <div>Swimming</div>
+                  <div class="plan-hero-label">Swimming</div>
                   <div class="pos-domain-plan" id="pos-domain-swimming-plan" data-importance="8">Plan: —</div>
+                  <div class="pos-domain-plan-sub" id="pos-domain-swimming-plan-sub">Metrics → plan drivers below</div>
                 </div>
                 <div class="meta">Strava metrics</div>
               </div>
               <div class="pos-domain-body">
-                <div id="pos-swimming-summary" class="pos-panel hidden" data-pos-view="overview training" data-importance="8" data-group="swimming" data-related="fitness,fatigue,form">
+                <div id="pos-domain-swimming-metrics" class="pos-domain-metrics list" data-pos-view="overview training" data-importance="7" data-group="swim_metrics" data-related="minutes,distance,form"></div>
+                <div id="pos-swimming-summary" class="pos-panel hidden" data-pos-view="training" data-importance="8" data-group="swimming" data-related="fitness,fatigue,form">
                   <div class="row-inline">
                     <div style="font-weight:600;">Swimming metrics</div>
                     <div class="meta" id="pos-swimming-note">—</div>
@@ -1361,12 +1618,15 @@
             <section class="pos-domain" id="pos-domain-facial" data-pos-view="overview" data-importance="5" data-group="facial" data-related="facial,posture">
               <div class="pos-domain-hero">
                 <div class="pos-domain-hero-main">
-                  <div>Facial exercises</div>
+                  <div class="plan-hero-label">Facial exercises</div>
                   <div class="pos-domain-plan" id="pos-domain-facial-plan" data-importance="4">Plan: —</div>
+                  <div class="pos-domain-plan-sub" id="pos-domain-facial-plan-sub">Metrics → plan drivers below</div>
                 </div>
                 <div class="meta">Tracking source</div>
               </div>
               <div class="pos-domain-body">
+                <div id="pos-domain-facial-metrics" class="pos-domain-metrics list" data-pos-view="overview" data-importance="4" data-group="facial_metrics" data-related="facial">
+                </div>
                 <div id="pos-facial-summary" class="pos-panel hidden" data-pos-view="overview" data-importance="5" data-group="facial" data-related="facial">
                   <div class="row-inline">
                     <div style="font-weight:600;">Facial tracking</div>
@@ -1448,6 +1708,34 @@
       const posSummaryFreshnessEl = document.getElementById("pos-summary-freshness");
       const posSummaryNoteEl = document.getElementById("pos-summary-note");
       const posSummaryDriversEl = document.getElementById("pos-summary-drivers");
+      const posDomainSleepMetricsEl = document.getElementById("pos-domain-sleep-metrics");
+      const posDomainDietMetricsEl = document.getElementById("pos-domain-diet-metrics");
+      const posDomainProgressMetricsEl = document.getElementById("pos-domain-progress-metrics");
+      const posDomainWeightMetricsEl = document.getElementById("pos-domain-weight-metrics");
+      const posDomainCyclingMetricsEl = document.getElementById("pos-domain-cycling-metrics");
+      const posDomainRunningMetricsEl = document.getElementById("pos-domain-running-metrics");
+      const posDomainSwimmingMetricsEl = document.getElementById("pos-domain-swimming-metrics");
+      const posDomainFacialMetricsEl = document.getElementById("pos-domain-facial-metrics");
+      const posSleepQualityDurationEl = document.getElementById("pos-sleep-quality-duration");
+      const posSleepQualityScoreEl = document.getElementById("pos-sleep-quality-score");
+      const posSleepQualityBarsEl = document.getElementById("pos-sleep-quality-bars");
+      const posBreathingQualityValueEl = document.getElementById("pos-breathing-quality-value");
+      const posBreathingQualityNoteEl = document.getElementById("pos-breathing-quality-note");
+      const posSleepScoreGridEl = document.getElementById("pos-sleep-score-grid");
+      const posSleepScoreNoteEl = document.getElementById("pos-sleep-score-note");
+      const posSleepHeartChartEl = document.getElementById("pos-sleep-heart-chart");
+      const posSleepHeartNoteEl = document.getElementById("pos-sleep-heart-note");
+      const posWeekSportTabsEl = document.getElementById("pos-week-sport-tabs");
+      const posWeekSportSummaryEl = document.getElementById("pos-week-sport-summary");
+      const posWeekSportChartEl = document.getElementById("pos-week-sport-chart");
+      const posWeekSportCaptionEl = document.getElementById("pos-week-sport-caption");
+      const posFitnessCardChartEl = document.getElementById("pos-fitness-card-chart");
+      const posFitnessCardNoteEl = document.getElementById("pos-fitness-card-note");
+      const posStreakGridEl = document.getElementById("pos-streak-grid");
+      const posStreakLabelsEl = document.getElementById("pos-streak-labels");
+      const posStreakNoteEl = document.getElementById("pos-streak-note");
+      const posPowerSkillsChartEl = document.getElementById("pos-power-skills-chart");
+      const posPowerSkillsNoteEl = document.getElementById("pos-power-skills-note");
       const posDomainSleepPlanEl = document.getElementById("pos-domain-sleep-plan");
       const posDomainDietPlanEl = document.getElementById("pos-domain-diet-plan");
       const posDomainProgressPlanEl = document.getElementById("pos-domain-progress-plan");
@@ -1464,12 +1752,14 @@
       const posStravaListEl = document.getElementById("pos-strava-list");
       const posStravaNoteEl = document.getElementById("pos-strava-note");
       const posStravaChartEl = document.getElementById("pos-strava-chart");
+      const posStravaChartCaptionEl = document.getElementById("pos-strava-chart-caption");
       const posLoadCapacityEl = document.getElementById("pos-load-capacity");
       const posLoadCapacityListEl = document.getElementById("pos-load-capacity-list");
       const posLoadCapacityNoteEl = document.getElementById("pos-load-capacity-note");
       const posWeeklyLoadEl = document.getElementById("pos-weekly-load");
       const posWeeklyLoadChartEl = document.getElementById("pos-weekly-load-chart");
       const posWeeklyLoadNoteEl = document.getElementById("pos-weekly-load-note");
+      const posWeeklyLoadCaptionEl = document.getElementById("pos-weekly-load-caption");
       const posRelationsEl = document.getElementById("pos-relations");
       const posRelationsListEl = document.getElementById("pos-relations-list");
       const posRelationsNoteEl = document.getElementById("pos-relations-note");
@@ -1494,6 +1784,7 @@
       const posSleepTrendChartEl = document.getElementById("pos-sleep-trend-chart");
       const posSleepTrendListEl = document.getElementById("pos-sleep-trend-list");
       const posSleepTrendNoteEl = document.getElementById("pos-sleep-trend-note");
+      const posSleepTrendCaptionEl = document.getElementById("pos-sleep-trend-caption");
       const posAppleHealthEl = document.getElementById("pos-apple-health");
       const posAppleHealthListEl = document.getElementById("pos-apple-health-list");
       const posAppleHealthNoteEl = document.getElementById("pos-apple-health-note");
@@ -1622,6 +1913,7 @@
       let currentView = "garage";
       let currentPosView = "overview";
       let currentRangeDays = 7;
+      let currentWeekSport = "swim";
       const RANGE_OPTIONS = [
         { label: "Today", days: 1 },
         { label: "7d", days: 7 },
@@ -1883,6 +2175,48 @@
         return `${Math.round(value / 60)} min`;
       }
 
+      function formatDurationHM(seconds) {
+        const value = Number(seconds ?? NaN);
+        if (Number.isNaN(value) || value <= 0) return "—";
+        const totalMinutes = Math.round(value / 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        return `${hours}h${minutes ? ` ${minutes}m` : ""}`;
+      }
+
+      function pickNumber(source, keys) {
+        if (!source) return null;
+        for (const key of keys) {
+          const raw = source[key];
+          if (raw === null || raw === undefined || raw === "") continue;
+          const num = Number(raw);
+          if (!Number.isNaN(num)) return num;
+        }
+        return null;
+      }
+
+      function pickValue(source, keys) {
+        if (!source) return null;
+        for (const key of keys) {
+          const raw = source[key];
+          if (raw === null || raw === undefined || raw === "") continue;
+          return raw;
+        }
+        return null;
+      }
+
+      function renderMiniBars(values) {
+        if (!values || !values.length) return "";
+        const maxVal = Math.max(...values, 1);
+        return values
+          .map((val) => {
+            const height = Math.max(6, Math.round((val / maxVal) * 48));
+            const active = val > 0;
+            return `<div class="mini-bar ${active ? "active" : ""}" style="height:${height}px"></div>`;
+          })
+          .join("");
+      }
+
       function formatCount(value) {
         if (value === null || value === undefined) return "—";
         return String(value);
@@ -1899,7 +2233,7 @@
 
       function staleLabel(label, ageDays, threshold) {
         if (ageDays === null) return `${label} missing`;
-        if (ageDays >= threshold) return `${label} stale (${ageDays.toFixed(1)}d)`;
+        if (ageDays >= threshold) return `${label} updated ${ageDays.toFixed(1)}d ago`;
         return null;
       }
 
@@ -1989,13 +2323,10 @@
         if (!training?.updated_at) confidence -= 10;
         confidence = Math.max(0, Math.min(100, confidence));
         let confidenceTone = "good";
-        let confidenceLabel = "High confidence";
         if (confidence < 60) {
           confidenceTone = "bad";
-          confidenceLabel = "Low confidence";
         } else if (confidence < 80) {
           confidenceTone = "warn";
-          confidenceLabel = "Medium confidence";
         }
 
         posSummaryMetricsEl.appendChild(
@@ -2089,60 +2420,59 @@
           const sleepDelta = sleepSeconds != null && sleepBaseline != null
             ? sleepSeconds / 3600 - sleepBaseline / 3600
             : null;
+          const sleepHours = sleepSeconds != null ? sleepSeconds / 3600 : null;
           const sleepAgeLabel = sleepAge != null ? (sleepAge >= 10 ? formatNumber(sleepAge, 0) : formatNumber(sleepAge, 1)) : null;
           const weightAgeLabel = weightAge != null ? (weightAge >= 10 ? formatNumber(weightAge, 0) : formatNumber(weightAge, 1)) : null;
 
           if (sleepAge != null && sleepAge >= 2) {
             drivers.push({
-              label: `Sleep stale ${sleepAgeLabel}d`,
+              label: `Sleep updated ${sleepAgeLabel}d ago`,
               tone: "warn",
               meta: { importance: 9, group: "drivers", related: "sleep" },
             });
           } else if (sleepDelta != null) {
             drivers.push({
-              label: sleepDelta >= 0.5
-                ? `Sleep ↑ ${formatNumber(sleepDelta, 1)}h`
-                : sleepDelta <= -0.5
-                  ? `Sleep ↓ ${formatNumber(Math.abs(sleepDelta), 1)}h`
-                  : "Sleep steady",
-              tone: sleepDelta >= 0.5 ? "good" : sleepDelta <= -0.5 ? "bad" : "warn",
+              label: `Sleep Δ ${formatNumber(sleepDelta, 1)}h vs baseline`,
+              tone: sleepDelta >= 0.5 ? "good" : sleepDelta <= -0.5 ? "bad" : "neutral",
               meta: { importance: 9, group: "drivers", related: "sleep" },
+            });
+          } else if (sleepHours != null) {
+            drivers.push({
+              label: `Sleep ${formatNumber(sleepHours, 1)}h (baseline missing)`,
+              tone: "neutral",
+              meta: { importance: 8, group: "drivers", related: "sleep" },
             });
           }
           if (latestForm != null) {
-            const formLabel = latestForm >= 5
-              ? `Form +${formatNumber(latestForm, 0)}`
-              : latestForm <= -5
-                ? `Form ${formatNumber(latestForm, 0)}`
-                : `Form ${latestForm >= 0 ? "+" : ""}${formatNumber(latestForm, 0)}`;
+            const formLabel = `Form Δ ${latestForm >= 0 ? "+" : ""}${formatNumber(latestForm, 0)}`;
             drivers.push({
               label: `${formLabel} (Strava)`,
-              tone: latestForm >= 5 ? "good" : latestForm <= -5 ? "bad" : "warn",
+              tone: latestForm >= 5 ? "good" : latestForm <= -5 ? "bad" : "neutral",
               meta: { importance: 8, group: "drivers", related: "form" },
             });
           }
           if (nutritionDaysCount <= 0) {
             drivers.push({
-              label: `Nutrition coverage: ${nutritionDaysDisplay}/7 days`,
+              label: `Nutrition logs: ${nutritionDaysDisplay}/7 days (last 7d)`,
               tone: "warn",
               meta: { importance: 7, group: "drivers", related: "nutrition" },
             });
           } else if (nutritionDaysCount < 4) {
             drivers.push({
-              label: `Nutrition coverage low: ${nutritionDaysDisplay}/7 days`,
+              label: `Nutrition logs: ${nutritionDaysDisplay}/7 days (last 7d)`,
               tone: "warn",
               meta: { importance: 7, group: "drivers", related: "nutrition" },
             });
           } else {
             drivers.push({
-              label: `Nutrition coverage: ${nutritionDaysDisplay}/7 days`,
+              label: `Nutrition logs: ${nutritionDaysDisplay}/7 days (last 7d)`,
               tone: "good",
               meta: { importance: 7, group: "drivers", related: "nutrition" },
             });
           }
           if (weightAge != null && weightAge >= 7) {
             drivers.push({
-              label: `Weight stale ${weightAgeLabel}d`,
+              label: `Weight updated ${weightAgeLabel}d ago`,
               tone: "warn",
               meta: { importance: 5, group: "drivers", related: "weight" },
             });
@@ -2156,7 +2486,7 @@
           });
           const confidenceChip = document.createElement("span");
           confidenceChip.className = `stale-chip ${confidenceTone || "neutral"}`;
-          confidenceChip.innerHTML = `Confidence <b>${confidence}%</b>`;
+          confidenceChip.innerHTML = `Data confidence <b>${confidence}%</b>`;
           attachMeta(confidenceChip, { importance: 9, group: "confidence", related: "coverage,stale" });
           posSummaryDriversEl.appendChild(confidenceChip);
         }
@@ -2213,10 +2543,15 @@
         if (sleepBase != null) sleepMetaParts.push(`baseline ${formatNumber(sleepBase, 1)} h`);
         if (sleepDelta != null) sleepMetaParts.push(`Δ ${formatNumber(sleepDelta, 1)} h`);
         if (sleepAge != null) sleepMetaParts.push(`updated ${formatNumber(sleepAge, 1)}d ago`);
+        const sleepStatus = sleepAge != null
+          ? `Updated ${formatNumber(sleepAge, sleepAge >= 10 ? 0 : 1)}d ago`
+          : sleepHours != null
+            ? "Updated recently"
+            : "No update";
         posRecoveryListEl.appendChild(
           renderStatusItem(
             "Sleep",
-            sleepHours != null ? "Tracked" : "Missing",
+            sleepStatus,
             sleepTone,
             sleepMetaParts.join(" · ") || "No sleep data",
             { importance: 9, group: "sleep", related: "duration,baseline,delta" },
@@ -2233,10 +2568,15 @@
         if (weightBase != null) weightMetaParts.push(`baseline ${formatNumber(weightBase, 1)} kg`);
         if (weightDelta != null) weightMetaParts.push(`Δ ${formatNumber(weightDelta, 1)} kg`);
         if (weightAge != null) weightMetaParts.push(`updated ${formatNumber(weightAge, 1)}d ago`);
+        const weightStatus = weightAge != null
+          ? `Updated ${formatNumber(weightAge, weightAge >= 10 ? 0 : 1)}d ago`
+          : weight != null
+            ? "Updated recently"
+            : "No update";
         posRecoveryListEl.appendChild(
           renderStatusItem(
             "Weight",
-            weight != null ? "Tracked" : "Missing",
+            weightStatus,
             weightTone,
             weightMetaParts.join(" · ") || "No weight data",
             { importance: 5, group: "weight", related: "trend,baseline" },
@@ -2310,9 +2650,9 @@
         const training = trainingResp.data ?? {};
         const sleepAge = formatAgeDays(readiness.sleep_updated_at);
         const weightAge = formatAgeDays(readiness.weight_updated_at);
-        const sleepStatus = sleepAge != null && sleepAge < 2 ? "Current" : "Stale";
+        const sleepStatus = sleepAge != null ? `Updated ${formatNumber(sleepAge, sleepAge >= 10 ? 0 : 1)}d ago` : "No update";
         const sleepTone = sleepAge != null && sleepAge < 2 ? "good" : "warn";
-        const weightStatus = weightAge != null && weightAge < 7 ? "Current" : "Stale";
+        const weightStatus = weightAge != null ? `Updated ${formatNumber(weightAge, weightAge >= 10 ? 0 : 1)}d ago` : "No update";
         const weightTone = weightAge != null && weightAge < 7 ? "good" : "warn";
 
         const nutritionDays = new Set();
@@ -2323,28 +2663,28 @@
         const nutritionDaysCount = nutritionDays.size;
         const nutritionDaysDisplay = Math.min(nutritionDaysCount, 7);
         const nutritionTone = nutritionDaysCount >= 4 ? "good" : nutritionDaysCount >= 1 ? "warn" : "bad";
-        const nutritionStatus = nutritionDaysCount >= 4 ? "Coverage ok" : nutritionDaysCount >= 1 ? "Coverage low" : "No coverage";
+        const nutritionStatus = `Logs ${nutritionDaysDisplay}/7 days`;
 
         const appleLogs = appleResp.data?.length ?? 0;
         const appleTone = appleLogs >= 4 ? "good" : appleLogs >= 1 ? "warn" : "bad";
-        const appleStatus = appleLogs >= 4 ? "Covered" : appleLogs >= 1 ? "Sparse" : "Missing";
+        const appleStatus = appleLogs ? `${appleLogs} logs (7d)` : "No logs";
 
         const stravaDate = stravaResp.data?.[0]?.date ?? null;
         const stravaAge = stravaDate ? formatAgeDays(`${stravaDate}T00:00:00`) : null;
         const stravaTone = stravaAge != null && stravaAge < 7 ? "good" : "warn";
-        const stravaStatus = stravaAge != null && stravaAge < 7 ? "Current" : "Stale";
+        const stravaStatus = stravaAge != null ? `Updated ${formatNumber(stravaAge, stravaAge >= 10 ? 0 : 1)}d ago` : "No update";
 
         const strengthDate = strengthResp.data?.[0]?.session_date ?? null;
         const strengthAge = strengthDate ? formatAgeDays(`${strengthDate}T00:00:00`) : null;
         const strengthTone = strengthAge != null && strengthAge < 7 ? "good" : "warn";
-        const strengthStatus = strengthAge != null && strengthAge < 7 ? "Current" : "Stale";
+        const strengthStatus = strengthAge != null ? `Updated ${formatNumber(strengthAge, strengthAge >= 10 ? 0 : 1)}d ago` : "No update";
 
         posDataHealthListEl.appendChild(
           renderStatusItem(
             "Sleep",
             sleepStatus,
             sleepTone,
-            sleepAge != null ? `Updated ${formatNumber(sleepAge, 1)}d ago` : "No update yet",
+            sleepAge != null ? `Target update ≤2d` : "No update yet",
             { importance: 9, group: "data_health", related: "sleep" },
           ),
         );
@@ -2353,7 +2693,7 @@
             "Weight",
             weightStatus,
             weightTone,
-            weightAge != null ? `Updated ${formatNumber(weightAge, 1)}d ago` : "No update yet",
+            weightAge != null ? `Target update ≤7d` : "No update yet",
             { importance: 7, group: "data_health", related: "weight" },
           ),
         );
@@ -2362,7 +2702,7 @@
             "Nutrition",
             nutritionStatus,
             nutritionTone,
-            `${nutritionDaysDisplay}/7 days logged`,
+            `${nutritionDaysDisplay}/7 days logged (last 7d)`,
             { importance: 8, group: "data_health", related: "nutrition" },
           ),
         );
@@ -2528,11 +2868,46 @@
         ];
 
         const limiters = [];
-        if (sleepAge == null || sleepAge >= 2) limiters.push({ label: "Sleep stale", detail: "Update Withings sleep", tone: "warn" });
-        if (weightAge == null || weightAge >= 7) limiters.push({ label: "Weight stale", detail: "Update weight data", tone: "warn" });
-        if (enduranceCount < 2) limiters.push({ label: "Endurance frequency", detail: "Aim for 2–3 sessions", tone: "warn" });
-        if (strengthCount < 2) limiters.push({ label: "Strength frequency", detail: "Aim for 2 sessions", tone: "warn" });
-        if (adherencePct != null && adherencePct < 50) limiters.push({ label: "Execution gap", detail: "Plan vs done mismatch", tone: "bad" });
+        if (sleepAge == null || sleepAge >= 2) {
+          limiters.push({
+            label: "Sleep update age",
+            status: sleepAge != null ? `${formatNumber(sleepAge, sleepAge >= 10 ? 0 : 1)}d since update` : "No update",
+            detail: "Target ≤2d",
+            tone: "warn",
+          });
+        }
+        if (weightAge == null || weightAge >= 7) {
+          limiters.push({
+            label: "Weight update age",
+            status: weightAge != null ? `${formatNumber(weightAge, weightAge >= 10 ? 0 : 1)}d since update` : "No update",
+            detail: "Target ≤7d",
+            tone: "warn",
+          });
+        }
+        if (enduranceCount < 2) {
+          limiters.push({
+            label: "Endurance sessions (7d)",
+            status: `${enduranceCount}/2 target`,
+            detail: "Aim ≥2 sessions",
+            tone: "warn",
+          });
+        }
+        if (strengthCount < 2) {
+          limiters.push({
+            label: "Strength sessions (7d)",
+            status: `${strengthCount}/2 target`,
+            detail: "Aim ≥2 sessions",
+            tone: "warn",
+          });
+        }
+        if (adherencePct != null && adherencePct < 50) {
+          limiters.push({
+            label: "Adherence (7d)",
+            status: `${formatNumber(adherencePct, 0)}%`,
+            detail: "Target ≥50%",
+            tone: "bad",
+          });
+        }
 
         pillarDefs.forEach((pillar) => {
           posRacePillarsEl.appendChild(renderPillar(pillar));
@@ -2543,7 +2918,7 @@
             posRaceLimitersListEl.appendChild(
               renderStatusItem(
                 limiter.label,
-                limiter.tone === "bad" ? "Critical" : "Watch",
+                limiter.status || "—",
                 limiter.tone,
                 limiter.detail,
                 { importance: 8, group: "race_limiters", related: "limiters" },
@@ -2658,7 +3033,7 @@
               { importance: importance - 1, group: label.toLowerCase(), related: "fatigue" },
             ),
           );
-          if (noteEl) noteEl.textContent = `${rangeLabel(currentRangeDays)} · ${label}`;
+          if (noteEl) noteEl.textContent = `Interval: daily · Range: ${rangeLabel(currentRangeDays)} · ${label}`;
         };
 
         const order = ["all", "running", "cycling", "swimming"];
@@ -2690,9 +3065,12 @@
             { label: "Form", color: "#22c55e", values: chartRows.map((row) => row.form ?? 0) },
           ];
           posStravaChartEl.innerHTML = renderLineChart({ labels, series, yLabel: "Score" });
+          if (posStravaChartCaptionEl) {
+            posStravaChartCaptionEl.textContent = `Interval: daily · Range: ${rangeLabel(currentRangeDays)}`;
+          }
         }
 
-        if (posStravaNoteEl) posStravaNoteEl.textContent = `${rangeLabel(currentRangeDays)} of Strava fitness.`;
+        if (posStravaNoteEl) posStravaNoteEl.textContent = `Interval: daily · Range: ${rangeLabel(currentRangeDays)}.`;
 
         renderSportPanel(posCyclingListEl, posCyclingNoteEl, bySport.cycling, "Cycling", 8);
         renderSportPanel(posRunningListEl, posRunningNoteEl, bySport.running, "Running", 8);
@@ -2701,13 +3079,14 @@
 
       function trendBadge(values) {
         if (!values || values.length < 2) {
-          return { label: "Flat", tone: "warn" };
+          return { label: "Δ 0", tone: "warn" };
         }
         const first = values[0] ?? 0;
         const last = values[values.length - 1] ?? 0;
         const delta = last - first;
-        if (Math.abs(delta) < 0.01) return { label: "Flat", tone: "warn" };
-        return delta > 0 ? { label: "Up", tone: "good" } : { label: "Down", tone: "bad" };
+        if (Math.abs(delta) < 0.01) return { label: "Δ 0", tone: "warn" };
+        const deltaLabel = delta >= 0 ? `Δ +${formatNumber(delta, 1)}` : `Δ ${formatNumber(delta, 1)}`;
+        return delta > 0 ? { label: deltaLabel, tone: "good" } : { label: deltaLabel, tone: "bad" };
       }
 
       async function loadPosTrends() {
@@ -2772,7 +3151,7 @@
         });
 
         const loadSeries = days.map((d) => loadMap.get(d) || 0);
-        const distanceSeries = days.map((d) => distanceByDay.get(d) || 0);
+        const distanceSeries = days.map((d) => formatMiles(distanceByDay.get(d) || 0) || 0);
         const strengthSeries = days.map((d) => strengthByDay.get(d) || 0);
 
         const loadTrend = trendBadge(loadSeries);
@@ -2806,7 +3185,7 @@
           "Endurance distance",
           enduranceTrend.label,
           enduranceTrend.tone,
-          `Total ${formatNumber(formatMiles(distanceTotal) ?? 0, 1)} mi · Min ${formatNumber(formatMiles(distanceMin) ?? 0, 1)} · Max ${formatNumber(formatMiles(distanceMax) ?? 0, 1)}`,
+          `Total ${formatNumber(distanceTotal ?? 0, 1)} mi · Min ${formatNumber(distanceMin ?? 0, 1)} · Max ${formatNumber(distanceMax ?? 0, 1)}`,
           { importance: 6, group: "endurance", related: "distance,volume" },
         );
         const enduranceSpark = document.createElement("div");
@@ -2840,7 +3219,7 @@
         posTrendsListEl.appendChild(strengthEntry);
 
         if (posTrendsNoteEl) {
-          posTrendsNoteEl.textContent = `Momentum signals for ${rangeLabel(currentRangeDays).toLowerCase()}.`;
+          posTrendsNoteEl.textContent = `Trend signals for ${rangeLabel(currentRangeDays).toLowerCase()}.`;
         }
       }
 
@@ -2951,7 +3330,10 @@
         });
 
         if (posWeeklyLoadNoteEl) {
-          posWeeklyLoadNoteEl.textContent = "Weekly totals with rolling average.";
+          posWeeklyLoadNoteEl.textContent = "Interval: weekly · 4-week totals with rolling average.";
+        }
+        if (posWeeklyLoadCaptionEl) {
+          posWeeklyLoadCaptionEl.textContent = "Interval: weekly · Range: last 4 weeks";
         }
       }
 
@@ -3236,34 +3618,37 @@
         const sleepStat = resolution === "hour" ? (sleepSeries[0] || 0) : avg(sleepSeries) ?? 0;
         const caloriesStat = resolution === "hour" ? sum(caloriesSeries) : avg(caloriesSeries) ?? 0;
         const proteinStat = resolution === "hour" ? sum(proteinSeries) : avg(proteinSeries) ?? 0;
-        const loadLabel = resolution === "hour" ? "Load total" : "Load avg";
-        const sleepLabel = resolution === "hour" ? "Sleep last night" : "Sleep avg";
-        const caloriesLabel = resolution === "hour" ? "Calories total" : "Calories avg";
-        const proteinLabel = resolution === "hour" ? "Protein total" : "Protein avg";
+        const loadLabel = resolution === "hour" ? "Activity minutes" : "Training load";
+        const sleepLabel = resolution === "hour" ? "Sleep (last night)" : "Sleep avg";
+        const caloriesLabel = resolution === "hour" ? "Calories (today)" : "Calories avg";
+        const proteinLabel = resolution === "hour" ? "Protein (today)" : "Protein avg";
+
+        const intervalLabel = resolution === "hour" ? "Hourly" : "Daily";
+        const rangeText = rangeLabel(currentRangeDays);
+        const intervalStatus = `${intervalLabel} · ${rangeText}`;
+        const loadUnit = resolution === "hour" ? "min" : "load";
 
         if (posRelationsListEl) {
           posRelationsListEl.appendChild(
             renderStatusItem(
               "Load vs sleep",
-              sleepStat ? "Tracked" : "Sparse",
-              sleepStat ? "good" : "warn",
-              `${loadLabel} ${formatNumber(loadStat, 0)} · ${sleepLabel} ${formatNumber(sleepStat, 1)} h`,
+              intervalStatus,
+              "neutral",
+              `${loadLabel} ${formatNumber(loadStat, 0)} ${loadUnit} · ${sleepLabel} ${formatNumber(sleepStat, 1)} h`,
               { importance: 8, group: "relationships", related: "load,sleep" },
             ),
           );
           posRelationsListEl.appendChild(
             renderStatusItem(
-              "Fuel vs load",
-              caloriesStat ? "Tracked" : "Sparse",
-              caloriesStat ? "good" : "warn",
-              `${caloriesLabel} ${formatNumber(caloriesStat, 0)} · ${proteinLabel} ${formatNumber(proteinStat, 0)} g`,
+              "Calories + protein vs load",
+              intervalStatus,
+              "neutral",
+              `${caloriesLabel} ${formatNumber(caloriesStat, 0)} kcal · ${proteinLabel} ${formatNumber(proteinStat, 0)} g · Load ${formatNumber(loadStat, 0)} ${loadUnit}`,
               { importance: 7, group: "relationships", related: "calories,protein,load" },
             ),
           );
         }
 
-        const intervalLabel = resolution === "hour" ? "Hourly" : "Daily";
-        const rangeText = rangeLabel(currentRangeDays);
         const caption = `Interval: ${intervalLabel} · Range: ${rangeText}`;
 
         if (posLoadSleepChartEl) {
@@ -3301,9 +3686,388 @@
         }
 
         if (posRelationsNoteEl) {
-          const resLabel = resolution === "hour" ? "Hourly" : "Daily";
-          posRelationsNoteEl.textContent = `${rangeLabel(currentRangeDays)} · ${resLabel.toLowerCase()} relationships between load, sleep, fuel.`;
+          const sourceLoad = resolution === "hour" ? "Strava activity minutes" : "pos_day_metrics training_load_today";
+          posRelationsNoteEl.textContent = `Range: ${rangeText} · Interval: ${intervalLabel.toLowerCase()} · Load from ${sourceLoad} · Sleep from pos_day_metrics · Calories/protein from nutrition logs.`;
         }
+      }
+
+      async function loadPosSleepQuality() {
+        if (!posSleepQualityDurationEl || !posSleepQualityScoreEl || !posSleepQualityBarsEl) return;
+        posSleepQualityDurationEl.textContent = "—";
+        posSleepQualityScoreEl.textContent = "Score —";
+        posSleepQualityBarsEl.innerHTML = "";
+        if (posBreathingQualityValueEl) posBreathingQualityValueEl.textContent = "—";
+        if (posBreathingQualityNoteEl) posBreathingQualityNoteEl.textContent = "Respiration assessment";
+
+        const recentStart = rangeStartDate(7).toISOString().slice(0, 10);
+        const [sleepRawResp, metricsResp] = await Promise.all([
+          supabase
+            .from("withings_sleep_raw")
+            .select("summary_date,summary,payload,start_date,end_date")
+            .order("summary_date", { ascending: false })
+            .limit(1),
+          supabase
+            .from("pos_day_metrics")
+            .select("date,sleep_seconds")
+            .gte("date", recentStart)
+            .order("date", { ascending: true }),
+        ]);
+
+        const latest = sleepRawResp.data?.[0];
+        const summary = latest?.summary || latest?.payload?.summary || latest?.payload || {};
+        let duration = pickNumber(summary, [
+          "duration",
+          "total_sleep_time",
+          "sleep_duration",
+          "asleepduration",
+          "sleep_duration_s",
+        ]);
+        if (duration != null && duration < 1000) {
+          duration *= 60;
+        }
+        const score = pickNumber(summary, ["sleep_score", "score"]);
+        const breathingScore = pickNumber(summary, ["breathing_score", "respiratory_score"]);
+        const respRate = pickNumber(summary, ["rr_average", "respiratory_rate", "breathing_rate"]);
+
+        if (duration != null) {
+          posSleepQualityDurationEl.textContent = formatDurationHM(duration);
+        }
+        posSleepQualityScoreEl.textContent = score != null ? `Score ${formatNumber(score, 0)}` : "Score —";
+
+        const sleepSeries = (metricsResp.data || []).map((row) => {
+          const hrs = row.sleep_seconds ? row.sleep_seconds / 3600 : 0;
+          return Number.isNaN(hrs) ? 0 : hrs;
+        });
+        posSleepQualityBarsEl.innerHTML = renderMiniBars(sleepSeries);
+
+        if (posBreathingQualityValueEl) {
+          if (breathingScore != null) {
+            posBreathingQualityValueEl.textContent = `${formatNumber(breathingScore, 0)}/100`;
+          } else if (respRate != null) {
+            posBreathingQualityValueEl.textContent = `${formatNumber(respRate, 1)} rpm`;
+          } else {
+            posBreathingQualityValueEl.textContent = "No data";
+          }
+        }
+        if (posBreathingQualityNoteEl) {
+          if (breathingScore != null) {
+            posBreathingQualityNoteEl.textContent = respRate != null ? `Respiration ${formatNumber(respRate, 1)} rpm` : "Breathing score";
+          } else if (respRate != null) {
+            posBreathingQualityNoteEl.textContent = "Average respiratory rate";
+          } else {
+            posBreathingQualityNoteEl.textContent = "Add Withings sleep data";
+          }
+        }
+      }
+
+      async function loadPosSleepScoreGrid() {
+        if (!posSleepScoreGridEl) return;
+        posSleepScoreGridEl.innerHTML = "";
+        if (posSleepScoreNoteEl) posSleepScoreNoteEl.textContent = "";
+
+        const sleepRawResp = await supabase
+          .from("withings_sleep_raw")
+          .select("summary_date,summary,payload")
+          .order("summary_date", { ascending: false })
+          .limit(1);
+
+        const latest = sleepRawResp.data?.[0];
+        if (!latest) {
+          posSleepScoreGridEl.appendChild(renderSleepMetricCard({
+            label: "No sleep data",
+            value: "—",
+            meta: "Sync Withings sleep to populate",
+            metricMeta: { importance: 6, group: "sleep_score", related: "coverage" },
+          }));
+          return;
+        }
+
+        const summary = latest.summary || latest.payload?.summary || latest.payload || {};
+        let duration = pickNumber(summary, [
+          "duration",
+          "total_sleep_time",
+          "sleep_duration",
+          "asleepduration",
+          "sleep_duration_s",
+        ]);
+        if (duration != null && duration < 1000) duration *= 60;
+        const hrAvg = pickNumber(summary, ["hr_average", "hr_avg", "heart_rate_avg"]);
+        const hrv = pickNumber(summary, ["hrv", "hrv_average", "rmssd"]);
+        const deep = pickNumber(summary, ["deep_sleep_duration", "deepsleepduration", "deep_duration"]);
+        const regularity = pickNumber(summary, ["regularity", "sleep_regularity_score"]);
+        const interruptions = pickNumber(summary, ["wakeupcount", "wakeup_count", "interruptions"]);
+        let timeToSleep = pickNumber(summary, ["time_to_sleep", "sleep_latency", "time_to_sleep_s"]);
+        let timeToGetUp = pickNumber(summary, ["time_to_getup", "time_to_getup_s", "time_to_wakeup"]);
+
+        if (timeToSleep != null && timeToSleep < 1000) timeToSleep *= 60;
+        if (timeToGetUp != null && timeToGetUp < 1000) timeToGetUp *= 60;
+
+        const entries = [
+          { label: "Duration", value: duration != null ? formatDurationHM(duration) : "—", meta: "Total sleep" },
+          { label: "Heart rate", value: hrAvg != null ? `${formatNumber(hrAvg, 0)} bpm` : "—", meta: "Average" },
+          { label: "HRV", value: hrv != null ? `${formatNumber(hrv, 0)} ms` : "—", meta: "Average" },
+          { label: "Deep sleep", value: deep != null ? formatDurationHM(deep) : "—", meta: "Deep stage" },
+          { label: "Regularity", value: regularity != null ? `${formatNumber(regularity, 0)}/100` : "—", meta: "Consistency score" },
+          { label: "Interruptions", value: interruptions != null ? `${formatNumber(interruptions, 0)}` : "—", meta: "Wake ups" },
+          { label: "Time to sleep", value: timeToSleep != null ? formatDurationHM(timeToSleep) : "—", meta: "Sleep latency" },
+          { label: "Time to get up", value: timeToGetUp != null ? formatDurationHM(timeToGetUp) : "—", meta: "Wake latency" },
+        ];
+
+        entries.forEach((entry) => {
+          posSleepScoreGridEl.appendChild(renderSleepMetricCard({
+            label: entry.label,
+            value: entry.value,
+            meta: entry.meta,
+            metricMeta: { importance: 7, group: "sleep_score", related: "sleep" },
+          }));
+        });
+
+        if (posSleepScoreNoteEl) {
+          posSleepScoreNoteEl.textContent = latest.summary_date ? `Latest ${latest.summary_date}` : "Latest sleep summary";
+        }
+      }
+
+      async function loadPosSleepHeartRate() {
+        if (!posSleepHeartChartEl) return;
+        posSleepHeartChartEl.innerHTML = "";
+        if (posSleepHeartNoteEl) posSleepHeartNoteEl.textContent = "";
+
+        const days = Math.max(7, Math.min(30, currentRangeDays));
+        const start = rangeStartDate(days).toISOString().slice(0, 10);
+        const { data } = await supabase
+          .from("withings_sleep_raw")
+          .select("summary_date,summary,payload")
+          .gte("summary_date", start)
+          .order("summary_date", { ascending: true });
+
+        if (!data || !data.length) {
+          if (posSleepHeartNoteEl) posSleepHeartNoteEl.textContent = "No sleep HR series yet.";
+          return;
+        }
+
+        const labels = [];
+        const values = [];
+        data.forEach((row) => {
+          if (!row.summary_date) return;
+          const summary = row.summary || row.payload?.summary || row.payload || {};
+          const hrAvg = pickNumber(summary, ["hr_average", "hr_avg", "heart_rate_avg"]);
+          if (hrAvg == null) return;
+          labels.push(row.summary_date);
+          values.push(hrAvg);
+        });
+
+        if (!values.length) {
+          if (posSleepHeartNoteEl) posSleepHeartNoteEl.textContent = "No heart rate values yet.";
+          return;
+        }
+
+        posSleepHeartChartEl.innerHTML = renderLineChart({
+          labels,
+          series: [{ label: "Avg HR", color: "#94a3b8", values }],
+          yLabel: "bpm",
+        });
+        if (posSleepHeartNoteEl) {
+          posSleepHeartNoteEl.textContent = `Interval: daily · Range: ${rangeLabel(days)}`;
+        }
+      }
+
+      async function loadPosTrainingWeek() {
+        if (!posWeekSportTabsEl || !posWeekSportChartEl || !posWeekSportSummaryEl) return;
+        posWeekSportTabsEl.innerHTML = "";
+        posWeekSportChartEl.innerHTML = "";
+        posWeekSportSummaryEl.textContent = "—";
+
+        const options = [
+          { id: "swim", label: "Swim" },
+          { id: "ride", label: "Ride" },
+          { id: "run", label: "Run" },
+        ];
+
+        options.forEach((option) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "sport-tab";
+          btn.textContent = option.label;
+          if (currentWeekSport === option.id) btn.classList.add("active");
+          btn.addEventListener("click", async () => {
+            currentWeekSport = option.id;
+            await loadPosTrainingWeek();
+          });
+          posWeekSportTabsEl.appendChild(btn);
+        });
+
+        const start = rangeStartDate(7);
+        const startIso = start.toISOString();
+        const endIso = new Date().toISOString();
+        const { data } = await supabase
+          .from("pos_events")
+          .select("event_timestamp,payload")
+          .eq("source", "strava")
+          .eq("event_type", "activity")
+          .gte("event_timestamp", startIso)
+          .lte("event_timestamp", endIso);
+
+        const days = [];
+        for (let i = 0; i < 7; i += 1) {
+          const d = new Date(start);
+          d.setDate(start.getDate() + i);
+          days.push(d);
+        }
+        const labels = days.map((d) => d.toLocaleDateString("en-US", { weekday: "short" }));
+        const distanceByDay = new Map();
+        const timeByDay = new Map();
+
+        (data || []).forEach((row) => {
+          const payload = row.payload || {};
+          const typeLabel = String(payload.type ?? payload.activity_type ?? payload.sport_type ?? "");
+          const typeLower = typeLabel.toLowerCase();
+          const isSwim = typeLower.includes("swim");
+          const isRun = typeLower.includes("run");
+          const isRide = typeLower.includes("ride") || typeLower.includes("bike") || typeLower.includes("cycle");
+          const isMatch = currentWeekSport === "swim" ? isSwim : currentWeekSport === "run" ? isRun : isRide;
+          if (!isMatch) return;
+          const key = dateKeyFromIso(row.event_timestamp);
+          if (!key) return;
+          const distance = Number(payload.distance_m ?? payload.distance ?? 0);
+          const duration = Number(payload.elapsed_s ?? payload.elapsed_time ?? payload.duration_s ?? 0);
+          if (!Number.isNaN(distance)) {
+            distanceByDay.set(key, (distanceByDay.get(key) || 0) + distance);
+          }
+          if (!Number.isNaN(duration)) {
+            timeByDay.set(key, (timeByDay.get(key) || 0) + duration);
+          }
+        });
+
+        const distanceSeries = days.map((d) => {
+          const key = dateKeyFromIso(d.toISOString());
+          const meters = distanceByDay.get(key) || 0;
+          if (currentWeekSport === "swim") return meters * 1.09361;
+          return meters * 0.000621371;
+        });
+        const timeSeries = days.map((d) => {
+          const key = dateKeyFromIso(d.toISOString());
+          const seconds = timeByDay.get(key) || 0;
+          return seconds / 60;
+        });
+
+        const totalDistance = sum(distanceSeries);
+        const totalTime = sum(timeSeries);
+        const distanceUnit = currentWeekSport === "swim" ? "yd" : "mi";
+        if (!totalDistance && !totalTime) {
+          posWeekSportSummaryEl.textContent = "No sessions logged this week.";
+          posWeekSportChartEl.innerHTML = "";
+        } else {
+          posWeekSportSummaryEl.textContent = `Distance ${formatNumber(totalDistance, 1)} ${distanceUnit} · Time ${formatNumber(totalTime, 0)} min`;
+          posWeekSportChartEl.innerHTML = renderLineChart({
+            labels,
+            series: [{ label: `Distance (${distanceUnit})`, color: "#fb923c", values: distanceSeries }],
+            yLabel: distanceUnit,
+          });
+        }
+        if (posWeekSportCaptionEl) {
+          posWeekSportCaptionEl.textContent = "Interval: daily · Range: Last 7 days";
+        }
+      }
+
+      async function loadPosFitnessCard() {
+        if (!posFitnessCardChartEl) return;
+        posFitnessCardChartEl.innerHTML = "";
+        if (posFitnessCardNoteEl) posFitnessCardNoteEl.textContent = "";
+
+        const days = Math.max(30, currentRangeDays);
+        const start = rangeStartDate(days).toISOString().slice(0, 10);
+        const { data } = await supabase
+          .from("strava_fitness_daily")
+          .select("date,fitness,form")
+          .eq("sport_type", "all")
+          .gte("date", start)
+          .order("date", { ascending: true });
+
+        if (!data || !data.length) {
+          if (posFitnessCardNoteEl) posFitnessCardNoteEl.textContent = "No Strava fitness series yet.";
+          return;
+        }
+        const labels = data.map((row) => row.date);
+        const fitness = data.map((row) => Number(row.fitness ?? 0));
+        const form = data.map((row) => Number(row.form ?? 0));
+        posFitnessCardChartEl.innerHTML = renderLineChart({
+          labels,
+          series: [
+            { label: "Fitness", color: "#fb923c", values: fitness },
+            { label: "Form", color: "#38bdf8", values: form },
+          ],
+          yLabel: "Score",
+        });
+        if (posFitnessCardNoteEl) {
+          posFitnessCardNoteEl.textContent = `Interval: daily · Range: ${rangeLabel(days)}`;
+        }
+      }
+
+      async function loadPosStreakCalendar() {
+        if (!posStreakGridEl || !posStreakLabelsEl) return;
+        posStreakGridEl.innerHTML = "";
+        posStreakLabelsEl.innerHTML = "";
+        if (posStreakNoteEl) posStreakNoteEl.textContent = "";
+
+        const today = new Date();
+        const first = new Date(today.getFullYear(), today.getMonth(), 1);
+        const last = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        const startIso = first.toISOString();
+        const endIso = last.toISOString();
+        const { data } = await supabase
+          .from("pos_events")
+          .select("event_timestamp,payload")
+          .eq("source", "strava")
+          .eq("event_type", "activity")
+          .gte("event_timestamp", startIso)
+          .lte("event_timestamp", endIso);
+
+        const activeDays = new Set();
+        (data || []).forEach((row) => {
+          const key = dateKeyFromIso(row.event_timestamp);
+          if (key) activeDays.add(key);
+        });
+
+        const dayLabels = ["M", "T", "W", "T", "F", "S", "S"];
+        dayLabels.forEach((label) => {
+          const span = document.createElement("div");
+          span.textContent = label;
+          posStreakLabelsEl.appendChild(span);
+        });
+
+        const offset = (first.getDay() + 6) % 7;
+        for (let i = 0; i < offset; i += 1) {
+          const cell = document.createElement("div");
+          cell.className = "streak-cell";
+          cell.style.opacity = "0";
+          posStreakGridEl.appendChild(cell);
+        }
+
+        let activeCount = 0;
+        for (let day = 1; day <= last.getDate(); day += 1) {
+          const current = new Date(today.getFullYear(), today.getMonth(), day);
+          const key = dateKeyFromIso(current.toISOString());
+          const cell = document.createElement("div");
+          cell.className = "streak-cell";
+          cell.textContent = day;
+          if (activeDays.has(key)) {
+            cell.classList.add("active");
+            activeCount += 1;
+          }
+          posStreakGridEl.appendChild(cell);
+        }
+
+        if (posStreakNoteEl) {
+          posStreakNoteEl.textContent = activeCount
+            ? `${activeCount} active days in ${today.toLocaleString("en-US", { month: "long" })}`
+            : "No activities logged this month.";
+        }
+      }
+
+      async function loadPosPowerSkills() {
+        if (!posPowerSkillsChartEl || !posPowerSkillsNoteEl) return;
+        posPowerSkillsChartEl.innerHTML = "";
+        posPowerSkillsNoteEl.textContent = "No power profile data yet.";
       }
 
       async function loadPosSleepTrend() {
@@ -3357,6 +4121,13 @@
           series: [{ label: "Sleep (h)", color: "#38bdf8", values: series }],
           yLabel: "Hours",
         });
+        const sleepRangeLabel = rangeLabel(dayCount);
+        if (posSleepTrendNoteEl) {
+          posSleepTrendNoteEl.textContent = `Interval: daily · Range: ${sleepRangeLabel} · Source: Withings sleep summary.`;
+        }
+        if (posSleepTrendCaptionEl) {
+          posSleepTrendCaptionEl.textContent = `Interval: daily · Range: ${sleepRangeLabel}`;
+        }
 
         posSleepTrendListEl.appendChild(
           renderStatusItem(
@@ -3372,7 +4143,7 @@
             "Consistency",
             `${formatNumber(sleepStd, 1)} h σ`,
             sleepStd <= 0.8 ? "good" : "warn",
-            "Lower is better",
+            "Std dev of sleep hours",
             { importance: 6, group: "sleep_trend", related: "variability" },
           ),
         );
@@ -3387,7 +4158,7 @@
         );
 
         if (posSleepTrendNoteEl) {
-          posSleepTrendNoteEl.textContent = `${rangeLabel(dayCount)} sleep duration and consistency.`;
+          posSleepTrendNoteEl.textContent = `Interval: daily · Range: ${sleepRangeLabel} · Sleep duration & consistency.`;
         }
       }
 
@@ -4145,6 +4916,10 @@
           await loadPosWeeklyLoad();
           await loadPosRelations();
           await loadPosTrends();
+          await loadPosTrainingWeek();
+          await loadPosFitnessCard();
+          await loadPosStreakCalendar();
+          await loadPosPowerSkills();
           await loadPosStats();
           await loadPosAppleHealth();
           await loadPosDataHealth();
@@ -4167,6 +4942,9 @@
         }
         if (viewId === "sleep") {
           await loadPosRecovery();
+          await loadPosSleepQuality();
+          await loadPosSleepScoreGrid();
+          await loadPosSleepHeartRate();
           await loadPosSleepTrend();
           await loadPosSleepPlan();
           return;
@@ -4205,6 +4983,19 @@
         `;
         attachMeta(item, metricMeta);
         return item;
+      }
+
+      function renderSleepMetricCard({ label, value, meta = "", tone = "" , metricMeta = null }) {
+        const card = document.createElement("div");
+        card.className = "sleep-metric-card";
+        card.innerHTML = `
+          <div class="list-title">${label}</div>
+          <strong>${value}</strong>
+          <div class="meta">${meta || ""}</div>
+        `;
+        if (tone) card.dataset.tone = tone;
+        attachMeta(card, metricMeta);
+        return card;
       }
 
       function renderKpiCard({ label, value, tone = "good", icon = "•", sub = "", progress = null, meta = null }) {
@@ -4307,7 +5098,7 @@
         const status = ratio >= 1.1 ? "≥110% target" : ratio >= 0.9 ? "90–110% target" : ratio >= 0.6 ? "60–90% target" : "<60% target";
         const tone = ratio >= 0.9 && ratio <= 1.1 ? "good" : ratio >= 0.6 ? "warn" : "bad";
         const decimals = unit === "kcal" ? 0 : 1;
-        const metaText = `Avg (logged days) ${formatNumber(safeActual, decimals)} ${unit} · Target ${formatNumber(safeTarget, 0)} ${unit} (${Number.isFinite(percent) ? percent : 0}%)`;
+        const metaText = `Avg logged day ${formatNumber(safeActual, decimals)} ${unit} · Target ${formatNumber(safeTarget, 0)} ${unit} (${Number.isFinite(percent) ? percent : 0}%)`;
         const coverageText = coverage ? ` · ${coverage}` : "";
 
         const item = document.createElement("div");
@@ -4340,7 +5131,7 @@
         scale.innerHTML = `
           <span>0</span>
           <span>Target ${formatNumber(safeTarget, 0)} ${unit}</span>
-          <span>Upper cap (120%) ${formatNumber(scaleMax, 0)} ${unit}</span>
+          <span>Scale max (120% target) ${formatNumber(scaleMax, 0)} ${unit}</span>
         `;
         item.appendChild(scale);
         attachMeta(item, meta);
@@ -4990,7 +5781,7 @@
         if (posNutritionNoteEl) {
           const entries = nutritionResp.data?.length ?? 0;
           const noteParts = [];
-          noteParts.push(entries ? `${entries} logs in ${currentRangeDays}d · coverage ${nutritionDaysDisplay}/7 days` : "No logs yet.");
+          noteParts.push(entries ? `${entries} logs in ${currentRangeDays}d · coverage ${nutritionDaysDisplay}/7 days (last 7d)` : "No logs yet.");
           if (!targets?.calories_target) {
             noteParts.push("Targets missing");
           } else {
@@ -5031,7 +5822,7 @@
               actual: actualVal,
               target: targetVal,
               unit: row.unit,
-              coverage: `${nutritionDaysDisplay}/7 days logged`,
+              coverage: `${nutritionDaysDisplay}/7 days logged (last 7d)`,
               meta: row.meta,
             }),
           );
@@ -5616,6 +6407,16 @@
           .map((session) => Number(session.quality_score))
           .filter((value) => !Number.isNaN(value));
         const strengthAvgQuality = avg(strengthQualities);
+        const strengthExerciseCounts = strengthSessions
+          .map((session) => Number(session.exercise_count))
+          .filter((value) => !Number.isNaN(value));
+        const strengthAvgExercises = avg(strengthExerciseCounts);
+        const strengthTotalReps = strengthSessions
+          .map((session) => Number(session.total_reps))
+          .filter((value) => !Number.isNaN(value))
+          .reduce((acc, val) => acc + val, 0);
+        const strengthPrograms = Array.from(new Set(strengthSessions.map((session) => session.training_id).filter(Boolean)));
+        const strengthProgramLabel = strengthPrograms.length ? strengthPrograms.join(", ") : null;
         const nutritionDays = new Set();
         let todayNutritionCalories = 0;
         let todayNutritionProtein = 0;
@@ -5632,6 +6433,14 @@
         });
         const nutritionDaysCount = nutritionDays.size;
         const nutritionDaysDisplay = Math.min(nutritionDaysCount, 7);
+
+        const setMetrics = (el, items) => {
+          if (!el) return;
+          el.innerHTML = "";
+          items.filter(Boolean).forEach((item) => {
+            el.appendChild(renderStatList(item.title, item.value, item.meta, item.metricMeta));
+          });
+        };
 
         let sleepPlanLine = "Plan: Log sleep";
         if (sleepHours != null) {
@@ -5657,6 +6466,7 @@
           if (!text) return "";
           return text
             .replace(/readiness[^.]*?(?:\\.|$)/gi, "")
+            .replace(/\\b(yellow|green|red)\\b/gi, "")
             .replace(/\\s{2,}/g, " ")
             .replace(/^[-·\\s]+|[-·\\s]+$/g, "")
             .trim();
@@ -5700,6 +6510,146 @@
         setPlanLine(posDomainSwimmingPlanEl, swimmingPlanLine, { importance: 7, group: "plan_swimming", related: "swimming,volume" });
 
         setPlanLine(posDomainFacialPlanEl, "Plan: Manual routine (not tracked)", { importance: 4, group: "plan_facial", related: "facial" });
+
+        setMetrics(posDomainSleepMetricsEl, [
+          {
+            title: "Sleep last night",
+            value: sleepHours != null ? `${formatNumber(sleepHours, 1)} h` : "—",
+            meta: sleepBaseline != null ? `Baseline ${formatNumber(sleepBaseline, 1)} h` : "Baseline missing",
+            metricMeta: { importance: 9, group: "sleep_metrics", related: "duration,baseline" },
+          },
+          {
+            title: "Sleep delta",
+            value: sleepDelta != null ? `${formatNumber(sleepDelta, 1)} h` : "—",
+            meta: sleepAge != null ? `Updated ${formatNumber(sleepAge, 1)}d ago` : "No update",
+            metricMeta: { importance: 8, group: "sleep_metrics", related: "delta,stale" },
+          },
+        ]);
+
+        setMetrics(posDomainDietMetricsEl, [
+          {
+            title: "Calories logged today",
+            value: todayNutritionCalories ? `${formatNumber(todayNutritionCalories, 0)} kcal` : "No logs",
+            meta: targets.calories_target ? `Target ${formatNumber(targets.calories_target, 0)} kcal` : "Target missing",
+            metricMeta: { importance: 8, group: "diet_metrics", related: "calories,target" },
+          },
+          {
+            title: "Protein logged today",
+            value: todayNutritionProtein ? `${formatNumber(todayNutritionProtein, 0)} g` : "No logs",
+            meta: targets.protein_target_g ? `Target ${formatNumber(targets.protein_target_g, 0)} g` : "Target missing",
+            metricMeta: { importance: 8, group: "diet_metrics", related: "protein,target" },
+          },
+          {
+            title: "Nutrition logs",
+            value: `${nutritionDaysDisplay}/7 days`,
+            meta: "Coverage only · missing logs ≠ no intake",
+            metricMeta: { importance: 7, group: "diet_metrics", related: "coverage" },
+          },
+        ]);
+
+        const stravaSummary = stravaItems.length ? `${stravaItems.length} activity${stravaItems.length === 1 ? "" : "ies"}` : "No Strava activities";
+        const stravaDetail = stravaItems.length
+          ? stravaItems.slice(0, 4).map((item) => {
+            const mins = item.duration ? `${formatNumber(item.duration / 60, 0)}m` : "—";
+            return `${item.type} ${mins}`;
+          }).join(" · ")
+          : "No Strava activity logged today";
+
+        setMetrics(posDomainProgressMetricsEl, [
+          {
+            title: "Adherence (7d)",
+            value: metrics.adherence_7d != null ? `${formatNumber(metrics.adherence_7d * 100, 0)}%` : "—",
+            meta: "Planned vs completed",
+            metricMeta: { importance: 9, group: "progress_metrics", related: "adherence" },
+          },
+          {
+            title: "Strava activities today",
+            value: stravaSummary,
+            meta: stravaDetail,
+            metricMeta: { importance: 8, group: "progress_metrics", related: "strava,activities" },
+          },
+          {
+            title: "Training load (7d)",
+            value: metrics.training_load_7d != null ? `${formatNumber(metrics.training_load_7d, 0)}` : "—",
+            meta: "Total load window",
+            metricMeta: { importance: 8, group: "progress_metrics", related: "training_load" },
+          },
+          {
+            title: "Form (Strava)",
+            value: formValue != null ? formatNumber(formValue, 0) : "—",
+            meta: "Fitness − fatigue",
+            metricMeta: { importance: 7, group: "progress_metrics", related: "form" },
+          },
+        ]);
+
+        setMetrics(posDomainWeightMetricsEl, [
+          {
+            title: "Strength sessions today",
+            value: `${strengthCount}`,
+            meta: strengthCount ? "Speediance sessions" : "No session logged",
+            metricMeta: { importance: 8, group: "strength_metrics", related: "sessions" },
+          },
+          {
+            title: "Avg quality",
+            value: strengthAvgQuality != null ? formatScore(strengthAvgQuality) : "—",
+            meta: "Quality score",
+            metricMeta: { importance: 7, group: "strength_metrics", related: "quality" },
+          },
+          {
+            title: "Program IDs",
+            value: strengthProgramLabel || "—",
+            meta: strengthProgramLabel ? "Speediance training_id" : "No program logged",
+            metricMeta: { importance: 6, group: "strength_metrics", related: "program" },
+          },
+          {
+            title: "Exercises per session",
+            value: strengthAvgExercises != null ? formatNumber(strengthAvgExercises, 1) : "—",
+            meta: strengthAvgExercises != null ? "Average count" : "No exercise count",
+            metricMeta: { importance: 6, group: "strength_metrics", related: "exercise_count" },
+          },
+          {
+            title: "Total reps today",
+            value: strengthTotalReps ? formatNumber(strengthTotalReps, 0) : "—",
+            meta: strengthTotalReps ? "Logged reps" : "No rep counts",
+            metricMeta: { importance: 6, group: "strength_metrics", related: "total_reps" },
+          },
+        ]);
+
+        setMetrics(posDomainCyclingMetricsEl, [
+          {
+            title: "Minutes today",
+            value: cyclingMinutes ? `${formatNumber(cyclingMinutes, 0)} min` : "No ride logged",
+            meta: cyclingMinutes ? `Distance ${formatNumber(formatMiles(cyclingDistance) ?? 0, 1)} mi` : "Add a cycling session to populate",
+            metricMeta: { importance: 7, group: "cycling_metrics", related: "minutes,distance" },
+          },
+        ]);
+
+        setMetrics(posDomainRunningMetricsEl, [
+          {
+            title: "Minutes today",
+            value: runningMinutes ? `${formatNumber(runningMinutes, 0)} min` : "No run logged",
+            meta: runningMinutes ? `Distance ${formatNumber(formatMiles(runningDistance) ?? 0, 1)} mi` : "Add a run/walk to populate",
+            metricMeta: { importance: 7, group: "running_metrics", related: "minutes,distance" },
+          },
+        ]);
+
+        setMetrics(posDomainSwimmingMetricsEl, [
+          {
+            title: "Minutes today",
+            value: swimmingMinutes ? `${formatNumber(swimmingMinutes, 0)} min` : "No swim logged",
+            meta: swimmingMinutes ? `Distance ${formatNumber((swimmingDistance * 1.09361), 0)} yd` : "Add a swim to populate",
+            metricMeta: { importance: 7, group: "swim_metrics", related: "minutes,distance" },
+          },
+        ]);
+
+        setMetrics(posDomainFacialMetricsEl, [
+          {
+            title: "Tracking",
+            value: "Not connected",
+            meta: "Manual routine only",
+            metricMeta: { importance: 4, group: "facial_metrics", related: "facial" },
+          },
+        ]);
       }
 
       refreshSession();
