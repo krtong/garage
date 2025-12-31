@@ -1190,7 +1190,7 @@
       </section>
 
       <section id="settings" class="hidden" data-testid="settings-section">
-        <div class="card grid">
+        <div id="process-card" class="card grid">
           <div class="row">
             <label>Process</label>
             <div id="process-tabs" class="process-tabs"></div>
@@ -1846,6 +1846,7 @@
       const posSleepPlanNoteEl = document.getElementById("pos-sleep-plan-note");
       const posRunStatusEl = document.getElementById("pos-run-status");
       const garageSettingsEl = document.getElementById("garage-settings");
+      const processCardEl = document.getElementById("process-card");
       const viewEventsEl = document.getElementById("view-events");
       const viewStateEl = document.getElementById("view-state");
       const loadMoreEventsEl = document.getElementById("load-more-events");
@@ -1995,6 +1996,11 @@
           });
           processTabsEl.appendChild(button);
         });
+
+        if (processCardEl) {
+          const hasTabs = processTabsEl.children.length > 0;
+          processCardEl.classList.toggle("hidden", !hasTabs);
+        }
 
         if (processes.length && !processes.find((p) => p.id === currentProcessId)) {
           currentProcessId = processes[0].id;
@@ -2361,6 +2367,7 @@
         const metrics = metricsRows?.[0] ?? null;
         const latestForm = Array.isArray(formRows) && formRows.length ? Number(formRows[0].form ?? 0) : null;
         const nutritionDays = new Set();
+        const nutritionEntries = (nutritionEvents || []).length;
         (nutritionEvents || []).forEach((row) => {
           const key = dateKeyFromIso(row.event_timestamp);
           if (key) nutritionDays.add(key);
@@ -2374,7 +2381,7 @@
         }
 
         const adherence = metrics?.adherence_7d ?? 0;
-        const adherenceTone = adherence >= 0.75 ? "good" : adherence >= 0.4 ? "warn" : "bad";
+        const adherenceTone = "neutral";
 
         const sleepAge = formatAgeDays(readiness?.sleep_updated_at);
         const weightAge = formatAgeDays(readiness?.weight_updated_at);
@@ -2383,13 +2390,7 @@
         const sleepHours = metrics?.sleep_seconds ? metrics.sleep_seconds / 3600 : null;
         const sleepBaseline = metrics?.sleep_baseline_7d ? metrics.sleep_baseline_7d / 3600 : null;
         const sleepDelta = sleepHours != null && sleepBaseline != null ? sleepHours - sleepBaseline : null;
-        const sleepTone = sleepHours != null && sleepBaseline != null
-          ? sleepHours >= sleepBaseline * 0.9
-            ? "good"
-            : sleepHours >= sleepBaseline * 0.7
-              ? "warn"
-              : "bad"
-          : "warn";
+        const sleepTone = "neutral";
         let confidence = 100;
         if (sleepAge == null || sleepAge >= 2) confidence -= 25;
         if (weightAge == null || weightAge >= 7) confidence -= 15;
@@ -2397,12 +2398,7 @@
         if (latestForm == null) confidence -= 10;
         if (!training?.updated_at) confidence -= 10;
         confidence = Math.max(0, Math.min(100, confidence));
-        let confidenceTone = "good";
-        if (confidence < 60) {
-          confidenceTone = "bad";
-        } else if (confidence < 80) {
-          confidenceTone = "warn";
-        }
+        let confidenceTone = "neutral";
 
         posSummaryMetricsEl.appendChild(
           renderKpiCard({
@@ -2508,7 +2504,7 @@
           } else if (sleepDelta != null) {
             drivers.push({
               label: `Sleep Δ ${formatNumber(sleepDelta, 1)}h vs baseline`,
-              tone: sleepDelta >= 0.5 ? "good" : sleepDelta <= -0.5 ? "bad" : "neutral",
+              tone: "neutral",
               meta: { importance: 9, group: "drivers", related: "sleep" },
             });
           } else if (sleepHours != null) {
@@ -2519,33 +2515,19 @@
             });
           }
           if (latestForm != null) {
-            const formLabel = `Form Δ ${latestForm >= 0 ? "+" : ""}${formatNumber(latestForm, 0)}`;
+            const formLabel = `Strava form ${latestForm >= 0 ? "+" : ""}${formatNumber(latestForm, 0)}`;
             drivers.push({
               label: `${formLabel} (Strava)`,
-              tone: latestForm >= 5 ? "good" : latestForm <= -5 ? "bad" : "neutral",
+              tone: "neutral",
               meta: { importance: 8, group: "drivers", related: "form" },
             });
           }
-          const nutritionLabel = `Nutrition logs ${nutritionDaysDisplay}/7 days (coverage only)`;
-          if (nutritionDaysCount <= 0) {
-            drivers.push({
-              label: nutritionLabel,
-              tone: "warn",
-              meta: { importance: 7, group: "drivers", related: "nutrition" },
-            });
-          } else if (nutritionDaysCount < 4) {
-            drivers.push({
-              label: nutritionLabel,
-              tone: "warn",
-              meta: { importance: 7, group: "drivers", related: "nutrition" },
-            });
-          } else {
-            drivers.push({
-              label: nutritionLabel,
-              tone: "good",
-              meta: { importance: 7, group: "drivers", related: "nutrition" },
-            });
-          }
+          const nutritionCoverageLabel = `Nutrition logs ${nutritionEntries} entries · coverage ${nutritionDaysDisplay}/7 days`;
+          drivers.push({
+            label: nutritionCoverageLabel,
+            tone: nutritionDaysCount < 4 ? "warn" : "neutral",
+            meta: { importance: 7, group: "drivers", related: "nutrition" },
+          });
           if (weightAge != null && weightAge >= 7) {
             drivers.push({
               label: `Weight updated ${weightAgeLabel}d ago`,
@@ -2562,8 +2544,8 @@
           });
           const confidenceChip = document.createElement("span");
           confidenceChip.className = `stale-chip ${confidenceTone || "neutral"}`;
-          confidenceChip.innerHTML = `Data confidence <b>${confidence}%</b>`;
-          attachMeta(confidenceChip, { importance: 9, group: "confidence", related: "coverage,stale" });
+          confidenceChip.innerHTML = `Data coverage <b>${confidence}%</b>`;
+          attachMeta(confidenceChip, { importance: 9, group: "coverage", related: "coverage,stale" });
           posSummaryDriversEl.appendChild(confidenceChip);
         }
 
