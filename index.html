@@ -1099,7 +1099,10 @@
           .from("garage_settings")
           .select("*")
           .order("label", { ascending: true });
-        let processes = data ?? [];
+        let processes = (data ?? []).filter((process) => {
+          const label = (process?.label ?? process?.id ?? "").toLowerCase();
+          return process?.id === "global" || label.includes("garage");
+        });
         if (error) {
           if (saveStatusEl) saveStatusEl.textContent = "Failed to load processes: " + error.message;
           processes = [];
