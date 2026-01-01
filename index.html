@@ -1214,10 +1214,17 @@
       });
 
       supabase.auth.onAuthStateChange((_event, session) => {
-        if (!authStatusEl || authEl.classList.contains("hidden")) return;
         if (session?.user?.email) {
-          authStatusEl.textContent = `Signed in as ${session.user.email}.`;
+          if (authStatusEl) authStatusEl.textContent = `Signed in as ${session.user.email}.`;
+          authEl.classList.add("hidden");
+          settingsEl.classList.remove("hidden");
+          dataEl.classList.remove("hidden");
+          loadProcesses().then(loadData);
+          return;
         }
+        authEl.classList.remove("hidden");
+        settingsEl.classList.add("hidden");
+        dataEl.classList.add("hidden");
       });
 
       document.getElementById("save").addEventListener("click", async () => {
