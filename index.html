@@ -287,13 +287,14 @@
 
     // Compute countdown for open door
     function computeCountdown(door, now) {
-      if (door.status !== 'OPEN' || !door.opened_at) {
+      if (!door.is_open || !door.last_open) {
         return { phase: 'closed', remaining: 0, total: 1, progress: 1, dueAt: null };
       }
 
-      const openedAt = new Date(door.opened_at).getTime();
-      const phase = (door.close_attempts || 0) === 0 ? 'initial' : 'retry';
-      const baseAt = phase === 'initial' ? openedAt : (door.last_close_attempt ? new Date(door.last_close_attempt).getTime() : openedAt);
+      const openedAt = new Date(door.last_open).getTime();
+      const hasRetried = door.last_close_attempt_at && new Date(door.last_close_attempt_at).getTime() > openedAt;
+      const phase = hasRetried ? 'retry' : 'initial';
+      const baseAt = phase === 'initial' ? openedAt : new Date(door.last_close_attempt_at).getTime();
       const delayMin = phase === 'initial' ? settings.closeDelay : settings.retryDelay;
 
       const rawTarget = baseAt + delayMin * 60 * 1000;
@@ -317,8 +318,10 @@
 
     // Update door card
     function updateDoorCard(card, door, now) {
-      const isOpen = door.status === 'OPEN';
-      const isClosing = door.closing_stage !== null;
+      const isOpen = door.is_open;
+      // Check if there's an active close scheduled
+      const hasScheduledClose = door.next_close_at && new Date(door.next_close_at).getTime() > now;
+      const isClosing = isOpen && hasScheduledClose && door.next_action === 'close';
 
       // Ring
       const ringProgress = card.querySelector('.ring-progress');
@@ -330,20 +333,12 @@
       let autoClosing = false;
 
       if (isClosing) {
-        // In closing pipeline
-        const commandAt = door.next_close_at ? new Date(door.next_close_at).getTime() : now;
-        const verifyAt = commandAt + settings.checkDelay * 60 * 1000;
-
-        if (door.closing_stage === 'queued') {
-          const remaining = clamp((commandAt - now) / 1000, 0, 60);
-          countdown = { phase: 'closing', remaining, total: 60, progress: remaining / 60 };
-        } else {
-          const remaining = clamp((verifyAt - now) / 1000, 0, settings.checkDelay * 60);
-          countdown = { phase: 'verifying', remaining, total: settings.checkDelay * 60, progress: remaining / (settings.checkDelay * 60) };
-        }
-
-        autoClosing = door.closing_trigger === 'auto';
-        ringColor = autoClosing ? '#ef4444' : '#22c55e';
+        // In closing pipeline - showing time until scheduled close
+        const closeAt = new Date(door.next_close_at).getTime();
+        const remaining = clamp((closeAt - now) / 1000, 0, settings.checkDelay * 60);
+        countdown = { phase: 'closing', remaining, total: settings.checkDelay * 60, progress: remaining / (settings.checkDelay * 60) };
+        autoClosing = true;
+        ringColor = '#ef4444';
       } else if (isOpen) {
         countdown = computeCountdown(door, now);
         ringColor = countdown.phase === 'retry' ? '#f59e0b' : '#3b82f6';
@@ -371,15 +366,18 @@
         const timeClass = autoClosing ? 'text-red-300' : 'text-blue-300';
         let label = 'until close';
         if (isClosing) {
-          label = door.closing_stage === 'queued' ? 'to cron' : 'to verify';
+          label = 'closing...';
         } else if (countdown.phase === 'retry') {
           label = 'until retry';
         }
 
+        const hasRetried = door.last_close_attempt_at && door.last_open &&
+          new Date(door.last_close_attempt_at).getTime() > new Date(door.last_open).getTime();
+
         ringCenter.innerHTML = `
           <span class="font-mono text-3xl font-light ${timeClass}">${formatCountdown(countdown.remaining)}</span>
           <span class="mt-1 text-[10px] uppercase tracking-widest text-zinc-500">${label}</span>
-          ${(door.close_attempts || 0) > 0 ? `<span class="mt-1 text-[10px] text-amber-400">Attempt #${door.close_attempts + 1}</span>` : ''}
+          ${hasRetried ? `<span class="mt-1 text-[10px] text-amber-400">Retry</span>` : ''}
         `;
       } else {
         ringCenter.innerHTML = `
@@ -392,14 +390,14 @@
         `;
       }
 
-      // Event info
+      // Event info - derive type from is_open state
       const eventDot = card.querySelector('.event-dot');
       const eventType = card.querySelector('.event-type');
       const eventTime = card.querySelector('.event-time');
 
-      const latestType = (door.latest_event_type || '').toUpperCase();
-      eventType.textContent = door.latest_event_type || '—';
-      eventTime.textContent = formatTime(door.latest_event_at);
+      const latestType = isOpen ? 'OPENED' : 'CLOSED';
+      eventType.textContent = latestType;
+      eventTime.textContent = formatTime(door.last_event_at);
 
       if (latestType.includes('FAIL') || latestType.includes('ERROR')) {
         eventDot.className = 'event-dot h-2 w-2 rounded-full bg-amber-400';
@@ -414,10 +412,10 @@
       const durationValue = card.querySelector('.duration-value');
       durationLabel.textContent = isOpen ? 'Open For' : 'Closed For';
 
-      if (isOpen && door.opened_at) {
-        durationValue.textContent = formatCountdown((now - new Date(door.opened_at).getTime()) / 1000);
-      } else if (!isOpen && door.closed_at) {
-        durationValue.textContent = formatDuration(now - new Date(door.closed_at).getTime());
+      if (isOpen && door.last_open) {
+        durationValue.textContent = formatCountdown((now - new Date(door.last_open).getTime()) / 1000);
+      } else if (!isOpen && door.last_close) {
+        durationValue.textContent = formatDuration(now - new Date(door.last_close).getTime());
       } else {
         durationValue.textContent = '—';
       }
@@ -427,7 +425,7 @@
       const nextIn = card.querySelector('.next-in');
 
       if (isClosing) {
-        nextAction.textContent = door.closing_stage === 'queued' ? 'Queued (cron check)' : 'Verifying closed';
+        nextAction.textContent = 'Closing...';
         nextIn.textContent = `~${formatCountdown(countdown.remaining)}`;
       } else if (isOpen) {
         nextAction.textContent = countdown.phase === 'retry' ? 'Retry close' : 'Close attempt';
@@ -520,8 +518,7 @@
       // Update local state immediately for responsiveness
       const doorIdx = doors.findIndex(d => d.door === door);
       if (doorIdx >= 0 && action === 'close') {
-        doors[doorIdx].closing_stage = 'queued';
-        doors[doorIdx].closing_trigger = 'manual';
+        doors[doorIdx].next_action = 'close';
         doors[doorIdx].next_close_at = new Date(ceilToCron(Date.now())).toISOString();
         render();
       }
@@ -547,8 +544,7 @@
           alert(`Failed to ${action} ${door} door: ${errorText}`);
           // Revert local state on error
           if (doorIdx >= 0 && action === 'close') {
-            doors[doorIdx].closing_stage = null;
-            doors[doorIdx].closing_trigger = null;
+            doors[doorIdx].next_action = null;
             doors[doorIdx].next_close_at = null;
             render();
           }
@@ -558,8 +554,7 @@
         alert(`Error triggering ${door} door: ${err.message}`);
         // Revert local state on error
         if (doorIdx >= 0 && action === 'close') {
-          doors[doorIdx].closing_stage = null;
-          doors[doorIdx].closing_trigger = null;
+          doors[doorIdx].next_action = null;
           doors[doorIdx].next_close_at = null;
           render();
         }
