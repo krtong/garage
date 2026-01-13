@@ -52,14 +52,14 @@
   <div class="pointer-events-none fixed inset-0 z-0 bg-gradient-to-t from-black/70 via-transparent to-black/25"></div>
 
   <!-- Login Page -->
-  <div id="loginPage" class="relative z-10 min-h-screen flex items-center justify-center px-4">
+  <div id="loginPage" class="relative z-10 min-h-screen flex items-center justify-center px-3 sm:px-4">
     <div class="w-full max-w-md">
-      <div class="text-center mb-8">
-        <div class="text-3xl uppercase tracking-[0.4em] text-zinc-100 mb-2">Garage</div>
-        <div class="text-sm text-zinc-500 tracking-widest">Controller</div>
+      <div class="text-center mb-6 sm:mb-8">
+        <div class="text-2xl sm:text-3xl uppercase tracking-[0.3em] sm:tracking-[0.4em] text-zinc-100 mb-2">Garage</div>
+        <div class="text-xs sm:text-sm text-zinc-500 tracking-widest">Controller</div>
       </div>
 
-      <div class="rounded-3xl border border-zinc-800/70 bg-zinc-900/50 backdrop-blur-sm p-8">
+      <div class="rounded-2xl sm:rounded-3xl border border-zinc-800/70 bg-zinc-900/50 backdrop-blur-sm p-5 sm:p-8">
         <div class="mb-6">
           <div class="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Email</div>
           <input type="email" id="loginEmail"
@@ -92,22 +92,22 @@
   <div id="appContainer" class="hidden">
 
   <!-- Header -->
-  <header class="relative z-10 border-b border-zinc-800/50 px-8 py-6">
+  <header class="relative z-10 border-b border-zinc-800/50 px-4 sm:px-8 py-4 sm:py-6">
     <div class="mx-auto flex max-w-6xl items-center justify-between">
-      <div class="flex items-center gap-4">
-        <div class="text-2xl uppercase tracking-[0.3em]">Garage</div>
-        <span class="text-zinc-600">|</span>
-        <span class="text-sm text-zinc-500">Controller</span>
+      <div class="flex items-center gap-2 sm:gap-4">
+        <div class="text-lg sm:text-2xl uppercase tracking-[0.2em] sm:tracking-[0.3em]">Garage</div>
+        <span class="hidden sm:inline text-zinc-600">|</span>
+        <span class="hidden sm:inline text-sm text-zinc-500">Controller</span>
       </div>
-      <div class="flex items-center gap-4">
-        <button id="systemToggle" class="flex items-center gap-3 rounded-full border border-zinc-800 bg-zinc-900/50 px-4 py-2">
-          <span class="text-xs uppercase tracking-wider text-zinc-400">System</span>
-          <div id="systemToggleTrack" class="relative h-6 w-12 rounded-full transition-colors bg-emerald-500/30">
-            <div id="systemToggleThumb" class="absolute top-1 h-4 w-4 rounded-full transition-all left-7 bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></div>
+      <div class="flex items-center gap-2 sm:gap-4">
+        <button id="systemToggle" class="flex items-center gap-2 sm:gap-3 rounded-full border border-zinc-800 bg-zinc-900/50 px-2 sm:px-4 py-1.5 sm:py-2">
+          <span class="hidden sm:inline text-xs uppercase tracking-wider text-zinc-400">System</span>
+          <div id="systemToggleTrack" class="relative h-5 sm:h-6 w-10 sm:w-12 rounded-full transition-colors bg-emerald-500/30">
+            <div id="systemToggleThumb" class="absolute top-0.5 sm:top-1 h-4 w-4 rounded-full transition-all left-5 sm:left-7 bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></div>
           </div>
         </button>
-        <button id="settingsBtn" class="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 transition-colors hover:border-zinc-700">
-          <svg class="w-5 h-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <button id="settingsBtn" class="rounded-xl border border-zinc-800 bg-zinc-900/50 p-2 sm:p-3 transition-colors hover:border-zinc-700">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
@@ -118,7 +118,7 @@
 
   <!-- Settings Panel -->
   <div id="settingsPanel" class="relative z-20 hidden border-b border-zinc-800/50 bg-zinc-900/25 backdrop-blur-sm">
-    <div class="mx-auto max-w-6xl px-8 py-6">
+    <div class="mx-auto max-w-6xl px-4 sm:px-8 py-4 sm:py-6">
       <div class="flex flex-col gap-6 md:flex-row md:items-end md:gap-8">
         <div class="flex-1">
           <div class="mb-3 text-[10px] uppercase tracking-widest text-zinc-500">Close Delay</div>
@@ -161,39 +161,60 @@
   </div>
 
   <!-- Tabs -->
-  <div class="relative z-10 border-b border-zinc-800/30 px-8 py-4">
-    <div class="mx-auto flex max-w-6xl items-center gap-6">
-      <button id="tabState" class="flex items-center gap-2 rounded-lg px-4 py-2 transition-colors bg-zinc-800/50 text-zinc-100">
+  <div class="relative z-10 border-b border-zinc-800/30 px-4 sm:px-8 py-3 sm:py-4">
+    <div class="mx-auto flex max-w-6xl items-center gap-3 sm:gap-6">
+      <button id="tabState" class="flex items-center gap-1.5 sm:gap-2 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 transition-colors bg-zinc-800/50 text-zinc-100">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
         </svg>
-        <span class="text-xs uppercase tracking-wider">State</span>
+        <span class="text-[10px] sm:text-xs uppercase tracking-wider">State</span>
       </button>
-      <button id="tabEvents" class="flex items-center gap-2 rounded-lg px-4 py-2 transition-colors text-zinc-500 hover:text-zinc-300">
+      <button id="tabEvents" class="flex items-center gap-1.5 sm:gap-2 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 transition-colors text-zinc-500 hover:text-zinc-300">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-        <span class="text-xs uppercase tracking-wider">Events</span>
+        <span class="text-[10px] sm:text-xs uppercase tracking-wider">Events</span>
       </button>
       <div class="flex-1"></div>
-      <button id="refreshBtn" class="flex items-center gap-2 rounded-lg px-4 py-2 text-zinc-500 hover:text-zinc-300">
+      <button id="refreshBtn" class="flex items-center gap-1.5 sm:gap-2 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 text-zinc-500 hover:text-zinc-300">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
         </svg>
-        <span class="text-xs uppercase tracking-wider">Refresh</span>
+        <span class="hidden sm:inline text-xs uppercase tracking-wider">Refresh</span>
       </button>
     </div>
   </div>
 
   <!-- Main Content -->
-  <main class="relative z-10 px-8 py-8 pb-28">
+  <main class="relative z-10 px-3 sm:px-8 py-4 sm:py-8 pb-24 sm:pb-28">
     <div class="mx-auto max-w-6xl">
       <!-- State View -->
-      <div id="stateView" class="grid grid-cols-1 gap-6 md:grid-cols-3"></div>
+      <div id="stateView" class="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3"></div>
 
       <!-- Events View -->
       <div id="eventsView" class="hidden">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <!-- Mobile Tab Bar -->
+        <div class="flex md:hidden mb-3 rounded-xl bg-zinc-900/50 p-1 border border-zinc-800/50">
+          <button class="events-tab flex-1 rounded-lg py-2 text-[10px] uppercase tracking-widest transition-colors bg-zinc-800/70 text-zinc-100" data-door="Left">Left</button>
+          <button class="events-tab flex-1 rounded-lg py-2 text-[10px] uppercase tracking-widest transition-colors text-zinc-500" data-door="Middle">Middle</button>
+          <button class="events-tab flex-1 rounded-lg py-2 text-[10px] uppercase tracking-widest transition-colors text-zinc-500" data-door="Right">Right</button>
+        </div>
+
+        <!-- Mobile: Single column (tab controlled) -->
+        <div class="md:hidden">
+          <div class="events-panel rounded-2xl border border-zinc-800/70 bg-zinc-900/25 p-3" data-door="Left">
+            <div class="events-column max-h-[400px] overflow-auto rounded-xl border border-zinc-800/60 bg-zinc-950/25" data-door="Left"></div>
+          </div>
+          <div class="events-panel hidden rounded-2xl border border-zinc-800/70 bg-zinc-900/25 p-3" data-door="Middle">
+            <div class="events-column max-h-[400px] overflow-auto rounded-xl border border-zinc-800/60 bg-zinc-950/25" data-door="Middle"></div>
+          </div>
+          <div class="events-panel hidden rounded-2xl border border-zinc-800/70 bg-zinc-900/25 p-3" data-door="Right">
+            <div class="events-column max-h-[400px] overflow-auto rounded-xl border border-zinc-800/60 bg-zinc-950/25" data-door="Right"></div>
+          </div>
+        </div>
+
+        <!-- Desktop: Three columns side by side -->
+        <div class="hidden md:grid grid-cols-3 gap-4">
           <div class="rounded-3xl border border-zinc-800/70 bg-zinc-900/25 p-4">
             <div class="mb-3 text-center text-xs uppercase tracking-widest text-zinc-500">Left</div>
             <div class="events-column max-h-[480px] overflow-auto rounded-2xl border border-zinc-800/60 bg-zinc-950/25" data-door="Left"></div>
@@ -212,12 +233,12 @@
   </main>
 
   <!-- Footer -->
-  <footer class="fixed bottom-0 left-0 right-0 z-10 border-t border-zinc-800/30 bg-zinc-950/80 px-8 py-4 backdrop-blur-sm">
+  <footer class="fixed bottom-0 left-0 right-0 z-10 border-t border-zinc-800/30 bg-zinc-950/80 px-4 sm:px-8 py-3 sm:py-4 backdrop-blur-sm">
     <div class="mx-auto flex max-w-6xl items-center justify-between">
-      <button id="signOutBtn" class="text-xs uppercase tracking-wider text-zinc-500 transition-colors hover:text-zinc-300">
+      <button id="signOutBtn" class="text-[10px] sm:text-xs uppercase tracking-wider text-zinc-500 transition-colors hover:text-zinc-300">
         Sign out
       </button>
-      <div id="statusText" class="font-mono text-[10px] text-zinc-600">Live data</div>
+      <div id="statusText" class="font-mono text-[9px] sm:text-[10px] text-zinc-600">Live data</div>
     </div>
   </footer>
 
@@ -225,51 +246,51 @@
 
   <!-- Door Card Template -->
   <template id="doorCardTemplate">
-    <div class="door-card relative rounded-3xl border border-zinc-800/70 bg-zinc-900/35 p-6 transition-all duration-300 hover:bg-zinc-800/35">
-      <div class="mb-6 flex items-start justify-between">
+    <div class="door-card relative rounded-2xl sm:rounded-3xl border border-zinc-800/70 bg-zinc-900/35 p-4 sm:p-6 transition-all duration-300 hover:bg-zinc-800/35">
+      <div class="mb-4 sm:mb-6 flex items-start justify-between">
         <div>
-          <h3 class="door-name text-2xl font-extralight tracking-wide text-zinc-100"></h3>
-          <div class="door-schedule mt-1 inline-flex items-center gap-2 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-widest bg-zinc-700/35 text-zinc-500">
+          <h3 class="door-name text-xl sm:text-2xl font-extralight tracking-wide text-zinc-100"></h3>
+          <div class="door-schedule mt-1 inline-flex items-center gap-2 rounded-full px-2 py-0.5 text-[9px] sm:text-[10px] uppercase tracking-widest bg-zinc-700/35 text-zinc-500">
             No Schedule
           </div>
         </div>
       </div>
-      <div class="mb-6 flex items-center gap-6">
-        <div class="ring-container relative h-36 w-36">
+      <div class="mb-4 sm:mb-6 flex items-center gap-3 sm:gap-6">
+        <div class="ring-container relative h-24 w-24 sm:h-36 sm:w-36 flex-shrink-0">
           <svg class="h-full w-full -rotate-90" viewBox="0 0 128 128">
             <circle cx="64" cy="64" r="58" fill="none" stroke="rgba(63, 63, 70, 0.28)" stroke-width="10"/>
             <circle class="ring-progress" cx="64" cy="64" r="58" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round" stroke-dasharray="364.42" stroke-dashoffset="0"/>
           </svg>
-          <div class="ring-center absolute inset-0 flex flex-col items-center justify-center"></div>
+          <div class="ring-center absolute inset-0 flex flex-col items-center justify-center text-center"></div>
         </div>
-        <div class="flex-1 space-y-4">
+        <div class="flex-1 min-w-0 space-y-2 sm:space-y-4">
           <div>
-            <div class="mb-1 text-[10px] uppercase tracking-widest text-zinc-500">Latest Event</div>
-            <div class="flex items-center gap-2">
-              <div class="event-dot h-2 w-2 rounded-full bg-emerald-400"></div>
-              <span class="event-type text-sm text-zinc-300">—</span>
+            <div class="mb-0.5 sm:mb-1 text-[9px] sm:text-[10px] uppercase tracking-widest text-zinc-500">Latest Event</div>
+            <div class="flex items-center gap-1.5 sm:gap-2">
+              <div class="event-dot h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-400"></div>
+              <span class="event-type text-xs sm:text-sm text-zinc-300">—</span>
             </div>
-            <div class="event-time mt-0.5 text-xs text-zinc-500">—</div>
+            <div class="event-time mt-0.5 text-[10px] sm:text-xs text-zinc-500 truncate">—</div>
           </div>
           <div>
-            <div class="duration-label mb-1 text-[10px] uppercase tracking-widest text-zinc-500">Closed For</div>
-            <div class="duration-value text-sm text-zinc-300">—</div>
+            <div class="duration-label mb-0.5 sm:mb-1 text-[9px] sm:text-[10px] uppercase tracking-widest text-zinc-500">Closed For</div>
+            <div class="duration-value text-xs sm:text-sm text-zinc-300">—</div>
           </div>
-          <div>
+          <div class="hidden sm:block">
             <div class="mb-1 text-[10px] uppercase tracking-widest text-zinc-500">Timing</div>
             <div class="text-xs text-zinc-500">~ cron aligned</div>
           </div>
         </div>
       </div>
-      <div class="mb-4 rounded-xl bg-zinc-950/35 p-3">
+      <div class="mb-3 sm:mb-4 rounded-lg sm:rounded-xl bg-zinc-950/35 p-2 sm:p-3">
         <div class="flex items-center justify-between">
           <div>
-            <div class="text-[10px] uppercase tracking-widest text-zinc-500">Next Action</div>
-            <div class="next-action text-sm text-zinc-400">—</div>
+            <div class="text-[9px] sm:text-[10px] uppercase tracking-widest text-zinc-500">Next Action</div>
+            <div class="next-action text-xs sm:text-sm text-zinc-400">—</div>
           </div>
           <div class="text-right">
-            <div class="text-[10px] uppercase tracking-widest text-zinc-500">Next In</div>
-            <div class="next-in text-sm text-zinc-400">—</div>
+            <div class="text-[9px] sm:text-[10px] uppercase tracking-widest text-zinc-500">Next In</div>
+            <div class="next-in text-xs sm:text-sm text-zinc-400">—</div>
           </div>
         </div>
       </div>
@@ -421,18 +442,18 @@
           new Date(door.last_close_attempt_at).getTime() > new Date(door.last_open).getTime();
 
         ringCenter.innerHTML = `
-          <span class="font-mono text-3xl font-light ${timeClass}">${formatCountdown(countdown.remaining)}</span>
-          <span class="mt-1 text-[10px] uppercase tracking-widest text-zinc-500">${label}</span>
-          ${hasRetried ? `<span class="mt-1 text-[10px] text-amber-400">Retry</span>` : ''}
+          <span class="font-mono text-xl sm:text-3xl font-light ${timeClass}">${formatCountdown(countdown.remaining)}</span>
+          <span class="mt-0.5 sm:mt-1 text-[8px] sm:text-[10px] uppercase tracking-widest text-zinc-500">${label}</span>
+          ${hasRetried ? `<span class="mt-0.5 sm:mt-1 text-[8px] sm:text-[10px] text-amber-400">Retry</span>` : ''}
         `;
       } else {
         ringCenter.innerHTML = `
-          <div class="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15">
-            <svg class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div class="mb-0.5 sm:mb-1 flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-emerald-500/15">
+            <svg class="h-4 w-4 sm:h-5 sm:w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
             </svg>
           </div>
-          <span class="text-sm uppercase tracking-widest text-emerald-400">Closed</span>
+          <span class="text-xs sm:text-sm uppercase tracking-widest text-emerald-400">Closed</span>
         `;
       }
 
@@ -490,18 +511,18 @@
             ? 'border-red-500/50 bg-red-500/10 text-red-200 animate-pulse'
             : 'border-emerald-500/35 bg-emerald-500/10 text-emerald-200';
           actionContainer.innerHTML = `
-            <button disabled class="w-full rounded-xl border px-4 py-3 text-xs uppercase tracking-widest transition-all ${btnClass}">
+            <button disabled class="w-full rounded-lg sm:rounded-xl border px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-xs uppercase tracking-widest transition-all ${btnClass}">
               Closing...
             </button>
           `;
         } else {
           actionContainer.innerHTML = `
-            <button class="close-btn w-full select-none rounded-xl py-3 text-xs uppercase tracking-widest transition-all hover:brightness-110"
+            <button class="close-btn w-full select-none rounded-lg sm:rounded-xl py-2 sm:py-3 text-[10px] sm:text-xs uppercase tracking-widest transition-all hover:brightness-110"
                     style="border: 1px solid transparent; background: linear-gradient(rgba(16,185,129,0.14), rgba(16,185,129,0.14)) padding-box, linear-gradient(rgba(63,63,70,0.7), rgba(63,63,70,0.7)) border-box; color: rgba(167,243,208,1); touch-action: none;"
                     data-door="${door.door}">
               <div class="flex flex-col items-center">
                 <div>Close Now</div>
-                <div class="mt-1 text-[10px] tracking-[0.22em] text-zinc-400">hold 1s</div>
+                <div class="mt-0.5 sm:mt-1 text-[9px] sm:text-[10px] tracking-[0.22em] text-zinc-400">hold 1s</div>
               </div>
             </button>
           `;
@@ -804,6 +825,29 @@
     });
 
     document.getElementById('refreshBtn').addEventListener('click', fetchData);
+
+    // Events mobile tab switching
+    document.querySelectorAll('.events-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const door = tab.dataset.door;
+        // Update tab styles
+        document.querySelectorAll('.events-tab').forEach(t => {
+          if (t.dataset.door === door) {
+            t.className = 'events-tab flex-1 rounded-lg py-2 text-[10px] uppercase tracking-widest transition-colors bg-zinc-800/70 text-zinc-100';
+          } else {
+            t.className = 'events-tab flex-1 rounded-lg py-2 text-[10px] uppercase tracking-widest transition-colors text-zinc-500';
+          }
+        });
+        // Show/hide panels
+        document.querySelectorAll('.events-panel').forEach(panel => {
+          if (panel.dataset.door === door) {
+            panel.classList.remove('hidden');
+          } else {
+            panel.classList.add('hidden');
+          }
+        });
+      });
+    });
 
     document.getElementById('systemToggle').addEventListener('click', () => {
       systemEnabled = !systemEnabled;
