@@ -97,7 +97,7 @@
             <div class="relative h-2 flex-1 overflow-hidden rounded-full bg-zinc-800">
               <div id="checkDelayBar" class="absolute inset-y-0 left-0 rounded-full bg-red-500" style="width: 14%"></div>
             </div>
-            <span id="checkDelayValue" class="w-14 text-right font-mono text-xl font-light text-zinc-100">1:00</span>
+            <span id="checkDelayValue" class="w-20 text-right font-mono text-xl font-light text-zinc-100">1m</span>
             <span class="text-xs text-zinc-500"></span>
           </div>
           <input type="range" id="checkDelaySlider" min="0.5" max="4" step="0.5" value="1" class="mt-2 w-full accent-red">
@@ -658,12 +658,14 @@
       render();
     }
 
-    // Format check delay as m:ss
+    // Format check delay as Xm Ys
     function formatCheckDelay(minutes) {
       const totalSec = Math.round(minutes * 60);
       const m = Math.floor(totalSec / 60);
       const s = totalSec % 60;
-      return `${m}:${String(s).padStart(2, '0')}`;
+      if (m === 0) return `${s}s`;
+      if (s === 0) return `${m}m`;
+      return `${m}m ${s}s`;
     }
 
     // Update settings UI
