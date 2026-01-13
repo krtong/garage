@@ -517,19 +517,16 @@
 
     // Trigger door action via IFTTT webhook (through edge function)
     async function triggerDoor(door, action) {
-      const doorId = door.toLowerCase();
-      const eventName = action === 'close' ? `garage_close_${doorId}` : `garage_open_${doorId}`;
+      // Update local state immediately for responsiveness
+      const doorIdx = doors.findIndex(d => d.door === door);
+      if (doorIdx >= 0 && action === 'close') {
+        doors[doorIdx].closing_stage = 'queued';
+        doors[doorIdx].closing_trigger = 'manual';
+        doors[doorIdx].next_close_at = new Date(ceilToCron(Date.now())).toISOString();
+        render();
+      }
 
       try {
-        // Update local state immediately for responsiveness
-        const doorIdx = doors.findIndex(d => d.door === door);
-        if (doorIdx >= 0 && action === 'close') {
-          doors[doorIdx].closing_stage = 'queued';
-          doors[doorIdx].closing_trigger = 'manual';
-          doors[doorIdx].next_close_at = new Date(ceilToCron(Date.now())).toISOString();
-          render();
-        }
-
         // Call the garage-event function to record the action
         const resp = await fetch(`${SUPABASE_URL}/functions/v1/garage-event`, {
           method: 'POST',
@@ -545,10 +542,27 @@
         });
 
         if (!resp.ok) {
-          console.error('Failed to trigger door:', await resp.text());
+          const errorText = await resp.text();
+          console.error('Failed to trigger door:', errorText);
+          alert(`Failed to ${action} ${door} door: ${errorText}`);
+          // Revert local state on error
+          if (doorIdx >= 0 && action === 'close') {
+            doors[doorIdx].closing_stage = null;
+            doors[doorIdx].closing_trigger = null;
+            doors[doorIdx].next_close_at = null;
+            render();
+          }
         }
       } catch (err) {
         console.error('Error triggering door:', err);
+        alert(`Error triggering ${door} door: ${err.message}`);
+        // Revert local state on error
+        if (doorIdx >= 0 && action === 'close') {
+          doors[doorIdx].closing_stage = null;
+          doors[doorIdx].closing_trigger = null;
+          doors[doorIdx].next_close_at = null;
+          render();
+        }
       }
     }
 
@@ -598,43 +612,50 @@
 
     // Fetch data from Supabase
     async function fetchData() {
-      try {
-        // Fetch door state
-        const { data: stateData, error: stateError } = await supabase
-          .from('garage_state')
-          .select('*')
-          .order('door');
+      // Fetch door state
+      const { data: stateData, error: stateError } = await supabase
+        .from('garage_state')
+        .select('*')
+        .order('door');
 
-        if (stateError) throw stateError;
+      if (stateError) {
+        console.error('Failed to load door state:', stateError);
+        alert(`Failed to load door state: ${stateError.message}`);
+      } else {
         doors = stateData || [];
-
-        // Fetch recent events
-        const { data: eventData, error: eventError } = await supabase
-          .from('garage_events')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(50);
-
-        if (eventError) throw eventError;
-        events = eventData || [];
-
-        // Fetch settings
-        const { data: settingsData, error: settingsError } = await supabase
-          .from('garage_settings')
-          .select('*')
-          .single();
-
-        if (!settingsError && settingsData) {
-          settings.closeDelay = settingsData.close_delay_min || 10;
-          settings.checkDelay = settingsData.check_delay_min || 1;
-          settings.retryDelay = settingsData.retry_delay_min || 5;
-          updateSettingsUI();
-        }
-
-        render();
-      } catch (err) {
-        console.error('Failed to fetch data:', err);
       }
+
+      // Fetch recent events
+      const { data: eventData, error: eventError } = await supabase
+        .from('garage_events')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (eventError) {
+        console.error('Failed to load events:', eventError);
+        alert(`Failed to load events: ${eventError.message}`);
+      } else {
+        events = eventData || [];
+      }
+
+      // Fetch settings
+      const { data: settingsData, error: settingsError } = await supabase
+        .from('garage_settings')
+        .select('*')
+        .single();
+
+      if (settingsError) {
+        console.error('Failed to load settings:', settingsError);
+        alert(`Failed to load settings: ${settingsError.message}`);
+      } else if (settingsData) {
+        settings.closeDelay = settingsData.close_delay_min || 10;
+        settings.checkDelay = settingsData.check_delay_min || 1;
+        settings.retryDelay = settingsData.retry_delay_min || 5;
+        updateSettingsUI();
+      }
+
+      render();
     }
 
     // Format check delay as m:ss
@@ -662,23 +683,24 @@
 
     // Save settings
     async function saveSettings() {
-      try {
-        const { error } = await supabase
-          .from('garage_settings')
-          .update({
-            close_delay_min: settings.closeDelay,
-            check_delay_min: settings.checkDelay,
-            retry_delay_min: settings.retryDelay,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', 'global');
+      const { error } = await supabase
+        .from('garage_settings')
+        .update({
+          close_delay_min: settings.closeDelay,
+          check_delay_min: settings.checkDelay,
+          retry_delay_min: settings.retryDelay,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', 'global');
 
-        if (error) throw error;
-        settingsPanel.classList.add('hidden');
-        showSettings = false;
-      } catch (err) {
-        console.error('Failed to save settings:', err);
+      if (error) {
+        console.error('Failed to save settings:', error);
+        alert(`Failed to save settings: ${error.message}`);
+        return;
       }
+
+      settingsPanel.classList.add('hidden');
+      showSettings = false;
     }
 
     // Event listeners
