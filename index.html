@@ -121,12 +121,12 @@
           <div class="mb-3 text-[10px] uppercase tracking-widest text-zinc-500">Close Delay</div>
           <div class="flex items-center gap-3">
             <div class="relative h-2 flex-1 overflow-hidden rounded-full bg-zinc-800">
-              <div id="closeDelayBar" class="absolute inset-y-0 left-0 rounded-full bg-blue-500" style="width: 16%"></div>
+            <div id="closeDelayBar" class="absolute inset-y-0 left-0 rounded-full bg-blue-500" style="width: 28%"></div>
             </div>
             <span id="closeDelayValue" class="w-10 text-right font-mono text-xl font-light text-zinc-100">10</span>
             <span class="text-xs text-zinc-500">min</span>
           </div>
-          <input type="range" id="closeDelaySlider" min="5" max="60" step="5" value="10" class="mt-2 w-full accent-blue">
+          <input type="range" id="closeDelaySlider" min="0" max="18" step="1" value="5" class="mt-2 w-full accent-blue">
         </div>
         <div class="flex-1">
           <div class="mb-3 text-[10px] uppercase tracking-widest text-zinc-500">Check Delay</div>
@@ -304,6 +304,7 @@
     const CRON_MS = 60 * 1000;
     const HOLD_MS = 1000;
     const CIRCUMFERENCE = 2 * Math.PI * 58;
+    const CLOSE_DELAY_STEPS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 60];
 
     // State
     let systemEnabled = true;
@@ -328,6 +329,25 @@
       const m = Math.floor(s / 60);
       const r = s % 60;
       return `${m}:${String(r).padStart(2, '0')}`;
+    }
+
+    function snapCloseDelay(value) {
+      if (typeof value !== 'number' || Number.isNaN(value)) return CLOSE_DELAY_STEPS[0];
+      let closest = CLOSE_DELAY_STEPS[0];
+      let minDiff = Math.abs(value - closest);
+      for (const step of CLOSE_DELAY_STEPS) {
+        const diff = Math.abs(value - step);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closest = step;
+        }
+      }
+      return closest;
+    }
+
+    function closeDelayIndex(value) {
+      const snapped = snapCloseDelay(value);
+      return CLOSE_DELAY_STEPS.indexOf(snapped);
     }
 
     function formatDuration(ms) {
@@ -746,9 +766,11 @@
 
     // Update settings UI
     function updateSettingsUI() {
+      settings.closeDelay = snapCloseDelay(settings.closeDelay);
+      const closeDelayIdx = closeDelayIndex(settings.closeDelay);
       document.getElementById('closeDelayValue').textContent = settings.closeDelay;
-      document.getElementById('closeDelayBar').style.width = `${((settings.closeDelay - 5) / 55) * 100}%`;
-      document.getElementById('closeDelaySlider').value = settings.closeDelay;
+      document.getElementById('closeDelayBar').style.width = `${(closeDelayIdx / (CLOSE_DELAY_STEPS.length - 1)) * 100}%`;
+      document.getElementById('closeDelaySlider').value = closeDelayIdx;
 
       document.getElementById('checkDelayValue').textContent = formatCheckDelay(settings.checkDelay);
       document.getElementById('checkDelayBar').style.width = `${((settings.checkDelay - 0.5) / 3.5) * 100}%`;
@@ -790,9 +812,10 @@
     document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
 
     document.getElementById('closeDelaySlider').addEventListener('input', (e) => {
-      settings.closeDelay = parseInt(e.target.value);
+      const idx = clamp(parseInt(e.target.value, 10), 0, CLOSE_DELAY_STEPS.length - 1);
+      settings.closeDelay = CLOSE_DELAY_STEPS[idx];
       document.getElementById('closeDelayValue').textContent = settings.closeDelay;
-      document.getElementById('closeDelayBar').style.width = `${((settings.closeDelay - 5) / 55) * 100}%`;
+      document.getElementById('closeDelayBar').style.width = `${(idx / (CLOSE_DELAY_STEPS.length - 1)) * 100}%`;
     });
 
     document.getElementById('checkDelaySlider').addEventListener('input', (e) => {
