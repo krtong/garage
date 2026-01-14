@@ -94,9 +94,9 @@
 
   <!-- Header -->
   <header class="relative z-10 border-b border-zinc-800/50 px-3 sm:px-8 py-3 sm:py-6">
-    <div class="mx-auto flex max-w-6xl items-center justify-between">
+    <div class="mx-auto flex max-w-6xl flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
       <div class="text-base sm:text-2xl uppercase tracking-[0.15em] sm:tracking-[0.3em]">Garage</div>
-      <div class="flex items-center gap-2 sm:gap-4">
+      <div class="flex w-full items-center justify-end gap-2 sm:w-auto sm:justify-start sm:gap-4">
         <button id="systemToggle" class="flex items-center gap-2 sm:gap-3 rounded-full border border-zinc-800 bg-zinc-900/50 px-2 sm:px-4 py-1 sm:py-2">
           <span class="hidden sm:inline text-xs uppercase tracking-wider text-zinc-400">System</span>
           <div id="systemToggleTrack" class="relative h-5 sm:h-6 w-9 sm:w-12 rounded-full transition-colors bg-emerald-500/30">
@@ -150,7 +150,7 @@
           </div>
           <input type="range" id="retryDelaySlider" min="3" max="10" step="1" value="5" class="mt-2 w-full accent-amber">
         </div>
-        <button id="saveSettingsBtn" class="rounded-xl bg-zinc-100 px-6 py-3 text-xs font-medium uppercase tracking-widest text-zinc-900 transition-colors hover:bg-white">
+        <button id="saveSettingsBtn" class="w-full rounded-xl bg-zinc-100 px-6 py-3 text-xs font-medium uppercase tracking-widest text-zinc-900 transition-colors hover:bg-white md:w-auto">
           Save
         </button>
       </div>
@@ -159,7 +159,7 @@
 
   <!-- Tabs -->
   <div class="relative z-10 border-b border-zinc-800/30 px-3 sm:px-8 py-2 sm:py-4">
-    <div class="mx-auto flex max-w-6xl items-center gap-1 sm:gap-6">
+    <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-1 sm:flex-nowrap sm:gap-6">
       <button id="tabState" class="flex items-center gap-1.5 sm:gap-2 rounded-lg p-2 sm:px-4 sm:py-2 transition-colors bg-zinc-800/50 text-zinc-100">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -172,8 +172,7 @@
         </svg>
         <span class="hidden sm:inline text-xs uppercase tracking-wider">Events</span>
       </button>
-      <div class="flex-1"></div>
-      <button id="refreshBtn" class="flex items-center gap-1.5 sm:gap-2 rounded-lg p-2 sm:px-4 sm:py-2 text-zinc-500 hover:text-zinc-300">
+      <button id="refreshBtn" class="ml-auto flex items-center gap-1.5 sm:gap-2 rounded-lg p-2 sm:px-4 sm:py-2 text-zinc-500 hover:text-zinc-300">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
         </svg>
@@ -231,11 +230,11 @@
 
   <!-- Footer -->
   <footer class="fixed bottom-0 left-0 right-0 z-10 border-t border-zinc-800/30 bg-zinc-950/80 px-4 sm:px-8 py-3 sm:py-4 backdrop-blur-sm">
-    <div class="mx-auto flex max-w-6xl items-center justify-between">
+    <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-2 sm:justify-between">
       <button id="signOutBtn" class="text-[10px] sm:text-xs uppercase tracking-wider text-zinc-500 transition-colors hover:text-zinc-300">
         Sign out
       </button>
-      <div id="statusText" class="font-mono text-[9px] sm:text-[10px] text-zinc-600">Live data</div>
+      <div id="statusText" class="min-w-0 flex-1 text-right font-mono text-[9px] sm:text-[10px] text-zinc-600 truncate">Live data</div>
     </div>
   </footer>
 
@@ -245,9 +244,9 @@
   <template id="doorCardTemplate">
     <div class="door-card relative rounded-2xl sm:rounded-3xl border border-zinc-800/70 bg-zinc-900/35 p-4 sm:p-6 transition-all duration-300 hover:bg-zinc-800/35">
       <div class="mb-4 sm:mb-6 flex items-start justify-between">
-        <div>
-          <h3 class="door-name text-xl sm:text-2xl font-extralight tracking-wide text-zinc-100"></h3>
-          <div class="door-schedule mt-1 inline-flex items-center gap-2 rounded-full px-2 py-0.5 text-[9px] sm:text-[10px] uppercase tracking-widest bg-zinc-700/35 text-zinc-500">
+        <div class="min-w-0">
+          <h3 class="door-name truncate text-xl sm:text-2xl font-extralight tracking-wide text-zinc-100"></h3>
+          <div class="door-schedule mt-1 inline-flex max-w-full items-center justify-center gap-2 rounded-full px-2 py-0.5 text-center text-[9px] sm:text-[10px] uppercase tracking-widest text-zinc-500 bg-zinc-700/35 break-words leading-tight">
             No Schedule
           </div>
         </div>

@@ -1,5 +1,5 @@
 {
-  "name": "garage-controls-ui",
+  "name": "garage",
   "private": true,
   "scripts": {
     "test:e2e": "playwright test"

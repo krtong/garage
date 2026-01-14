@@ -1,4 +1,4 @@
-# Garage Controls Dashboard
+# Garage Dashboard
 
 This repo hosts the static dashboard for the garage automation system. It is
 **public** so GitHub Pages can serve it, but it only contains the Supabase **anon
@@ -22,5 +22,5 @@ key**. All writes are protected by Supabase Auth + RLS.
 After Pages is enabled, the dashboard is served at:
 
 ```
-https://krtong.github.io/garage-controls-ui/
+https://krtong.github.io/garage/
 ```
