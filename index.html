@@ -305,6 +305,7 @@
     const HOLD_MS = 1000;
     const CIRCUMFERENCE = 2 * Math.PI * 58;
     const CLOSE_DELAY_STEPS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 60];
+    const GUEST_EMAIL = 'guest@home.local';
 
     // State
     let systemEnabled = true;
@@ -313,12 +314,14 @@
     let events = [];
     let activeTab = 'state';
     let showSettings = false;
+    let isGuest = false;
 
     // DOM refs
     const stateView = document.getElementById('stateView');
     const eventsView = document.getElementById('eventsView');
     const settingsPanel = document.getElementById('settingsPanel');
     const template = document.getElementById('doorCardTemplate');
+    const settingsBtn = document.getElementById('settingsBtn');
 
     // Helpers
     function clamp(n, min, max) { return Math.min(max, Math.max(min, n)); }
@@ -348,6 +351,16 @@
     function closeDelayIndex(value) {
       const snapped = snapCloseDelay(value);
       return CLOSE_DELAY_STEPS.indexOf(snapped);
+    }
+
+    function applyPermissions() {
+      if (isGuest) {
+        settingsBtn?.classList.add('hidden');
+        settingsPanel.classList.add('hidden');
+        showSettings = false;
+      } else {
+        settingsBtn?.classList.remove('hidden');
+      }
     }
 
     function formatDuration(ms) {
@@ -522,7 +535,13 @@
       const actionContainer = card.querySelector('.action-container');
 
       if (isOpen) {
-        if (isClosing) {
+        if (isGuest) {
+          actionContainer.innerHTML = `
+            <button disabled class="w-full rounded-lg sm:rounded-xl border border-zinc-800 bg-zinc-900/50 px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-xs uppercase tracking-widest text-zinc-500">
+              View Only
+            </button>
+          `;
+        } else if (isClosing) {
           const btnClass = autoClosing
             ? 'border-red-500/50 bg-red-500/10 text-red-200 animate-pulse'
             : 'border-emerald-500/35 bg-emerald-500/10 text-emerald-200';
@@ -593,6 +612,10 @@
 
     // Trigger door action via IFTTT webhook (through edge function)
     async function triggerDoor(door, action) {
+      if (isGuest) {
+        alert('Guest access is view-only.');
+        return;
+      }
       // Update local state immediately for responsiveness
       const doorIdx = doors.findIndex(d => d.door === door);
       if (doorIdx >= 0 && action === 'close') {
@@ -783,6 +806,10 @@
 
     // Save settings
     async function saveSettings() {
+      if (isGuest) {
+        alert('Guest access is view-only.');
+        return;
+      }
       const { error } = await supabase
         .from('garage_settings')
         .update({
@@ -804,7 +831,7 @@
     }
 
     // Event listeners
-    document.getElementById('settingsBtn').addEventListener('click', () => {
+    settingsBtn.addEventListener('click', () => {
       showSettings = !showSettings;
       settingsPanel.classList.toggle('hidden', !showSettings);
     });
@@ -923,7 +950,8 @@
     }
 
     async function handleLogin() {
-      const email = loginEmail.value.trim();
+      const rawEmail = loginEmail.value.trim();
+      const email = rawEmail.toLowerCase() === 'guest' ? GUEST_EMAIL : rawEmail;
       const password = loginPassword.value;
 
       if (!email || !password) {
@@ -947,6 +975,11 @@
         showLoginError(error.message);
         return;
       }
+
+      const session = data?.session || null;
+      const user = session?.user;
+      isGuest = user?.app_metadata?.role === 'guest' || (user?.email || '').toLowerCase() === GUEST_EMAIL;
+      applyPermissions();
 
       showApp();
       fetchData();
@@ -998,6 +1031,9 @@
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session) {
+        const user = session.user;
+        isGuest = user?.app_metadata?.role === 'guest' || (user?.email || '').toLowerCase() === GUEST_EMAIL;
+        applyPermissions();
         showApp();
         fetchData();
         setupRealtimeSubscriptions();
