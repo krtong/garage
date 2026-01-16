@@ -511,7 +511,6 @@
       const nextAt = door.next_action_at ? new Date(door.next_action_at).getTime() : null;
       const hasNextAction = Boolean(nextActionKey) && nextAt !== null;
       const isVerifying = isOpen && nextActionKey === 'close_check' && nextAt > now;
-      const isOverdue = isOpen && nextActionKey === 'close_attempt' && nextAt !== null && nextAt <= now;
       const isClosing = isVerifying;
 
       // Schedule pill
@@ -526,8 +525,8 @@
           scheduleEl.textContent = `Close @ ${formatClock(nextAtMs)}`;
           scheduleEl.className = `${scheduleBase} text-blue-200 bg-blue-500/10`;
         } else if (nextAtMs && nextAtMs <= now) {
-          scheduleEl.textContent = 'Close overdue';
-          scheduleEl.className = `${scheduleBase} text-amber-200 bg-amber-500/15`;
+          scheduleEl.textContent = 'Check delay';
+          scheduleEl.className = `${scheduleBase} text-red-200 bg-red-500/15`;
         } else {
           scheduleEl.textContent = 'Awaiting schedule';
           scheduleEl.className = `${scheduleBase} text-zinc-400 bg-zinc-700/35`;
@@ -549,13 +548,27 @@
         countdown.phase = 'verifying';
         autoClosing = true;
         ringColor = '#ef4444';
-      } else if (isOverdue) {
-        countdown = computeTimer(nextAt, doorConfig.closeDelay * 60, now);
-        countdown.phase = 'overdue';
-        ringColor = '#f59e0b';
       } else if (isOpen) {
         countdown = computeCountdown(door, now);
-        ringColor = countdown.phase === 'retry' ? '#f59e0b' : '#3b82f6';
+
+        // If the close delay has elapsed but scheduler hasn't updated yet,
+        // show check-delay, then retry-delay for the UI flow the user expects.
+        if (nextActionKey === 'close_attempt' && countdown.dueAt && now >= countdown.dueAt) {
+          const checkEnd = countdown.dueAt + doorConfig.checkDelay * 60 * 1000;
+          if (now <= checkEnd) {
+            countdown = computeTimer(checkEnd, doorConfig.checkDelay * 60, now);
+            countdown.phase = 'verifying';
+            autoClosing = true;
+            ringColor = '#ef4444';
+          } else {
+            const retryEnd = checkEnd + doorConfig.retryDelay * 60 * 1000;
+            countdown = computeTimer(retryEnd, doorConfig.retryDelay * 60, now);
+            countdown.phase = 'retry';
+            ringColor = '#f59e0b';
+          }
+        } else {
+          ringColor = countdown.phase === 'retry' ? '#f59e0b' : '#3b82f6';
+        }
       } else {
         countdown = { phase: 'closed', remaining: 0, total: 1, progress: 1 };
       }
@@ -579,7 +592,7 @@
       if (isOpen) {
         const timeClass = autoClosing
           ? 'text-red-300'
-          : (countdown.phase === 'retry' || countdown.phase === 'overdue'
+          : (countdown.phase === 'retry'
             ? 'text-amber-300'
             : 'text-blue-300');
         let label = 'until close';
@@ -587,8 +600,6 @@
           label = 'verifying';
         } else if (countdown.phase === 'retry') {
           label = 'until retry';
-        } else if (countdown.phase === 'overdue') {
-          label = 'close overdue';
         }
 
         const hasRetried = door.last_close_attempt_at && door.last_open &&
@@ -647,9 +658,6 @@
       if (countdown.phase === 'verifying') {
         nextActionEl.textContent = 'Verifying close';
         nextIn.textContent = `~${formatCountdown(countdown.remaining)}`;
-      } else if (countdown.phase === 'overdue') {
-        nextActionEl.textContent = 'Close overdue';
-        nextIn.textContent = '—';
       } else if (isOpen) {
         nextActionEl.textContent = countdown.phase === 'retry' ? 'Retry close' : 'Close attempt';
         nextIn.textContent = `~${formatCountdown(countdown.remaining)}`;
