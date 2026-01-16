@@ -545,7 +545,14 @@
       let autoClosing = false;
 
       if (isClosing) {
-        const totalSec = doorConfig.checkDelay * 60;
+        const attemptAt = parseTimestamp(door.last_close_attempt_at);
+        let totalSec = doorConfig.checkDelay * 60;
+        if (attemptAt && nextAt && nextAt > attemptAt) {
+          totalSec = Math.max(1, Math.round((nextAt - attemptAt) / 1000));
+        } else if (nextAt) {
+          const derivedStart = nextAt - doorConfig.checkDelay * 60 * 1000;
+          totalSec = Math.max(1, Math.round((nextAt - derivedStart) / 1000));
+        }
         countdown = computeTimer(nextAt, totalSec, now);
         countdown.phase = 'verifying';
         autoClosing = true;
