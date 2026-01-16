@@ -1295,12 +1295,13 @@
     });
     signOutBtn.addEventListener('click', handleSignOut);
 
-    // Polling for state changes every 10 seconds
+    // Polling for state changes (more frequent for faster UI updates)
+    const POLL_INTERVAL_MS = 5000;
     let pollingInterval = null;
 
     function startPolling() {
       if (pollingInterval) return;
-      pollingInterval = setInterval(fetchData, 10000);
+      pollingInterval = setInterval(fetchData, POLL_INTERVAL_MS);
     }
 
     function stopPolling() {
