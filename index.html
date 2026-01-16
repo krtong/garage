@@ -610,7 +610,7 @@
       btn.addEventListener('contextmenu', (e) => e.preventDefault());
     }
 
-    // Trigger door action via IFTTT webhook (through edge function)
+    // Trigger door action via Supabase edge function
     async function triggerDoor(door, action) {
       if (isGuest) {
         alert('Guest access is view-only.');
@@ -625,25 +625,30 @@
       }
 
       try {
-        // Call the garage-event function to record the action
-        const resp = await fetch(`${SUPABASE_URL}/functions/v1/garage-event`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-          },
-          body: JSON.stringify({
+        const { data, error } = await supabase.functions.invoke('garage-event', {
+          body: {
             door: door,
             event_type: action === 'close' ? 'CLOSE_REQUESTED' : 'OPEN_REQUESTED',
-            source: 'ui'
-          })
+            source: 'ui',
+            timestamp: new Date().toISOString()
+          }
         });
 
-        if (!resp.ok) {
-          const errorText = await resp.text();
-          console.error('Failed to trigger door:', errorText);
-          alert(`Failed to ${action} ${door} door: ${errorText}`);
+        if (error) {
+          console.error('Failed to trigger door:', error);
+          alert(`Failed to ${action} ${door} door: ${error.message || 'Unknown error'}`);
           // Revert local state on error
+          if (doorIdx >= 0 && action === 'close') {
+            doors[doorIdx].next_action = null;
+            doors[doorIdx].next_close_at = null;
+            render();
+          }
+          return;
+        }
+
+        if (data && data.error) {
+          console.error('Failed to trigger door:', data.error);
+          alert(`Failed to ${action} ${door} door: ${data.error}`);
           if (doorIdx >= 0 && action === 'close') {
             doors[doorIdx].next_action = null;
             doors[doorIdx].next_close_at = null;
