@@ -453,11 +453,11 @@
     function updateDoorCard(card, door, now) {
       const isOpen = door.is_open;
       const doorConfig = getDoorSettings(door.door);
-      const nextAction = String(door.next_action || '').toLowerCase();
+      const nextActionKey = String(door.next_action || '').toLowerCase();
       const nextAt = door.next_action_at ? new Date(door.next_action_at).getTime() : null;
-      const hasNextAction = Boolean(nextAction) && nextAt !== null;
-      const isQueuedClose = isOpen && nextAction === 'close_attempt' && nextAt > now;
-      const isVerifying = isOpen && nextAction === 'close_check' && nextAt > now;
+      const hasNextAction = Boolean(nextActionKey) && nextAt !== null;
+      const isQueuedClose = isOpen && nextActionKey === 'close_attempt' && nextAt > now;
+      const isVerifying = isOpen && nextActionKey === 'close_check' && nextAt > now;
       const isClosing = isQueuedClose || isVerifying;
 
       // Ring
@@ -561,26 +561,26 @@
       }
 
       // Next action
-      const nextAction = card.querySelector('.next-action');
+      const nextActionEl = card.querySelector('.next-action');
       const nextIn = card.querySelector('.next-in');
 
       if (countdown.phase === 'queued') {
-        nextAction.textContent = 'Close queued';
+        nextActionEl.textContent = 'Close queued';
         nextIn.textContent = `~${formatCountdown(countdown.remaining)}`;
       } else if (countdown.phase === 'verifying') {
-        nextAction.textContent = 'Verifying close';
+        nextActionEl.textContent = 'Verifying close';
         nextIn.textContent = `~${formatCountdown(countdown.remaining)}`;
       } else if (isOpen) {
-        nextAction.textContent = countdown.phase === 'retry' ? 'Retry close' : 'Close attempt';
+        nextActionEl.textContent = countdown.phase === 'retry' ? 'Retry close' : 'Close attempt';
         nextIn.textContent = `~${formatCountdown(countdown.remaining)}`;
       } else {
-        nextAction.textContent = '—';
+        nextActionEl.textContent = '—';
         nextIn.textContent = '—';
       }
 
       // Action button (only re-render when state changes)
       const actionContainer = card.querySelector('.action-container');
-      const actionKey = `${isOpen}-${isClosing}-${isGuest}-${nextAction}`;
+      const actionKey = `${isOpen}-${isClosing}-${isGuest}-${nextActionKey}`;
       if (actionContainer.dataset.actionKey !== actionKey) {
         actionContainer.dataset.actionKey = actionKey;
         if (isOpen) {
