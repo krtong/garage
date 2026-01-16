@@ -5,29 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Garage Controller</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='8' y='16' width='48' height='40' rx='4' fill='%2318181b' stroke='%2310b981' stroke-width='3'/%3E%3Cpath d='M12 24h40M12 32h40M12 40h40M12 48h40' stroke='%233f3f46' stroke-width='2'/%3E%3Cpath d='M28 8h8v8h-8z' fill='%2310b981'/%3E%3C/svg%3E">
-  <script defer id="tailwindCdn" src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            zinc: {
-              950: '#09090b',
-              900: '#18181b',
-              800: '#27272a',
-              700: '#3f3f46',
-              600: '#52525b',
-              500: '#71717a',
-              400: '#a1a1aa',
-              300: '#d4d4d8',
-              200: '#e4e4e7',
-              100: '#f4f4f5',
-            }
-          }
-        }
-      }
-    }
-  </script>
+  <link rel="stylesheet" href="styles/tailwind.css">
   <style>
     body { margin: 0; background: #09090b; color: #e4e4e7; }
     .hidden { display: none !important; }
@@ -87,26 +65,28 @@
       </div>
 
       <div class="rounded-2xl sm:rounded-3xl border border-zinc-800/70 bg-zinc-900/50 backdrop-blur-sm p-5 sm:p-8">
-        <div class="mb-6">
-          <div class="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Email</div>
-          <input type="email" id="loginEmail"
-                 class="w-full px-4 py-3 rounded-xl border border-zinc-700/50 bg-zinc-800/50 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
-                 placeholder="you@example.com">
-        </div>
+        <form id="loginForm" autocomplete="on">
+          <div class="mb-6">
+            <div class="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Email</div>
+            <input type="email" id="loginEmail"
+                   class="w-full px-4 py-3 rounded-xl border border-zinc-700/50 bg-zinc-800/50 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                   placeholder="you@example.com">
+          </div>
 
-        <div class="mb-6">
-          <div class="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Password</div>
-          <input type="password" id="loginPassword"
-                 class="w-full px-4 py-3 rounded-xl border border-zinc-700/50 bg-zinc-800/50 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
-                 placeholder="••••••••">
-        </div>
+          <div class="mb-6">
+            <div class="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Password</div>
+            <input type="password" id="loginPassword"
+                   class="w-full px-4 py-3 rounded-xl border border-zinc-700/50 bg-zinc-800/50 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                   placeholder="••••••••">
+          </div>
 
-        <div id="loginError" class="hidden mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm"></div>
+          <div id="loginError" class="hidden mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm"></div>
 
-        <button id="loginBtn"
-                class="w-full py-3 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs uppercase tracking-widest font-medium hover:bg-emerald-500/30 transition-colors">
-          Sign In
-        </button>
+          <button id="loginBtn" type="submit"
+                  class="w-full py-3 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs uppercase tracking-widest font-medium hover:bg-emerald-500/30 transition-colors">
+            Sign In
+          </button>
+        </form>
       </div>
 
       <div class="mt-6 text-center text-xs text-zinc-600">
@@ -503,7 +483,8 @@
       const nextActionKey = String(door.next_action || '').toLowerCase();
       const nextAt = door.next_action_at ? new Date(door.next_action_at).getTime() : null;
       const hasNextAction = Boolean(nextActionKey) && nextAt !== null;
-      const isQueuedClose = isOpen && nextActionKey === 'close_attempt' && nextAt > now;
+      const isImminent = nextAt !== null && nextAt > now && (nextAt - now) <= CRON_MS;
+      const isQueuedClose = isOpen && nextActionKey === 'close_attempt' && isImminent;
       const isVerifying = isOpen && nextActionKey === 'close_check' && nextAt > now;
       const isClosing = isQueuedClose || isVerifying;
 
@@ -1119,6 +1100,7 @@
     // Authentication
     const loginPage = document.getElementById('loginPage');
     const appContainer = document.getElementById('appContainer');
+    const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
     const loginEmail = document.getElementById('loginEmail');
     const loginPassword = document.getElementById('loginPassword');
@@ -1198,12 +1180,15 @@
     }
 
     // Login event listeners
-    loginBtn.addEventListener('click', handleLogin);
-    loginPassword.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') handleLogin();
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleLogin();
     });
-    loginEmail.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') loginPassword.focus();
+    loginEmail.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        loginPassword.focus();
+      }
     });
     signOutBtn.addEventListener('click', handleSignOut);
 
