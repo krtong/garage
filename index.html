@@ -578,6 +578,19 @@
         } else {
           ringColor = countdown.phase === 'retry' ? '#f59e0b' : '#3b82f6';
         }
+
+        // If we just triggered a close attempt but haven't received a fresh state update,
+        // keep showing the verifying phase instead of a 0:00 retry.
+        if (nextActionKey === 'close_attempt') {
+          const attemptAt = parseTimestamp(door.last_close_attempt_at);
+          const checkEnd = attemptAt ? attemptAt + doorConfig.checkDelay * 60 * 1000 : null;
+          if (checkEnd && (!nextAt || nextAt <= now) && now <= checkEnd + CRON_MS) {
+            countdown = computeTimer(checkEnd, doorConfig.checkDelay * 60, now);
+            countdown.phase = 'verifying';
+            autoClosing = true;
+            ringColor = '#ef4444';
+          }
+        }
       } else {
         countdown = { phase: 'closed', remaining: 0, total: 1, progress: 1 };
       }
