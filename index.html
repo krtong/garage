@@ -315,6 +315,7 @@
     let activeTab = 'state';
     let showSettings = false;
     let isGuest = false;
+    let realtimeChannel = null;
 
     // DOM refs
     const stateView = document.getElementById('stateView');
@@ -531,41 +532,44 @@
         nextIn.textContent = '—';
       }
 
-      // Action button
+      // Action button (only re-render when state changes)
       const actionContainer = card.querySelector('.action-container');
-
-      if (isOpen) {
-        if (isGuest) {
-          actionContainer.innerHTML = `
-            <button disabled class="w-full rounded-lg sm:rounded-xl border border-zinc-800 bg-zinc-900/50 px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-xs uppercase tracking-widest text-zinc-500">
-              View Only
-            </button>
-          `;
-        } else if (isClosing) {
-          const btnClass = autoClosing
-            ? 'border-red-500/50 bg-red-500/10 text-red-200 animate-pulse'
-            : 'border-emerald-500/35 bg-emerald-500/10 text-emerald-200';
-          actionContainer.innerHTML = `
-            <button disabled class="w-full rounded-lg sm:rounded-xl border px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-xs uppercase tracking-widest transition-all ${btnClass}">
-              Closing...
-            </button>
-          `;
+      const actionKey = `${isOpen}-${isClosing}-${isGuest}`;
+      if (actionContainer.dataset.actionKey !== actionKey) {
+        actionContainer.dataset.actionKey = actionKey;
+        if (isOpen) {
+          if (isGuest) {
+            actionContainer.innerHTML = `
+              <button disabled class="w-full rounded-lg sm:rounded-xl border border-zinc-800 bg-zinc-900/50 px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-xs uppercase tracking-widest text-zinc-500">
+                View Only
+              </button>
+            `;
+          } else if (isClosing) {
+            const btnClass = autoClosing
+              ? 'border-red-500/50 bg-red-500/10 text-red-200 animate-pulse'
+              : 'border-emerald-500/35 bg-emerald-500/10 text-emerald-200';
+            actionContainer.innerHTML = `
+              <button disabled class="w-full rounded-lg sm:rounded-xl border px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-xs uppercase tracking-widest transition-all ${btnClass}">
+                Closing...
+              </button>
+            `;
+          } else {
+            actionContainer.innerHTML = `
+              <button class="close-btn w-full select-none rounded-lg sm:rounded-xl py-2 sm:py-3 text-[10px] sm:text-xs uppercase tracking-widest transition-all hover:brightness-110"
+                      style="border: 1px solid transparent; background: linear-gradient(rgba(16,185,129,0.14), rgba(16,185,129,0.14)) padding-box, linear-gradient(rgba(63,63,70,0.7), rgba(63,63,70,0.7)) border-box; color: rgba(167,243,208,1); touch-action: none;"
+                      data-door="${door.door}">
+                <div class="flex flex-col items-center">
+                  <div>Close Now</div>
+                  <div class="mt-0.5 sm:mt-1 text-[9px] sm:text-[10px] tracking-[0.22em] text-zinc-400">hold 1s</div>
+                </div>
+              </button>
+            `;
+            setupHoldButton(actionContainer.querySelector('.close-btn'));
+          }
         } else {
-          actionContainer.innerHTML = `
-            <button class="close-btn w-full select-none rounded-lg sm:rounded-xl py-2 sm:py-3 text-[10px] sm:text-xs uppercase tracking-widest transition-all hover:brightness-110"
-                    style="border: 1px solid transparent; background: linear-gradient(rgba(16,185,129,0.14), rgba(16,185,129,0.14)) padding-box, linear-gradient(rgba(63,63,70,0.7), rgba(63,63,70,0.7)) border-box; color: rgba(167,243,208,1); touch-action: none;"
-                    data-door="${door.door}">
-              <div class="flex flex-col items-center">
-                <div>Close Now</div>
-                <div class="mt-0.5 sm:mt-1 text-[9px] sm:text-[10px] tracking-[0.22em] text-zinc-400">hold 1s</div>
-              </div>
-            </button>
-          `;
-          setupHoldButton(actionContainer.querySelector('.close-btn'));
+          // Closed - no action needed
+          actionContainer.innerHTML = '';
         }
-      } else {
-        // Closed - no action needed
-        actionContainer.innerHTML = '';
       }
     }
 
@@ -667,20 +671,7 @@
       }
     }
 
-    // Render UI
-    function render() {
-      const now = Date.now();
-
-      // Update door cards
-      doors.forEach(door => {
-        let card = stateView.querySelector(`[data-door="${door.door}"]`);
-        if (!card) {
-          card = createDoorCard(door);
-          stateView.appendChild(card);
-        }
-        updateDoorCard(card, door, now);
-      });
-
+    function renderEvents() {
       // Update events columns by door (both mobile and desktop versions)
       ['Left', 'Middle', 'Right'].forEach(doorName => {
         const columns = document.querySelectorAll(`.events-column[data-door="${doorName}"]`);
@@ -729,6 +720,21 @@
           col.innerHTML = html || '<div class="px-3 py-4 text-center text-xs text-zinc-600">No events</div>';
         });
       });
+    }
+
+    // Render UI
+    function render() {
+      const now = Date.now();
+
+      // Update door cards
+      doors.forEach(door => {
+        let card = stateView.querySelector(`[data-door="${door.door}"]`);
+        if (!card) {
+          card = createDoorCard(door);
+          stateView.appendChild(card);
+        }
+        updateDoorCard(card, door, now);
+      });
 
       // Update status
       document.getElementById('statusText').textContent = `Live data • ${systemEnabled ? 'System enabled' : 'System paused'}`;
@@ -761,6 +767,7 @@
         alert(`Failed to load events: ${eventError.message}`);
       } else {
         events = eventData || [];
+        renderEvents();
       }
 
       // Fetch settings
@@ -919,7 +926,8 @@
 
     // Real-time subscriptions
     function setupRealtimeSubscriptions() {
-      supabase
+      if (realtimeChannel) return;
+      realtimeChannel = supabase
         .channel('garage_changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'garage_state' }, () => fetchData())
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'garage_events' }, () => fetchData())
@@ -996,6 +1004,10 @@
       await supabase.auth.signOut();
       showLogin();
       stopPolling();
+      if (realtimeChannel) {
+        supabase.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+      }
       // Clear data
       doors = [];
       events = [];
