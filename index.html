@@ -404,6 +404,15 @@
       return { phase, remaining, total, progress, dueAt };
     }
 
+    function computeTimer(nextAt, totalSec, now) {
+      if (!nextAt || !totalSec) {
+        return { remaining: 0, total: 1, progress: 1 };
+      }
+      const remaining = clamp((nextAt - now) / 1000, 0, totalSec);
+      const progress = remaining / Math.max(1, totalSec);
+      return { remaining, total: Math.max(1, totalSec), progress };
+    }
+
     // Create door card
     function createDoorCard(door) {
       const clone = template.content.cloneNode(true);
@@ -416,9 +425,12 @@
     // Update door card
     function updateDoorCard(card, door, now) {
       const isOpen = door.is_open;
-      // Check if there's an active close scheduled
-      const hasScheduledClose = door.next_close_at && new Date(door.next_close_at).getTime() > now;
-      const isClosing = isOpen && hasScheduledClose && door.next_action === 'close';
+      const nextAction = String(door.next_action || '').toLowerCase();
+      const nextAt = door.next_action_at ? new Date(door.next_action_at).getTime() : null;
+      const hasNextAction = Boolean(nextAction) && nextAt !== null;
+      const isQueuedClose = isOpen && nextAction === 'close_attempt' && nextAt > now;
+      const isVerifying = isOpen && nextAction === 'close_check' && nextAt > now;
+      const isClosing = isQueuedClose || isVerifying;
 
       // Ring
       const ringProgress = card.querySelector('.ring-progress');
@@ -430,10 +442,9 @@
       let autoClosing = false;
 
       if (isClosing) {
-        // In closing pipeline - showing time until scheduled close
-        const closeAt = new Date(door.next_close_at).getTime();
-        const remaining = clamp((closeAt - now) / 1000, 0, settings.checkDelay * 60);
-        countdown = { phase: 'closing', remaining, total: settings.checkDelay * 60, progress: remaining / (settings.checkDelay * 60) };
+        const totalSec = isVerifying ? settings.checkDelay * 60 : (CRON_MS / 1000);
+        countdown = computeTimer(nextAt, totalSec, now);
+        countdown.phase = isVerifying ? 'verifying' : 'queued';
         autoClosing = true;
         ringColor = '#ef4444';
       } else if (isOpen) {
@@ -460,10 +471,14 @@
 
       // Ring center content
       if (isOpen) {
-        const timeClass = autoClosing ? 'text-red-300' : 'text-blue-300';
+        const timeClass = autoClosing
+          ? 'text-red-300'
+          : (countdown.phase === 'retry' ? 'text-amber-300' : 'text-blue-300');
         let label = 'until close';
-        if (isClosing) {
-          label = 'closing...';
+        if (countdown.phase === 'queued') {
+          label = 'close queued';
+        } else if (countdown.phase === 'verifying') {
+          label = 'verifying';
         } else if (countdown.phase === 'retry') {
           label = 'until retry';
         }
@@ -521,8 +536,11 @@
       const nextAction = card.querySelector('.next-action');
       const nextIn = card.querySelector('.next-in');
 
-      if (isClosing) {
-        nextAction.textContent = 'Closing...';
+      if (countdown.phase === 'queued') {
+        nextAction.textContent = 'Close queued';
+        nextIn.textContent = `~${formatCountdown(countdown.remaining)}`;
+      } else if (countdown.phase === 'verifying') {
+        nextAction.textContent = 'Verifying close';
         nextIn.textContent = `~${formatCountdown(countdown.remaining)}`;
       } else if (isOpen) {
         nextAction.textContent = countdown.phase === 'retry' ? 'Retry close' : 'Close attempt';
@@ -534,7 +552,7 @@
 
       // Action button (only re-render when state changes)
       const actionContainer = card.querySelector('.action-container');
-      const actionKey = `${isOpen}-${isClosing}-${isGuest}`;
+      const actionKey = `${isOpen}-${isClosing}-${isGuest}-${nextAction}`;
       if (actionContainer.dataset.actionKey !== actionKey) {
         actionContainer.dataset.actionKey = actionKey;
         if (isOpen) {
@@ -623,8 +641,10 @@
       // Update local state immediately for responsiveness
       const doorIdx = doors.findIndex(d => d.door === door);
       if (doorIdx >= 0 && action === 'close') {
-        doors[doorIdx].next_action = 'close';
-        doors[doorIdx].next_close_at = new Date(ceilToCron(Date.now())).toISOString();
+        const nextAt = new Date(ceilToCron(Date.now())).toISOString();
+        doors[doorIdx].next_action = 'close_attempt';
+        doors[doorIdx].next_action_at = nextAt;
+        doors[doorIdx].next_close_at = nextAt;
         render();
       }
 
