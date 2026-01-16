@@ -788,80 +788,108 @@
       document.getElementById('statusText').textContent = `Live data • ${systemEnabled ? 'System enabled' : 'System paused'}`;
     }
 
+    let fetchInFlight = false;
+    let fetchQueued = false;
+
+    function isAbortError(err) {
+      const msg = String(err?.message || err || '').toLowerCase();
+      return msg.includes('abort');
+    }
+
+    function handleFetchError(label, err) {
+      if (!err) return false;
+      if (isAbortError(err)) {
+        console.warn(`Request aborted for ${label}:`, err);
+        return true;
+      }
+      console.error(`Failed to load ${label}:`, err);
+      alert(`Failed to load ${label}: ${err.message || err}`);
+      return true;
+    }
+
     // Fetch data from Supabase
     async function fetchData() {
-      // Fetch door state
-      const { data: stateData, error: stateError } = await supabase
-        .from('garage_state')
-        .select('*')
-        .order('door');
-
-      if (stateError) {
-        console.error('Failed to load door state:', stateError);
-        alert(`Failed to load door state: ${stateError.message}`);
-      } else {
-        doors = stateData || [];
+      if (fetchInFlight) {
+        fetchQueued = true;
+        return;
       }
+      fetchInFlight = true;
+      try {
+        // Fetch door state
+        const { data: stateData, error: stateError } = await supabase
+          .from('garage_state')
+          .select('*')
+          .order('door');
 
-      // Fetch recent events
-      const { data: eventData, error: eventError } = await supabase
-        .from('garage_events')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
+        if (handleFetchError('door state', stateError)) {
+          // keep previous data on transient failures
+        } else {
+          doors = stateData || [];
+        }
 
-      if (eventError) {
-        console.error('Failed to load events:', eventError);
-        alert(`Failed to load events: ${eventError.message}`);
-      } else {
-        events = eventData || [];
-        renderEvents();
+        // Fetch recent events
+        const { data: eventData, error: eventError } = await supabase
+          .from('garage_events')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        if (handleFetchError('events', eventError)) {
+          // keep previous data on transient failures
+        } else {
+          events = eventData || [];
+          renderEvents();
+        }
+
+        // Fetch settings
+        const { data: settingsData, error: settingsError } = await supabase
+          .from('garage_settings')
+          .select('*')
+          .single();
+
+        if (handleFetchError('settings', settingsError)) {
+          // keep previous data on transient failures
+        } else if (settingsData) {
+          settings.closeDelay = settingsData.close_delay_min || 10;
+          settings.checkDelay = settingsData.check_delay_min || 1;
+          settings.retryDelay = settingsData.retry_delay_min || 5;
+        }
+
+        // Fetch per-door settings
+        const { data: doorSettingsData, error: doorSettingsError } = await supabase
+          .from('garage_door_settings')
+          .select('*')
+          .order('door');
+
+        if (handleFetchError('door settings', doorSettingsError)) {
+          DOOR_NAMES.forEach((doorName) => {
+            doorSettings[doorName] = {
+              closeDelay: settings.closeDelay,
+              checkDelay: settings.checkDelay,
+              retryDelay: settings.retryDelay
+            };
+          });
+        } else {
+          DOOR_NAMES.forEach((doorName) => {
+            const row = (doorSettingsData || []).find((item) => item.door === doorName) || {};
+            doorSettings[doorName] = {
+              closeDelay: Number(row.close_delay_min ?? settings.closeDelay),
+              checkDelay: Number(row.check_delay_min ?? settings.checkDelay),
+              retryDelay: Number(row.retry_delay_min ?? settings.retryDelay)
+            };
+          });
+        }
+
+        updateSettingsUI();
+
+        render();
+      } finally {
+        fetchInFlight = false;
+        if (fetchQueued) {
+          fetchQueued = false;
+          fetchData();
+        }
       }
-
-      // Fetch settings
-      const { data: settingsData, error: settingsError } = await supabase
-        .from('garage_settings')
-        .select('*')
-        .single();
-
-      if (settingsError) {
-        console.error('Failed to load settings:', settingsError);
-        alert(`Failed to load settings: ${settingsError.message}`);
-      } else if (settingsData) {
-        settings.closeDelay = settingsData.close_delay_min || 10;
-        settings.checkDelay = settingsData.check_delay_min || 1;
-        settings.retryDelay = settingsData.retry_delay_min || 5;
-      }
-
-      // Fetch per-door settings
-      const { data: doorSettingsData, error: doorSettingsError } = await supabase
-        .from('garage_door_settings')
-        .select('*')
-        .order('door');
-
-      if (doorSettingsError) {
-        console.error('Failed to load door settings:', doorSettingsError);
-        DOOR_NAMES.forEach((doorName) => {
-          doorSettings[doorName] = {
-            closeDelay: settings.closeDelay,
-            checkDelay: settings.checkDelay,
-            retryDelay: settings.retryDelay
-          };
-        });
-      } else {
-        DOOR_NAMES.forEach((doorName) => {
-          const row = (doorSettingsData || []).find((item) => item.door === doorName) || {};
-          doorSettings[doorName] = {
-            closeDelay: Number(row.close_delay_min ?? settings.closeDelay),
-            checkDelay: Number(row.check_delay_min ?? settings.checkDelay),
-            retryDelay: Number(row.retry_delay_min ?? settings.retryDelay)
-          };
-        });
-      }
-
-      updateSettingsUI();
-
-      render();
     }
 
     // Format check delay as Xm Ys
